@@ -1,16 +1,20 @@
 # evm-runners-cli
 
+Command line interface for evm-runners
+
+## Prerequisites
+
+- [Go 1.20](https://go.dev/doc/install)
+- [git](https://github.com/git-guides/install-git)
+
 ## Building
 
-Install [Go](https://go.dev/doc/install), then
-
+```
+make
+```
+or
 ```
 go build -o evmrunners main.go
-```
-
-Run it with
-```
-./evmrunners
 ```
 
 ## Commands
