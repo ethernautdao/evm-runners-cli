@@ -19,3 +19,8 @@ Display help
 ```
 ./evmrunners -h
 ```
+
+Initialize evm runners
+```
+./evmrunners init
+```
