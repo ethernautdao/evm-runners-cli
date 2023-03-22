@@ -28,3 +28,9 @@ Initialize evm runners
 ```
 ./evmrunners init
 ```
+
+Start a challenge
+```
+./evmrunners start --level <level_name>
+```
+e.g. `./evmrunners start --level S01E01-Average`

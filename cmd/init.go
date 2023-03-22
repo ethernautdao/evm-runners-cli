@@ -12,6 +12,7 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initializes EVM Runners",
+	Long: `Initializes EVM Runners by cloning the ethernautdao/evm-runners-levels.git repository into ./levels`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		subdir := "./levels"
@@ -19,15 +20,15 @@ var initCmd = &cobra.Command{
 		fmt.Println("Initializing EVM Runners ...")
 		// Check if the subdirectory already exists
 		if _, err := os.Stat(subdir); os.IsNotExist(err) {
-			// Clone the subdirectory from Github
+			// Clone ethernautdao/evm-runners-levels.git repository
 			cmd := exec.Command("git", "clone", "git@github.com:ethernautdao/evm-runners-levels.git", subdir)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {
-				fmt.Println("Failed to clone subdirectory:", err)
+				fmt.Println("Failed to clone ethernautdao/evm-runners-levels.git:", err)
 				return
 			}
-			fmt.Println("Subdirectory cloned successfully")
+			fmt.Println("evm-runners-levels cloned successfully")
 		} else {
 			fmt.Println("Subdirectory already exists")
 		}

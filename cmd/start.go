@@ -10,9 +10,10 @@ import (
 
 var startCmd = &cobra.Command{
     Use:   "start",
-    Short: "Start the game",
-    Long:  `Start the game by selecting a level`,
-    Run: func(cmd *cobra.Command, args []string) {
+    Short: "Starts a challenge",
+    Long:  `Starts a challenge by selecting a level with the --level flag and choosing a language`,
+    
+	Run: func(cmd *cobra.Command, args []string) {
     level, _ := cmd.Flags().GetString("level")
 
 	var extension string
