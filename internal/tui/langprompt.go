@@ -20,12 +20,7 @@ func GetChoice() string {
 
 func initialModel() model {
 	return model{
-		// Our to-do list is a grocery list
 		options:  []string{"Solidity", "Huff"},
-
-		// A map which indicates which choices are selected. We're using
-		// the  map like a mathematical set. The keys refer to the indexes
-		// of the `choices` slice, above.
         selected: 0,
 	}
 }

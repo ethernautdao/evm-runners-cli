@@ -10,7 +10,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "evm-runners-cli",
+	Use:   "evmrunners",
 	Short: "A terminal-based game for developers with EVM-based challenges",
 	//Long: `todo `,
 

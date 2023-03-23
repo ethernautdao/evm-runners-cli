@@ -21,10 +21,10 @@ var initCmd = &cobra.Command{
 		// Check if the subdirectory already exists
 		if _, err := os.Stat(subdir); os.IsNotExist(err) {
 			// Clone ethernautdao/evm-runners-levels.git repository
-			cmd := exec.Command("git", "clone", "git@github.com:ethernautdao/evm-runners-levels.git", subdir)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			if err := cmd.Run(); err != nil {
+			execCmd := exec.Command("git", "clone", "git@github.com:ethernautdao/evm-runners-levels.git", subdir)
+			execCmd.Stdout = os.Stdout
+			execCmd.Stderr = os.Stderr
+			if err := execCmd.Run(); err != nil {
 				fmt.Println("Failed to clone ethernautdao/evm-runners-levels.git:", err)
 				return
 			}
