@@ -1,10 +1,12 @@
 package cmd
 
+import "github.com/ethernautdao/evm-runners-cli/internal/config"
+
 import (
 	"fmt"
 	"os"
 	"os/exec"
-
+    "reflect"
 	"github.com/spf13/cobra"
 )
 
@@ -15,9 +17,43 @@ var initCmd = &cobra.Command{
 	Long: `Initializes EVM Runners by cloning the ethernautdao/evm-runners-levels.git repository into ./levels`,
 
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Initializing EVM Runners ...")
+
+		// create file
+		f, err := os.Create(".env")
+		if err != nil {
+			fmt.Println(err)
+		}
+		// remember to close the file
+		defer f.Close()
+
+		
+		// load config
+		configStruct, err := config.LoadConfig();
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		// iterate over struct fields
+		v := reflect.ValueOf(configStruct)
+		for i := 0; i < v.NumField(); i++ {
+			field := v.Type().Field(i)
+			key := field.Name
+			value := v.Field(i).Interface()
+
+			// write key-value pair to file
+			_, err := f.WriteString(fmt.Sprintf("%s=%v\n", key, value))
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+
+		fmt.Println(".env file created successfully.")	
+
 		subdir := "./levels"
 
-		fmt.Println("Initializing EVM Runners ...")
 		// Check if the subdirectory already exists
 		if _, err := os.Stat(subdir); os.IsNotExist(err) {
 			// Clone ethernautdao/evm-runners-levels.git repository
