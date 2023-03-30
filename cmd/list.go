@@ -20,9 +20,9 @@ var listCmd = &cobra.Command{
 			fmt.Println(err)
 		}
 
-		fmt.Println(levels)
+		//fmt.Println(levels)
 
-		fmt.Println(levels[0].FileName)
+		fmt.Println(levels["Average"].FileName)
 	},
 }
 

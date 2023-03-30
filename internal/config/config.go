@@ -34,7 +34,7 @@ func LoadConfig() (Config, error) {
     return config, nil
 }
 
-func LoadLevels() ([]Level, error) {
+func LoadLevels() (map[string]Level, error) {
 	viper.SetConfigFile("./levels/levels.toml")
 
 	// Read the config file
@@ -46,8 +46,8 @@ func LoadLevels() ([]Level, error) {
     // Get the levels array from the config file
     levelsConfig := viper.Get("levels").([]interface{})
     
-    // Create a slice of Level structs
-    levels := make([]Level, 0, len(levelsConfig))
+    // Create a map of Level structs
+    levels := make(map[string]Level)
     
     // Loop through each level and create a new Level struct
     for _, levelConfig := range levelsConfig {
@@ -58,8 +58,15 @@ func LoadLevels() ([]Level, error) {
             TestContract: l["testcontract"].(string),
             Description:  l["description"].(string),
         }
-        // Append the new Level struct to the slice
-        levels = append(levels, level)
+        // Add the new Level struct to the map
+        levels[level.Contract] = level
+    }
+    
+    // Print out the Level struct with the matching FileName
+    if level, ok := levels["filename.txt"]; ok {
+        fmt.Println("Contract:", level.Contract)
+        fmt.Println("TestContract:", level.TestContract)
+        fmt.Println("Description:", level.Description)
     }
 
 	return levels, nil
