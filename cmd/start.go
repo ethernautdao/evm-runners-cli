@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// startCmd represents the start command
 var startCmd = &cobra.Command{
     Use:   "start",
     Short: "Starts a challenge",

@@ -27,12 +27,10 @@ var initCmd = &cobra.Command{
 		// remember to close the file
 		defer f.Close()
 
-		
 		// load config
 		configStruct, err := config.LoadConfig();
 
 		if err != nil {
-			fmt.Println(err)
 			return
 		}
 

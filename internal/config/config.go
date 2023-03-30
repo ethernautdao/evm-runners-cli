@@ -62,12 +62,5 @@ func LoadLevels() (map[string]Level, error) {
         levels[level.Contract] = level
     }
     
-    // Print out the Level struct with the matching FileName
-    if level, ok := levels["filename.txt"]; ok {
-        fmt.Println("Contract:", level.Contract)
-        fmt.Println("TestContract:", level.TestContract)
-        fmt.Println("Description:", level.Description)
-    }
-
 	return levels, nil
 }
