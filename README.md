@@ -50,7 +50,7 @@ Submit a solution
 ```
 ./evmrunners submit --level <level_name>
 ```
-Optional flag `--bytecode`, to submit bytecode directly (WIP)
+Optional flag `--bytecode`, to submit bytecode directly
 
 Display a list of all levels
 ```
