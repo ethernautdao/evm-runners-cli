@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/ethernautdao/evm-runners-cli/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +19,21 @@ var validateCmd = &cobra.Command{
 		level, _ := cmd.Flags().GetString("level")
 		bytecode, _ := cmd.Flags().GetString("bytecode")
 
-		testContract := getTestContract(level)
+		// get level information
+		levels, err := config.LoadLevels()
+		if err != nil {
+			return err
+		}
+
+		// check if level exists
+		if _, ok := levels[level]; !ok {
+			fmt.Println("Invalid level")
+			return nil
+		}
+
+		// get filename and test contract of level
+		filename := levels[level].FileName
+		testContract := levels[level].TestContract
 
 		// Check if the level is valid
 		if testContract == "" {
@@ -31,8 +46,8 @@ var validateCmd = &cobra.Command{
 			os.Setenv("BYTECODE", bytecode)
 		} else {
 			// Check existence of solution files if no bytecode is provided
-			_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", level))
-			_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", level))
+			_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", filename))
+			_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", filename))
 
 			if os.IsNotExist(err1) && os.IsNotExist(err2) {
 				fmt.Println("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
@@ -60,19 +75,6 @@ var validateCmd = &cobra.Command{
 
 		return nil
 	},
-}
-
-func getTestContract(level string) string {
-	switch level {
-	case "S01E01-Average":
-		return "AverageTest"
-	case "Average":
-		return "AverageTest"
-	case "S01E01":
-		return "AverageTest"
-	}
-
-	return ""
 }
 
 func init() {
