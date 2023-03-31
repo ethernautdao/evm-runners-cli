@@ -10,15 +10,15 @@ import (
 
 // validateCmd represents the validate command
 var validateCmd = &cobra.Command{
-    Use:   "validate",
-    Short: "Validates a level",
-    Long:  `Validates a level by running the predefined Foundry tests against the submitted solution file (either .huff or .sol) or against the provided bytecode, if set.`,
+	Use:   "validate",
+	Short: "Validates a level",
+	Long:  `Validates a level by running the predefined Foundry tests against the submitted solution file (either .huff or .sol) or against the provided bytecode, if set.`,
 
-    RunE: func(cmd *cobra.Command, args []string) error {
-    	level, _ := cmd.Flags().GetString("level")
-        bytecode, _ := cmd.Flags().GetString("bytecode")
+	RunE: func(cmd *cobra.Command, args []string) error {
+		level, _ := cmd.Flags().GetString("level")
+		bytecode, _ := cmd.Flags().GetString("bytecode")
 
-		testContract := getTestContract(level);
+		testContract := getTestContract(level)
 
 		// Check if the level is valid
 		if testContract == "" {
@@ -31,15 +31,15 @@ var validateCmd = &cobra.Command{
 			os.Setenv("BYTECODE", bytecode)
 		} else {
 			// Check existence of solution files if no bytecode is provided
-			_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", level));
-			_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", level));
+			_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", level))
+			_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", level))
 
 			if os.IsNotExist(err1) && os.IsNotExist(err2) {
 				fmt.Println("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
-				return nil		
+				return nil
 			} else if err1 == nil && err2 == nil {
 				fmt.Println("More than one solution file found. Delete the one you dont want to validate!")
-				return nil				
+				return nil
 			}
 		}
 
@@ -59,7 +59,7 @@ var validateCmd = &cobra.Command{
 		fmt.Println(string(output))
 
 		return nil
-    },
+	},
 }
 
 func getTestContract(level string) string {
@@ -77,7 +77,7 @@ func getTestContract(level string) string {
 
 func init() {
 	rootCmd.AddCommand(validateCmd)
-	
+
 	validateCmd.Flags().StringP("level", "l", "", "Select a level")
 	validateCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
 

@@ -14,7 +14,7 @@ var listCmd = &cobra.Command{
 	Short: "Lists all emv-runners levels",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		levels, err := config.LoadLevels();
+		levels, err := config.LoadLevels()
 
 		if err != nil {
 			fmt.Println(err)

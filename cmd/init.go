@@ -4,17 +4,17 @@ import "github.com/ethernautdao/evm-runners-cli/internal/config"
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
-    "reflect"
-	"github.com/spf13/cobra"
+	"reflect"
 )
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initializes EVM Runners",
-	Long: `Initializes EVM Runners by cloning the ethernautdao/evm-runners-levels.git repository into ./levels`,
+	Long:  `Initializes EVM Runners by cloning the ethernautdao/evm-runners-levels.git repository into ./levels`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Initializing EVM Runners ...")
@@ -28,7 +28,7 @@ var initCmd = &cobra.Command{
 		defer f.Close()
 
 		// load config
-		configStruct, err := config.LoadConfig();
+		configStruct, err := config.LoadConfig()
 
 		if err != nil {
 			return
@@ -48,7 +48,7 @@ var initCmd = &cobra.Command{
 			}
 		}
 
-		fmt.Println(".env file created successfully.")	
+		fmt.Println(".env file created successfully.")
 
 		subdir := "./levels"
 
@@ -72,5 +72,3 @@ var initCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(initCmd)
 }
-
-

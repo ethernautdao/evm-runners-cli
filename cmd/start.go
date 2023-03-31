@@ -4,59 +4,59 @@ import "github.com/ethernautdao/evm-runners-cli/internal/tui"
 
 import (
 	"fmt"
-    "io/ioutil"
 	"github.com/spf13/cobra"
+	"io/ioutil"
 )
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-    Use:   "start",
-    Short: "Starts a challenge",
-    Long:  `Starts a challenge by selecting a level with the --level flag and choosing a language`,
-    
+	Use:   "start",
+	Short: "Starts a challenge",
+	Long:  `Starts a challenge by selecting a level with the --level flag and choosing a language`,
+
 	Run: func(cmd *cobra.Command, args []string) {
-    level, _ := cmd.Flags().GetString("level")
+		level, _ := cmd.Flags().GetString("level")
 
-	var extension string
+		var extension string
 
-	// display list
-	tui.RunBubbleTea()
-	
-	// get user choice
-	switch tui.GetChoice() {
-	case "Solidity":
-		extension = ".sol"
-	case "Huff":
-		extension = ".huff"
-	default:
-		extension = ".sol"
-	} 
+		// display list
+		tui.RunBubbleTea()
 
-	src := "./levels/src/template/" + level + extension
-	dst := "./levels/src/" + level + extension
+		// get user choice
+		switch tui.GetChoice() {
+		case "Solidity":
+			extension = ".sol"
+		case "Huff":
+			extension = ".huff"
+		default:
+			extension = ".sol"
+		}
 
-	if err := copyFile(src, dst); err != nil {
-		fmt.Printf("There's been an error: %v", err)
-	}
+		src := "./levels/src/template/" + level + extension
+		dst := "./levels/src/" + level + extension
 
-	fmt.Println("\nYour challenge is ready! Check out the levels/src folder for your level file. Good luck!")
+		if err := copyFile(src, dst); err != nil {
+			fmt.Printf("There's been an error: %v", err)
+		}
 
-    },
+		fmt.Println("\nYour challenge is ready! Check out the levels/src folder for your level file. Good luck!")
+
+	},
 }
 
 func copyFile(src, dst string) error {
-    input, err := ioutil.ReadFile(src)
-    if err != nil {
-        return err
-    }
-    if err := ioutil.WriteFile(dst, input, 0644); err != nil {
-        return err
-    }
-    return nil
+	input, err := ioutil.ReadFile(src)
+	if err != nil {
+		return err
+	}
+	if err := ioutil.WriteFile(dst, input, 0644); err != nil {
+		return err
+	}
+	return nil
 }
 
 func init() {
-    rootCmd.AddCommand(startCmd)
-    startCmd.Flags().StringP("level", "l", "", "Select a level")
-    startCmd.MarkFlagRequired("level")
+	rootCmd.AddCommand(startCmd)
+	startCmd.Flags().StringP("level", "l", "", "Select a level")
+	startCmd.MarkFlagRequired("level")
 }

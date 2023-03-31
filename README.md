@@ -17,6 +17,11 @@ or
 go build -o evmrunners main.go
 ```
 
+## Formatting
+```
+go fmt /path/to/package
+```
+
 ## Commands
 
 Display help
