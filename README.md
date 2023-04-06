@@ -48,11 +48,11 @@ Optional flag `--bytecode`, to validate bytecode directly, e.g. `./evmrunners va
 
 Submit a solution
 ```
-./evmrunners submit --level <level_name>
+./evmrunners submit --level <level_name> --user_id <userid>
 ```
 Optional flag `--bytecode`, to submit bytecode directly
 
-Display a list of all levels
+Display a list of all levels (WIP)
 ```
 ./evmrunners list
 ```
