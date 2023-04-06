@@ -6,7 +6,6 @@ import (
 )
 
 type Config struct {
-	EVMR_PORT   string `mapstructure:"EVMR_PORT"`
 	EVMR_SERVER string `mapstructure:"EVMR_SERVER"`
 	EVMR_AUTH   string `mapstructure:"EVMR_AUTH"`
 }
@@ -19,7 +18,7 @@ type Level struct {
 }
 
 func LoadConfig() (Config, error) {
-	config := Config{EVMR_PORT: "3000", EVMR_SERVER: "http://localhost", EVMR_AUTH: ""}
+	config := Config{EVMR_SERVER: "https://evm-runners.fly.dev/", EVMR_AUTH: ""}
 
 	viper.SetConfigFile(".env")
 

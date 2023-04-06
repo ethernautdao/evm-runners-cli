@@ -25,9 +25,17 @@ var submitCmd = &cobra.Command{
 		userID, _ := cmd.Flags().GetString("user_id")
 		level, _ := cmd.Flags().GetString("level")
 
+		// load server/auth config
+		configStruct, err := config.LoadConfig()
+		if err != nil {
+			fmt.Println("Error loading config")
+			return err
+		}
+
 		// get level information
 		levels, err := config.LoadLevels()
 		if err != nil {
+			fmt.Println("Error loading levels")
 			return err
 		}
 
@@ -37,8 +45,9 @@ var submitCmd = &cobra.Command{
 			return nil
 		}
 
-		// get filename of level
+		// get filename and test contract of level
 		filename := levels[level].FileName
+		testContract := levels[level].TestContract
 
 		fmt.Println("Submitting solution for level", level, "with filename", filename)
 
@@ -105,18 +114,31 @@ var submitCmd = &cobra.Command{
 
 		fmt.Println("bytecode:", bytecode)
 
-		// todo: check if solution is correct! maybe by running validate?
+		// Check if solution is correct
+		fmt.Println("Validating solution...")
+
+		os.Setenv("BYTECODE", bytecode)
+		// Run test
+		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
+		execCmd.Dir = "./levels/"
+		if err = execCmd.Run(); err != nil {
+			fmt.Println("Solution is not correct!")
+			return nil
+		}
+
+		fmt.Println("Solution is correct! Submitting to server ...")
 
 		// Create a JSON payload
 		payload := map[string]string{
 			"bytecode": bytecode,
 			"user_id":  userID,
-			"level_id": level,
+			//"level_id": level,
+			"level_id": "1", // for now its just id 1. TODO: Change to actual id
 		}
 		jsonPayload, _ := json.Marshal(payload)
 
 		// Make the HTTP request
-		url := "http://localhost:1337/submissions"
+		url := configStruct.EVMR_SERVER + "submissions"
 		req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 		req.Header.Set("Content-Type", "application/json")
 		client := &http.Client{}
