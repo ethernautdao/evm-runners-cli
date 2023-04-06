@@ -1,6 +1,7 @@
 package cmd
 
 import "github.com/ethernautdao/evm-runners-cli/internal/tui"
+import "github.com/ethernautdao/evm-runners-cli/internal/config"
 
 import (
 	"fmt"
@@ -14,10 +15,26 @@ var startCmd = &cobra.Command{
 	Short: "Starts a challenge",
 	Long:  `Starts a challenge by selecting a level with the --level flag and choosing a language`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		level, _ := cmd.Flags().GetString("level")
 
-		var extension string
+		// get level information
+		levels, err := config.LoadLevels()
+		if err != nil {
+			return err
+		}
+
+		// check if level exists
+		if _, ok := levels[level]; !ok {
+			fmt.Println("Invalid level")
+			return nil
+		}
+
+		// get filename of level and declare test file
+		filename := levels[level].FileName
+
+		var fileToCopy string
+		var testToCopy string
 
 		// display list
 		tui.RunBubbleTea()
@@ -25,22 +42,32 @@ var startCmd = &cobra.Command{
 		// get user choice
 		switch tui.GetChoice() {
 		case "Solidity":
-			extension = ".sol"
+			fileToCopy = filename + ".sol"
+			testToCopy = filename + "-Sol.t.sol"
 		case "Huff":
-			extension = ".huff"
-		default:
-			extension = ".sol"
+			fileToCopy = filename + ".huff"
+			testToCopy = filename + "-Huff.t.sol"
 		}
 
-		src := "./levels/src/template/" + level + extension
-		dst := "./levels/src/" + level + extension
+		// copy level from template/src to src
+		src := "./levels/template/src/" + fileToCopy
+		dst := "./levels/src/" + fileToCopy
 
 		if err := copyFile(src, dst); err != nil {
-			fmt.Printf("There's been an error: %v", err)
+			fmt.Printf("Error copying file: %v", err)
+		}
+
+		// copy test file from template to test
+		src = "./levels/template/" + testToCopy
+		dst = "./levels/test/" + testToCopy
+
+		if err := copyFile(src, dst); err != nil {
+			fmt.Printf("Error copying file: %v", err)
 		}
 
 		fmt.Println("\nYour challenge is ready! Check out the levels/src folder for your level file. Good luck!")
 
+		return nil
 	},
 }
 

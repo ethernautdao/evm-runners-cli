@@ -56,7 +56,16 @@ var validateCmd = &cobra.Command{
 				fmt.Println("More than one solution file found. Delete the one you dont want to validate!")
 				return nil
 			}
+
+			// choose specific test contract (either sol or huff version)
+			if err1 == nil {
+				testContract = testContract + "Sol"
+			} else {
+				testContract = testContract + "Huff"
+			}
 		}
+
+		// todo: check if test files got tampered with
 
 		// Create the command to be run in the subdirectory
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract, "-vv")

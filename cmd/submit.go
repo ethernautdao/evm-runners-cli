@@ -45,7 +45,7 @@ var submitCmd = &cobra.Command{
 		// check if bytecode was provided, if not get the bytecode from the huff/sol solution
 		if bytecode != "" {
 			// check if bytecode is valid
-			bytecode = checkValidBytecode(bytecode);
+			bytecode = checkValidBytecode(bytecode)
 
 		} else {
 			// Check existence of solution files
@@ -86,7 +86,7 @@ var submitCmd = &cobra.Command{
 				// Extract the "bytecode" field
 				bytecodeField := data["bytecode"].(map[string]interface{})
 
-				bytecode = checkValidBytecode(bytecodeField["object"].(string));
+				bytecode = checkValidBytecode(bytecodeField["object"].(string))
 			}
 
 			// .huff solution
@@ -104,6 +104,8 @@ var submitCmd = &cobra.Command{
 		}
 
 		fmt.Println("bytecode:", bytecode)
+
+		// todo: check if solution is correct! maybe by running validate?
 
 		// Create a JSON payload
 		payload := map[string]string{
