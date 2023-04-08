@@ -22,6 +22,7 @@ var startCmd = &cobra.Command{
 		// get level information
 		levels, err := config.LoadLevels()
 		if err != nil {
+			fmt.Println("Error loading levels")
 			return err
 		}
 
@@ -41,8 +42,8 @@ var startCmd = &cobra.Command{
 		p := tea.NewProgram(model)
 
 		if err := p.Start(); err != nil {
-			fmt.Println("Error creating language selection:", err)
-			return nil
+			fmt.Println("Error displaying language selection")
+			return err
 		}
 
 		var selection string
@@ -66,7 +67,8 @@ var startCmd = &cobra.Command{
 		dst := "./levels/src/" + fileToCopy
 
 		if err := copyFile(src, dst); err != nil {
-			fmt.Printf("Error copying file: %v", err)
+			fmt.Printf("Error copying file")
+			return err
 		}
 
 		// copy test file from template to test
@@ -74,7 +76,8 @@ var startCmd = &cobra.Command{
 		dst = "./levels/test/" + testToCopy
 
 		if err := copyFile(src, dst); err != nil {
-			fmt.Printf("Error copying file: %v", err)
+			fmt.Printf("Error copying file")
+			return err
 		}
 
 		fmt.Println("\nYour challenge is ready! Check out the levels/src folder for your level file. Good luck!")

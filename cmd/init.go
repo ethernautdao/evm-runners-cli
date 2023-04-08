@@ -16,22 +16,23 @@ var initCmd = &cobra.Command{
 	Short: "Initializes EVM Runners",
 	Long:  `Initializes EVM Runners by cloning the ethernautdao/evm-runners-levels.git repository into ./levels`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Initializing EVM Runners ...")
 
 		// create file
 		f, err := os.Create(".env")
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error creating .env file")
+			return err
 		}
 		// remember to close the file
 		defer f.Close()
 
 		// load config
 		configStruct, err := config.LoadConfig()
-
 		if err != nil {
-			return
+			fmt.Println("Error loading config")
+			return err
 		}
 
 		// iterate over struct fields
@@ -44,7 +45,8 @@ var initCmd = &cobra.Command{
 			// write key-value pair to file
 			_, err := f.WriteString(fmt.Sprintf("%s=%v\n", key, value))
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println("Error writing to .env file")
+				return err
 			}
 		}
 
@@ -59,13 +61,15 @@ var initCmd = &cobra.Command{
 			execCmd.Stdout = os.Stdout
 			execCmd.Stderr = os.Stderr
 			if err := execCmd.Run(); err != nil {
-				fmt.Println("Failed to clone ethernautdao/evm-runners-levels.git:", err)
-				return
+				fmt.Println("Failed to clone ethernautdao/evm-runners-levels.git")
+				return err
 			}
 			fmt.Println("evm-runners-levels cloned successfully")
 		} else {
 			fmt.Println("Subdirectory already exists")
 		}
+
+		return nil
 	},
 }
 

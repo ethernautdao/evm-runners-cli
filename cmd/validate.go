@@ -35,12 +35,6 @@ var validateCmd = &cobra.Command{
 		filename := levels[level].FileName
 		testContract := levels[level].TestContract
 
-		// Check if the level is valid
-		if testContract == "" {
-			fmt.Println("Invalid level")
-			return nil
-		}
-
 		// if bytecode is provided, set the BYTECODE env variable
 		if bytecode != "" {
 			os.Setenv("BYTECODE", bytecode)
@@ -76,7 +70,7 @@ var validateCmd = &cobra.Command{
 		// Capture the standard output and standard error of the command
 		output, err := execCmd.CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("%s: %s", err, output)
+			return fmt.Errorf("%s", output)
 		}
 
 		// Print the output of the command to the console
