@@ -5,6 +5,7 @@ import "github.com/ethernautdao/evm-runners-cli/internal/config"
 
 import (
 	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 )
@@ -36,11 +37,22 @@ var startCmd = &cobra.Command{
 		var fileToCopy string
 		var testToCopy string
 
-		// display list
-		tui.RunBubbleTea()
+		model := tui.NewLangListModel()
+		p := tea.NewProgram(model)
 
-		// get user choice
-		switch tui.GetChoice() {
+		if err := p.Start(); err != nil {
+			fmt.Println("Error creating language selection:", err)
+			return nil
+		}
+
+		var selection string
+
+		if model.Done {
+			selection = model.Options[model.Cursor]
+			fmt.Printf("Selected level: %v\n", model.Options[model.Cursor])
+		}
+
+		switch selection {
 		case "Solidity":
 			fileToCopy = filename + ".sol"
 			testToCopy = filename + "-Sol.t.sol"
@@ -84,6 +96,6 @@ func copyFile(src, dst string) error {
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-	startCmd.Flags().StringP("level", "l", "", "Select a level")
+	startCmd.Flags().StringP("level", "l", "", "Level to start")
 	startCmd.MarkFlagRequired("level")
 }
