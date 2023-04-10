@@ -16,12 +16,17 @@ var validateCmd = &cobra.Command{
 	Long:  `Validates a level by running the predefined Foundry tests against the submitted solution file (either .huff or .sol) or against the provided bytecode, if set.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		level, _ := cmd.Flags().GetString("level")
 		bytecode, _ := cmd.Flags().GetString("bytecode")
+
+		if len(args) == 0 {
+			return fmt.Errorf("please provide a level")
+		}
+		level := args[0]
 
 		// get level information
 		levels, err := config.LoadLevels()
 		if err != nil {
+			fmt.Println("Error loading levels")
 			return err
 		}
 
@@ -83,8 +88,5 @@ var validateCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(validateCmd)
 
-	validateCmd.Flags().StringP("level", "l", "", "Select a level")
 	validateCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
-
-	startCmd.MarkFlagRequired("level")
 }

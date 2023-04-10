@@ -17,7 +17,10 @@ var startCmd = &cobra.Command{
 	Long:  `Starts a challenge by selecting a level with the --level flag and choosing a language`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		level, _ := cmd.Flags().GetString("level")
+		if len(args) == 0 {
+			return fmt.Errorf("please provide a level")
+		}
+		level := args[0]
 
 		// get level information
 		levels, err := config.LoadLevels()
@@ -99,6 +102,4 @@ func copyFile(src, dst string) error {
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-	startCmd.Flags().StringP("level", "l", "", "Level to start")
-	startCmd.MarkFlagRequired("level")
 }
