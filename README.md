@@ -38,13 +38,13 @@ Start a challenge
 ```
 ./evmrunners start --level <level_name>
 ```
-e.g. `./evmrunners start --level S01E01-Average`
+e.g. `./evmrunners start Average`
 
 Validate a challenge
 ```
-./evmrunners validate --level <level_name>
+./evmrunners validate <level_name>
 ``` 
-Optional flag `--bytecode`, to validate bytecode directly, e.g. `./evmrunners validate --level S01E01-Average --bytecode 0xabcd`
+Optional flag `--bytecode`, to validate bytecode directly, e.g. `./evmrunners validate Average --bytecode 0xabcd`
 
 Submit a solution
 ```
@@ -55,4 +55,9 @@ Optional flag `--bytecode`, to submit bytecode directly
 Display a list of all levels (WIP)
 ```
 ./evmrunners list
+```
+
+Display the gas and codesize leaderboard of a level
+```
+./evmrunners leaderboard <level_name>
 ```
