@@ -11,10 +11,11 @@ type Config struct {
 }
 
 type Level struct {
-	FileName     string
-	Contract     string
-	TestContract string
-	Description  string
+	ID		   	 	string
+	FileName  		string
+	Contract     	string
+	TestContract 	string
+	Description  	string
 }
 
 func LoadConfig() (Config, error) {
@@ -52,6 +53,7 @@ func LoadLevels() (map[string]Level, error) {
 	for _, levelConfig := range levelsConfig {
 		l := levelConfig.(map[string]interface{})
 		level := Level{
+			ID:           l["id"].(string),
 			FileName:     l["filename"].(string),
 			Contract:     l["contract"].(string),
 			TestContract: l["testcontract"].(string),
