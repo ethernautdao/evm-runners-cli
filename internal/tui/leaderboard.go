@@ -14,6 +14,7 @@ type Submission struct {
 	Bytecode string  `json:"bytecode"`
 	Gas      float64 `json:"gas,string"` // Use string tag to handle the gas value as string
 	Size     int     `json:"size,string"`
+	Username string  `json:"user_name"`
 }
 
 type LeaderboardUI struct {
@@ -35,7 +36,7 @@ func NewLeaderboardUI(submissions []Submission, field string) *LeaderboardUI {
 func leaderboardTable(submissions []Submission, field string) string {
 	var sb strings.Builder
 
-	header := fmt.Sprintf("USER ID | %s\n", strings.ToUpper(field))
+	header := fmt.Sprintf("USER    | %s\n", strings.ToUpper(field))
 	headerSeparator := strings.Repeat("-", len(header)-1) + "\n"
 
 	sb.WriteString(header)
@@ -43,9 +44,9 @@ func leaderboardTable(submissions []Submission, field string) string {
 
 	for _, submission := range submissions {
 		if field == "gas" {
-			sb.WriteString(fmt.Sprintf("%-7d | %.2f\n", submission.UserID, submission.Gas))
+			sb.WriteString(fmt.Sprintf("%-7s | %.2f\n", submission.Username, submission.Gas))
 		} else if field == "size" {
-			sb.WriteString(fmt.Sprintf("%-7d | %d\n", submission.UserID, submission.Size))
+			sb.WriteString(fmt.Sprintf("%-7s | %d\n", submission.Username, submission.Size))
 		}
 	}
 
