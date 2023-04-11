@@ -40,7 +40,7 @@ func (m *langListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *langListModel) View() string {
-	s := "Select a language you want to choose:\n\n"
+	s := "Select the language you want to use:\n\n"
 
 	for i, option := range m.Options {
 		// Add a ">" symbol before the selected option

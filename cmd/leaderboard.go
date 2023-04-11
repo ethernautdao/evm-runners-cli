@@ -14,12 +14,11 @@ import (
 )
 
 var leaderboardCmd = &cobra.Command{
-	Use:   "leaderboard",
-	Short: "Get the leaderboard for a specific level",
-	Long:  `This command retrieves the leaderboard for a given level by sending a GET request to the server.`,
+	Use:   "leaderboard <level>",
+	Short: "Displays the gas and codesize leaderboard for the specified level.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return fmt.Errorf("please provide a level")
+			return fmt.Errorf("Please provide a level\n")
 		}
 		level := args[0]
 

@@ -17,13 +17,12 @@ import (
 
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
-	Use:   "submit",
+	Use:   "submit <level>",
 	Short: "Submit the solution",
 	Long:  `Submit the bytecode to the server for processing.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
 		userID, _ := cmd.Flags().GetString("user_id")
-		level, _ := cmd.Flags().GetString("level")
 
 		// load server/auth config
 		configStruct, err := config.LoadConfig()
@@ -31,6 +30,11 @@ var submitCmd = &cobra.Command{
 			fmt.Println("Error loading config")
 			return err
 		}
+
+		if len(args) == 0 {
+			return fmt.Errorf("Please provide a level\n")
+		}
+		level := args[0]
 
 		// get level information
 		levels, err := config.LoadLevels()
@@ -132,8 +136,7 @@ var submitCmd = &cobra.Command{
 		payload := map[string]string{
 			"bytecode": bytecode,
 			"user_id":  userID,
-			//"level_id": level,
-			"level_id": "1", // for now its just id 1. TODO: Change to actual id
+			"level_id": levels[level].ID,
 		}
 		jsonPayload, _ := json.Marshal(payload)
 
@@ -157,6 +160,7 @@ var submitCmd = &cobra.Command{
 	},
 }
 
+// TODO: move to utils
 func checkValidBytecode(bytecode string) string {
 	// remove whitespace
 	bytecode = strings.TrimSpace(bytecode)
@@ -187,8 +191,6 @@ func init() {
 
 	submitCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
 	submitCmd.Flags().StringP("user_id", "u", "", "User ID")
-	submitCmd.Flags().StringP("level", "l", "", "Level")
 
-	submitCmd.MarkFlagRequired("level")
 	submitCmd.MarkFlagRequired("user_id")
 }

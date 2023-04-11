@@ -12,13 +12,13 @@ import (
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-	Use:   "start",
+	Use:   "start <level>",
 	Short: "Starts a challenge",
-	Long:  `Starts a challenge by selecting a level with the --level flag and choosing a language`,
+	Long:  `Starts a challenge by copying the respective template files from levels/template to levels/src and levels/test`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return fmt.Errorf("please provide a level")
+			return fmt.Errorf("Please provide a level\n")
 		}
 		level := args[0]
 
@@ -53,7 +53,7 @@ var startCmd = &cobra.Command{
 
 		if model.Done {
 			selection = model.Options[model.Cursor]
-			fmt.Printf("Selected level: %v\n", model.Options[model.Cursor])
+			//fmt.Printf("Selected level: %v\n", model.Options[model.Cursor])
 		}
 
 		switch selection {
@@ -64,6 +64,8 @@ var startCmd = &cobra.Command{
 			fileToCopy = filename + ".huff"
 			testToCopy = filename + "-Huff.t.sol"
 		}
+
+		// TODO: Check if file already exists. If yes, print warning and return
 
 		// copy level from template/src to src
 		src := "./levels/template/src/" + fileToCopy
