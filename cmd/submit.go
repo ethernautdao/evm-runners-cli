@@ -23,6 +23,7 @@ var submitCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
 		userID, _ := cmd.Flags().GetString("user_id")
+		lang, _ := cmd.Flags().GetString("lang")
 
 		// load server/auth config
 		configStruct, err := config.LoadConfig()
@@ -68,13 +69,13 @@ var submitCmd = &cobra.Command{
 			if os.IsNotExist(err1) && os.IsNotExist(err2) {
 				fmt.Println("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
 				return nil
-			} else if err1 == nil && err2 == nil {
-				fmt.Println("More than one solution file found. Delete the one you dont want to submit!")
+			} else if err1 == nil && err2 == nil && lang == "" {
+				fmt.Println("More than one solution file found!\nDelete a solution file or use the --lang flag to choose which one to validate.")
 				return nil
 			}
 
 			// .sol solution
-			if err1 == nil {
+			if err1 == nil && (lang == "sol" || lang == "") {
 				// Compile all contracts
 				execCmd := exec.Command("forge", "build")
 				execCmd.Dir = "./levels/"
@@ -103,7 +104,7 @@ var submitCmd = &cobra.Command{
 			}
 
 			// .huff solution
-			if err2 == nil {
+			if err2 == nil && (lang == "huff" || lang == "") {
 				// Compile the solution
 				execCmd := exec.Command("huffc", fmt.Sprintf("./src/%s.huff", filename), "--bin-runtime")
 				execCmd.Dir = "./levels/"
@@ -191,6 +192,7 @@ func init() {
 
 	submitCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
 	submitCmd.Flags().StringP("user_id", "u", "", "User ID")
+	submitCmd.Flags().StringP("lang", "l", "", "The language of the solution file. Either 'sol' or 'huff'")
 
 	submitCmd.MarkFlagRequired("user_id")
 }
