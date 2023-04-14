@@ -21,9 +21,7 @@ var listCmd = &cobra.Command{
 			return err
 		}
 
-		solves, err := config.GetSolves()
-
-		fmt.Println("Solves: ", solves)
+		solves := config.GetSolves()
 
 		model := tui.NewLevelList(levels, solves)
 		p := tea.NewProgram(model)

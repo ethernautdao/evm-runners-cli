@@ -2,14 +2,14 @@ package tui
 
 import (
 	"fmt"
-	"strings"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/ethernautdao/evm-runners-cli/internal/config"
+	"strings"
 )
 
 type levelListModel struct {
 	Levels           map[string]config.Level
-	solves			 map[string]string
+	solves           map[string]string
 	Keys             []string
 	Cursor           int
 	Done             bool
@@ -69,7 +69,7 @@ func (m *levelListModel) View() string {
 		} else {
 			sb.WriteString("  ")
 		}
-		sb.WriteString(fmt.Sprintf("%d	  %s	  	  %s\n", i+1, l.Contract, m.solves[l.Contract]))
+		sb.WriteString(fmt.Sprintf("%d	  %-12s    %s\n", i+1, l.Contract, m.solves[l.Contract]))
 		if m.Cursor == i && m.descriptionShown {
 			sb.WriteString("\n" + "  " + l.Description + "\n\n")
 		}

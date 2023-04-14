@@ -68,12 +68,8 @@ func LoadLevels() (map[string]Level, error) {
 	return levels, nil
 }
 
-func GetSolves() (map[string]string, error) {
-	levels, err := LoadLevels()
-	if err != nil {
-		fmt.Println("Error loading levels")
-		return nil, err
-	}
+func GetSolves() (map[string]string) {
+	levels, _ := LoadLevels()
 
 	solves := make(map[string]string)
 
@@ -99,5 +95,5 @@ func GetSolves() (map[string]string, error) {
 		solves[levels[key].Contract] = string(body)
 	}
 
-	return solves, nil
+	return solves
 }
