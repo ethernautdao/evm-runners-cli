@@ -14,7 +14,7 @@ make
 ```
 or
 ```
-go build -o evmrunners main.go
+go build -o evm-runners main.go
 ```
 
 ## Formatting
@@ -26,38 +26,38 @@ go fmt /path/to/package
 
 Display help
 ```
-./evmrunners -h
+./evm-runners -h
 ```
 
 Initialize evm runners
 ```
-./evmrunners init
+./evm-runners init
 ```
 
 Start a challenge
 ```
-./evmrunners start --level <level_name>
+./evm-runners start --level <level_name>
 ```
-e.g. `./evmrunners start Average`
+e.g. `./evm-runners start Average`
 
 Validate a challenge
 ```
-./evmrunners validate <level_name>
+./evm-runners validate <level_name>
 ``` 
-Optional flag `--bytecode`, to validate bytecode directly, e.g. `./evmrunners validate Average --bytecode 0xabcd`
+Optional flag `--bytecode`, to validate bytecode directly, e.g. `./evm-runners validate Average --bytecode 0xabcd`
 
 Submit a solution
 ```
-./evmrunners submit --level <level_name> --user_id <userid>
+./evm-runners submit --level <level_name> --user_id <userid>
 ```
 Optional flag `--bytecode`, to submit bytecode directly
 
 Display a list of all levels (WIP)
 ```
-./evmrunners list
+./evm-runners list
 ```
 
 Display the gas and codesize leaderboard of a level
 ```
-./evmrunners leaderboard <level_name>
+./evm-runners leaderboard <level_name>
 ```

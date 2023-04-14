@@ -1,4 +1,4 @@
-BINARY_NAME=evmrunners
+BINARY_NAME=evm-runners
 
 all: clean build
 

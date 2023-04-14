@@ -7,16 +7,16 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "evmrunners",
+	Use:   "evm-runners",
 	Short: "A terminal-based game for developers with EVM-based challenges",
 	Long: `A terminal-based game for developers with EVM-based challenges.
 
 How to play:
-1. Run 'evmrunners init' to initialize the game
-2. Run 'evmrunners list' to list all available levels
-3. Run 'evmrunners start <level>' to start solving a level
-4. Run 'evmrunners validate <level>' to validate your solution
-5. Run 'evmrunners submit <level>' to submit your solution`,
+1. Run 'evm-runners init' to initialize the game
+2. Run 'evm-runners list' to list all available levels
+3. Run 'evm-runners start <level>' to start solving a level
+4. Run 'evm-runners validate <level>' to validate your solution
+5. Run 'evm-runners submit <level>' to submit your solution`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
