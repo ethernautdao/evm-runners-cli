@@ -1,12 +1,15 @@
 package tui
 
 import (
+	"fmt"
+	"strings"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/ethernautdao/evm-runners-cli/internal/config"
 )
 
 type levelListModel struct {
 	Levels           map[string]config.Level
+	solves			 map[string]string
 	Keys             []string
 	Cursor           int
 	Done             bool
@@ -51,26 +54,32 @@ func (m *levelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *levelListModel) View() string {
-	s := "\n"
+	var sb strings.Builder
+
+	header := "\n  #	  NAME	  	  SOLVES\n"
+	headerSeparator := strings.Repeat("-", len(header)+10) + "\n"
+
+	sb.WriteString(header)
+	sb.WriteString(headerSeparator)
+
 	for i, k := range m.Keys {
 		l := m.Levels[k]
 		if m.Cursor == i {
-			s += "> "
+			sb.WriteString("> ")
 		} else {
-			s += "  "
+			sb.WriteString("  ")
 		}
-		s += l.Contract + "\n"
+		sb.WriteString(fmt.Sprintf("%d	  %s	  	  %s\n", i+1, l.Contract, m.solves[l.Contract]))
 		if m.Cursor == i && m.descriptionShown {
-			s += "  " + l.Description + "\n"
+			sb.WriteString("\n" + "  " + l.Description + "\n\n")
 		}
 	}
 
-	s += "\n"
-	s += "\x1b[90m↑ / ↓ - Navigate | ← / → - Toggle Description\x1b[0m"
+	sb.WriteString("\n\x1b[90m↑ / ↓ - Navigate | ← / → - Toggle Description\x1b[0m")
 
-	return s
+	return sb.String()
 }
 
-func NewLevelList(Levels map[string]config.Level) *levelListModel {
-	return &levelListModel{Levels: Levels}
+func NewLevelList(Levels map[string]config.Level, solves map[string]string) *levelListModel {
+	return &levelListModel{Levels: Levels, solves: solves}
 }

@@ -21,21 +21,17 @@ var listCmd = &cobra.Command{
 			return err
 		}
 
-		model := tui.NewLevelList(levels)
+		solves, err := config.GetSolves()
+
+		fmt.Println("Solves: ", solves)
+
+		model := tui.NewLevelList(levels, solves)
 		p := tea.NewProgram(model)
 
 		if err := p.Start(); err != nil {
 			fmt.Println("Error displaying level list")
 			return err
 		}
-
-		/* 		if model.Done {
-		   			selectedLevelKey := model.Keys[model.Cursor]
-		   			selectedLevel := model.Levels[selectedLevelKey]
-		   			// Use selectedLevel for your needs
-		   			fmt.Printf("Selected level: %v\n", selectedLevel)
-		   		}
-		*/
 
 		return nil
 	},
