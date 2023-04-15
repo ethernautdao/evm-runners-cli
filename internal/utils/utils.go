@@ -1,10 +1,13 @@
-package config
+package utils
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"strings"
 )
 
 type Config struct {
@@ -68,7 +71,7 @@ func LoadLevels() (map[string]Level, error) {
 	return levels, nil
 }
 
-func GetSolves() (map[string]string) {
+func GetSolves() map[string]string {
 	levels, _ := LoadLevels()
 
 	solves := make(map[string]string)
@@ -96,4 +99,53 @@ func GetSolves() (map[string]string) {
 	}
 
 	return solves
+}
+
+func CheckValidBytecode(bytecode string) string {
+	// remove whitespace
+	bytecode = strings.TrimSpace(bytecode)
+	// remove 0x prefix if present
+	bytecode = strings.TrimPrefix(bytecode, "0x")
+
+	// check if bytecode has even length
+	if len(bytecode)%2 != 0 {
+		fmt.Println("Invalid bytecode length")
+		return ""
+	}
+
+	// check if bytecode is valid hex
+	if _, err := hex.DecodeString(bytecode); err != nil {
+		fmt.Println("Invalid bytecode: ", err)
+		return ""
+	}
+
+	// add 0x prefix again
+	bytecode = "0x" + bytecode
+
+	// return sanitized bytecode
+	return bytecode
+}
+
+// TODO: return costum error?
+func CheckSolutionFile(filename string, langFlag string) string {
+	// Check existence of solution files
+	_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", filename))
+	_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", filename))
+
+	if os.IsNotExist(err1) && os.IsNotExist(err2) {
+		fmt.Println("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
+		return "nil"
+	} else if err1 == nil && err2 == nil && langFlag == "" {
+		fmt.Println("More than one solution file found!\nDelete a solution file or use the --lang flag to choose which one to validate.")
+		return "nil"
+	}
+
+	if err1 == nil && (langFlag == "sol" || langFlag == "") {
+		return "sol"
+	} else if err2 == nil && (langFlag == "huff" || langFlag == "") {
+		return "huff"
+	} else {
+		fmt.Println("Invalid language flag. Please use either 'sol' or 'huff'.")
+		return "nil"
+	}
 }

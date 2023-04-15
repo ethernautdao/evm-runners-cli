@@ -2,16 +2,14 @@ package cmd
 
 import (
 	"bytes"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
-	"strings"
 
-	"github.com/ethernautdao/evm-runners-cli/internal/config"
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +24,7 @@ var submitCmd = &cobra.Command{
 		lang, _ := cmd.Flags().GetString("lang")
 
 		// load server/auth config
-		configStruct, err := config.LoadConfig()
+		configStruct, err := utils.LoadConfig()
 		if err != nil {
 			fmt.Println("Error loading config")
 			return err
@@ -38,7 +36,7 @@ var submitCmd = &cobra.Command{
 		level := args[0]
 
 		// get level information
-		levels, err := config.LoadLevels()
+		levels, err := utils.LoadLevels()
 		if err != nil {
 			fmt.Println("Error loading levels")
 			return err
@@ -59,23 +57,16 @@ var submitCmd = &cobra.Command{
 		// check if bytecode was provided, if not get the bytecode from the huff/sol solution
 		if bytecode != "" {
 			// check if bytecode is valid
-			bytecode = checkValidBytecode(bytecode)
+			bytecode = utils.CheckValidBytecode(bytecode)
 
 		} else {
-			// Check existence of solution files
-			_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", filename))
-			_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", filename))
-
-			if os.IsNotExist(err1) && os.IsNotExist(err2) {
-				fmt.Println("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
-				return nil
-			} else if err1 == nil && err2 == nil && lang == "" {
-				fmt.Println("More than one solution file found!\nDelete a solution file or use the --lang flag to choose which one to validate.")
+			solutionType := utils.CheckSolutionFile(filename, lang)
+			if solutionType == "nil" {
 				return nil
 			}
 
 			// .sol solution
-			if err1 == nil && (lang == "sol" || lang == "") {
+			if solutionType == "sol" {
 				// Compile all contracts
 				execCmd := exec.Command("forge", "build")
 				execCmd.Dir = "./levels/"
@@ -100,11 +91,11 @@ var submitCmd = &cobra.Command{
 				// Extract the "bytecode" field
 				bytecodeField := data["bytecode"].(map[string]interface{})
 
-				bytecode = checkValidBytecode(bytecodeField["object"].(string))
+				bytecode = utils.CheckValidBytecode(bytecodeField["object"].(string))
 			}
 
 			// .huff solution
-			if err2 == nil && (lang == "huff" || lang == "") {
+			if solutionType == "huff" {
 				// Compile the solution
 				execCmd := exec.Command("huffc", fmt.Sprintf("./src/%s.huff", filename), "--bin-runtime")
 				execCmd.Dir = "./levels/"
@@ -113,11 +104,11 @@ var submitCmd = &cobra.Command{
 					return fmt.Errorf("%s: %s", err, output)
 				}
 
-				bytecode = checkValidBytecode(string(output))
+				bytecode = utils.CheckValidBytecode(string(output))
 			}
 		}
 
-		fmt.Println("bytecode:", bytecode)
+		//fmt.Println("bytecode:", bytecode)
 
 		// Check if solution is correct
 		fmt.Println("Validating solution...")
@@ -159,32 +150,6 @@ var submitCmd = &cobra.Command{
 
 		return nil
 	},
-}
-
-// TODO: move to utils
-func checkValidBytecode(bytecode string) string {
-	// remove whitespace
-	bytecode = strings.TrimSpace(bytecode)
-	// remove 0x prefix if present
-	bytecode = strings.TrimPrefix(bytecode, "0x")
-
-	// check if bytecode has even length
-	if len(bytecode)%2 != 0 {
-		fmt.Println("Invalid bytecode length")
-		return ""
-	}
-
-	// check if bytecode is valid hex
-	if _, err := hex.DecodeString(bytecode); err != nil {
-		fmt.Println("Invalid bytecode: ", err)
-		return ""
-	}
-
-	// add 0x prefix again
-	bytecode = "0x" + bytecode
-
-	// return sanitized bytecode
-	return bytecode
 }
 
 func init() {

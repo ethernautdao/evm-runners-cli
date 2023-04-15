@@ -3,12 +3,12 @@ package tui
 import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/ethernautdao/evm-runners-cli/internal/config"
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"strings"
 )
 
 type levelListModel struct {
-	Levels           map[string]config.Level
+	Levels           map[string]utils.Level
 	solves           map[string]string
 	Keys             []string
 	Cursor           int
@@ -80,6 +80,6 @@ func (m *levelListModel) View() string {
 	return sb.String()
 }
 
-func NewLevelList(Levels map[string]config.Level, solves map[string]string) *levelListModel {
+func NewLevelList(Levels map[string]utils.Level, solves map[string]string) *levelListModel {
 	return &levelListModel{Levels: Levels, solves: solves}
 }

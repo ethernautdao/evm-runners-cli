@@ -1,7 +1,7 @@
 package cmd
 
 import "github.com/ethernautdao/evm-runners-cli/internal/tui"
-import "github.com/ethernautdao/evm-runners-cli/internal/config"
+import "github.com/ethernautdao/evm-runners-cli/internal/utils"
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ var leaderboardCmd = &cobra.Command{
 		level := args[0]
 
 		// get level information
-		levels, err := config.LoadLevels()
+		levels, err := utils.LoadLevels()
 		if err != nil {
 			fmt.Println("Error loading levels")
 			return err
@@ -60,7 +60,7 @@ func fetchLeaderboardData(url string) ([]tui.Submission, error) {
 }
 
 func displayLeaderboard(levelID string) error {
-	configStruct, err := config.LoadConfig()
+	configStruct, err := utils.LoadConfig()
 	if err != nil {
 		fmt.Println("Error loading config")
 		return err

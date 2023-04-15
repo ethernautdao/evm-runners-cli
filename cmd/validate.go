@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/ethernautdao/evm-runners-cli/internal/config"
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +26,7 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		level := args[0]
 
 		// get level information
-		levels, err := config.LoadLevels()
+		levels, err := utils.LoadLevels()
 		if err != nil {
 			fmt.Println("Error loading levels")
 			return err
@@ -44,42 +44,16 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 
 		// if bytecode is provided, set the BYTECODE env variable
 		if bytecode != "" {
+			bytecode = utils.CheckValidBytecode(bytecode)
 			os.Setenv("BYTECODE", bytecode)
-		} else if lang != "" {
-			// if language flag is set, check if the corresponding solution file exists
-			if lang == "sol" {
-				_, err := os.Stat(fmt.Sprintf("./levels/src/%s.sol", filename))
-				if os.IsNotExist(err) {
-					fmt.Println("No Solidity solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
-					return nil
-				}
-				testContract = testContract + "Sol"
-			} else if lang == "huff" {
-				_, err := os.Stat(fmt.Sprintf("./levels/src/%s.huff", filename))
-				if os.IsNotExist(err) {
-					fmt.Println("No Huff solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
-					return nil
-				}
-				testContract = testContract + "Huff"
-			} else {
-				fmt.Println("Invalid language flag. Please use either 'sol' or 'huff'.")
-				return nil
-			}
 		} else {
-			// Check existence of solution files if no bytecode flag and no language flag is set
-			_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", filename))
-			_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", filename))
-
-			if os.IsNotExist(err1) && os.IsNotExist(err2) {
-				fmt.Println("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
-				return nil
-			} else if err1 == nil && err2 == nil {
-				fmt.Println("More than one solution file found!\nDelete a solution file or use the --language flag to choose which one to validate.")
+			solutionType := utils.CheckSolutionFile(filename, lang)
+			if solutionType == "nil" {
 				return nil
 			}
 
 			// choose specific test contract (either sol or huff version)
-			if err1 == nil {
+			if solutionType == "sol" {
 				testContract = testContract + "Sol"
 			} else {
 				testContract = testContract + "Huff"

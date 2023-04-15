@@ -1,7 +1,7 @@
 package cmd
 
 import "github.com/ethernautdao/evm-runners-cli/internal/tui"
-import "github.com/ethernautdao/evm-runners-cli/internal/config"
+import "github.com/ethernautdao/evm-runners-cli/internal/utils"
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ var startCmd = &cobra.Command{
 		level := args[0]
 
 		// get level information
-		levels, err := config.LoadLevels()
+		levels, err := utils.LoadLevels()
 		if err != nil {
 			fmt.Println("Error loading levels")
 			return err
@@ -53,7 +53,6 @@ var startCmd = &cobra.Command{
 
 		if model.Done {
 			selection = model.Options[model.Cursor]
-			//fmt.Printf("Selected level: %v\n", model.Options[model.Cursor])
 		}
 
 		switch selection {
@@ -103,5 +102,6 @@ func copyFile(src, dst string) error {
 }
 
 func init() {
+	// TODO: add lang flag
 	rootCmd.AddCommand(startCmd)
 }

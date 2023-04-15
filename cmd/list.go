@@ -1,7 +1,7 @@
 package cmd
 
 import "github.com/ethernautdao/evm-runners-cli/internal/tui"
-import "github.com/ethernautdao/evm-runners-cli/internal/config"
+import "github.com/ethernautdao/evm-runners-cli/internal/utils"
 
 import (
 	"fmt"
@@ -15,13 +15,13 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all emv-runners levels",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		levels, err := config.LoadLevels()
+		levels, err := utils.LoadLevels()
 		if err != nil {
 			fmt.Println("Error loading levels")
 			return err
 		}
 
-		solves := config.GetSolves()
+		solves := utils.GetSolves()
 
 		model := tui.NewLevelList(levels, solves)
 		p := tea.NewProgram(model)

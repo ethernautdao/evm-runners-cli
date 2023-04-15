@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/ethernautdao/evm-runners-cli/internal/config"
+import "github.com/ethernautdao/evm-runners-cli/internal/utils"
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ var initCmd = &cobra.Command{
 		defer f.Close()
 
 		// load config
-		configStruct, err := config.LoadConfig()
+		configStruct, err := utils.LoadConfig()
 		if err != nil {
 			fmt.Println("Error loading config")
 			return err
