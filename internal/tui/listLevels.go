@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"sort"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"strings"
@@ -21,6 +22,12 @@ func (m *levelListModel) Init() tea.Cmd {
 	for k := range m.Levels {
 		m.Keys = append(m.Keys, k)
 	}
+
+	// Sort the keys based on the ID field in the utils.Level struct
+	sort.Slice(m.Keys, func(i, j int) bool {
+		return m.Levels[m.Keys[i]].ID < m.Levels[m.Keys[j]].ID
+	})
+
 	return nil
 }
 
@@ -69,7 +76,7 @@ func (m *levelListModel) View() string {
 		} else {
 			sb.WriteString("  ")
 		}
-		sb.WriteString(fmt.Sprintf("%d	  %-12s    %s\n", i+1, l.Contract, m.solves[l.Contract]))
+		sb.WriteString(fmt.Sprintf("%s	  %-12s    %s\n", l.ID, l.Name, m.solves[l.Name]))
 		if m.Cursor == i && m.descriptionShown {
 			sb.WriteString("\n" + "  " + l.Description + "\n\n")
 		}
