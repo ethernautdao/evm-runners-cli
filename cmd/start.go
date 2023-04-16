@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"io/ioutil"
+	"os"
 )
 
 // startCmd represents the start command
@@ -17,6 +18,8 @@ var startCmd = &cobra.Command{
 	Long:  `Starts a challenge by copying the respective template files from levels/template to levels/src and levels/test`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
+		lang, _ := cmd.Flags().GetString("lang")
+
 		if len(args) == 0 {
 			return fmt.Errorf("Please provide a level\n")
 		}
@@ -36,39 +39,52 @@ var startCmd = &cobra.Command{
 		}
 
 		// get filename of level and declare test file
-		filename := levels[level].FileName
+		filename := levels[level].File
 
 		var fileToCopy string
 		var testToCopy string
 
-		model := tui.NewLangListModel()
-		p := tea.NewProgram(model)
-
-		if err := p.Start(); err != nil {
-			fmt.Println("Error displaying language selection")
-			return err
-		}
-
 		var selection string
 
-		if model.Done {
-			selection = model.Options[model.Cursor]
+		// if lang flag is not sol or huff, open list
+		if lang != "sol" && lang != "huff" {
+			model := tui.NewLangListModel()
+			p := tea.NewProgram(model)
+
+			if err := p.Start(); err != nil {
+				fmt.Println("Error displaying language selection")
+				return err
+			}
+
+			if model.Done {
+				selection = model.Options[model.Cursor]
+			}
+		} else {
+			selection = lang
 		}
 
 		switch selection {
-		case "Solidity":
+		case "Solidity", "sol", "solidity":
 			fileToCopy = filename + ".sol"
 			testToCopy = filename + "-Sol.t.sol"
-		case "Huff":
+		case "Huff", "huff":
 			fileToCopy = filename + ".huff"
 			testToCopy = filename + "-Huff.t.sol"
+		default:
+			fmt.Println("Invalid language")
+			return nil
 		}
-
-		// TODO: Check if file already exists. If yes, print warning and return
 
 		// copy level from template/src to src
 		src := "./levels/template/src/" + fileToCopy
 		dst := "./levels/src/" + fileToCopy
+
+		// Check if file already exists. If yes, print warning and return
+		_, err1 := os.Stat(dst)
+		if err1 == nil {
+			fmt.Println("File already exists. Please delete it first.")
+			return nil
+		}
 
 		if err := copyFile(src, dst); err != nil {
 			fmt.Printf("Error copying file")
@@ -102,6 +118,7 @@ func copyFile(src, dst string) error {
 }
 
 func init() {
-	// TODO: add lang flag
 	rootCmd.AddCommand(startCmd)
+
+	startCmd.Flags().StringP("lang", "l", "", "The language you want to choose. Either 'sol' or 'huff'")
 }
