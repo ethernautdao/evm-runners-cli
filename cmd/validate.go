@@ -39,8 +39,8 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		}
 
 		// get filename and test contract of level
-		filename := levels[level].FileName
-		testContract := levels[level].TestContract
+		filename := levels[level].File
+		testContract := levels[level].Test
 
 		// if bytecode is provided, set the BYTECODE env variable
 		if bytecode != "" {
@@ -85,5 +85,5 @@ func init() {
 	rootCmd.AddCommand(validateCmd)
 
 	validateCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
-	validateCmd.Flags().StringP("lang", "l", "", "The lang of the solution file. Either 'sol' or 'huff'")
+	validateCmd.Flags().StringP("lang", "l", "", "The language of the solution file. Either 'sol' or 'huff'")
 }

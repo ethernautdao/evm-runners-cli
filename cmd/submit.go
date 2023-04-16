@@ -49,8 +49,8 @@ var submitCmd = &cobra.Command{
 		}
 
 		// get filename and test contract of level
-		filename := levels[level].FileName
-		testContract := levels[level].TestContract
+		filename := levels[level].File
+		testContract := levels[level].Test
 
 		fmt.Println("Submitting solution for level", level, "with filename", filename)
 

@@ -16,11 +16,11 @@ type Config struct {
 }
 
 type Level struct {
-	ID           string
-	FileName     string
-	Contract     string
-	TestContract string
-	Description  string
+	ID          string
+	File        string
+	Name        string
+	Test        string
+	Description string
 }
 
 func LoadConfig() (Config, error) {
@@ -58,14 +58,14 @@ func LoadLevels() (map[string]Level, error) {
 	for _, levelConfig := range levelsConfig {
 		l := levelConfig.(map[string]interface{})
 		level := Level{
-			ID:           l["id"].(string),
-			FileName:     l["filename"].(string),
-			Contract:     l["contract"].(string),
-			TestContract: l["testcontract"].(string),
-			Description:  l["description"].(string),
+			ID:          l["id"].(string),
+			File:        l["file"].(string),
+			Name:        l["name"].(string),
+			Test:        l["test"].(string),
+			Description: l["description"].(string),
 		}
 		// Add the new Level struct to the map
-		levels[level.Contract] = level
+		levels[level.Name] = level
 	}
 
 	return levels, nil
@@ -76,26 +76,26 @@ func GetSolves() map[string]string {
 
 	solves := make(map[string]string)
 
-	for key, _ := range levels {
+	for key := range levels {
 		url := fmt.Sprintf("https://evm-runners.fly.dev/levels/%s/total", levels[key].ID)
 		resp, err := http.Get(url)
 
 		// if the get request errors for some reason, we just set the solve count to 0
 		if err != nil {
-			//fmt.Printf("Error fetching submission count for level %s: %v\n", levels[key].Contract, err)
-			solves[levels[key].Contract] = "0"
+			//fmt.Printf("Error fetching submission count for level %s: %v\n", levels[key].Name, err)
+			solves[levels[key].Name] = "0"
 			continue
 		}
 		defer resp.Body.Close()
 
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			//fmt.Printf("Error reading response body for level %s: %v\n",  levels[key].Contract, err)
-			solves[levels[key].Contract] = "0"
+			//fmt.Printf("Error reading response body for level %s: %v\n",  levels[key].Name, err)
+			solves[levels[key].Name] = "0"
 			continue
 		}
 
-		solves[levels[key].Contract] = string(body)
+		solves[levels[key].Name] = string(body)
 	}
 
 	return solves
@@ -127,10 +127,10 @@ func CheckValidBytecode(bytecode string) string {
 }
 
 // TODO: return costum error?
-func CheckSolutionFile(filename string, langFlag string) string {
+func CheckSolutionFile(File string, langFlag string) string {
 	// Check existence of solution files
-	_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", filename))
-	_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", filename))
+	_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", File))
+	_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", File))
 
 	if os.IsNotExist(err1) && os.IsNotExist(err2) {
 		fmt.Println("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
