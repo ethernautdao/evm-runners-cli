@@ -20,17 +20,37 @@ var startCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		lang, _ := cmd.Flags().GetString("lang")
 
-		if len(args) == 0 {
-			return fmt.Errorf("Please provide a level\n")
-		}
-		level := args[0]
-
 		// get level information
 		levels, err := utils.LoadLevels()
 		if err != nil {
 			fmt.Println("Error loading levels")
 			return err
 		}
+
+		// if argument is empty, open level list
+		if len(args) == 0 {
+			solves := utils.GetSolves()
+
+			fmt.Println("Select a level with ENTER to start:")
+			
+			model := tui.NewLevelList(levels, solves)
+			p := tea.NewProgram(model)
+
+			if err := p.Start(); err != nil {
+				fmt.Println("Error displaying level list")
+				return err
+			}
+
+			if model.Done {
+				selectedLevelKey := model.Keys[model.Cursor]
+				selectedLevel := model.Levels[selectedLevelKey]
+				args = append(args, selectedLevel.Name)
+			} else {
+				return nil
+			}
+		}
+
+		level := args[0]
 
 		// check if level exists
 		if _, ok := levels[level]; !ok {
@@ -58,6 +78,8 @@ var startCmd = &cobra.Command{
 
 			if model.Done {
 				selection = model.Options[model.Cursor]
+			} else {
+				return nil
 			}
 		} else {
 			selection = lang
@@ -87,7 +109,7 @@ var startCmd = &cobra.Command{
 		}
 
 		if err := copyFile(src, dst); err != nil {
-			fmt.Printf("Error copying file")
+			fmt.Println("Error copying file")
 			return err
 		}
 
@@ -96,7 +118,7 @@ var startCmd = &cobra.Command{
 		dst = "./levels/test/" + testToCopy
 
 		if err := copyFile(src, dst); err != nil {
-			fmt.Printf("Error copying file")
+			fmt.Println("Error copying file")
 			return err
 		}
 
