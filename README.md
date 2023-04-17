@@ -34,6 +34,11 @@ Initialize evm runners
 ./evm-runners init
 ```
 
+Authentication (right now only Discord is available)
+```
+./evm-runners auth discord
+```
+
 Start a challenge
 ```
 ./evm-runners start --level <level_name>
@@ -44,15 +49,15 @@ Validate a challenge
 ```
 ./evm-runners validate <level_name>
 ``` 
-Optional flag `--bytecode`, to validate bytecode directly, e.g. `./evm-runners validate Average --bytecode 0xabcd`
+Optional flag `--bytecode` or `-b`, to validate bytecode directly, e.g. `./evm-runners validate Average --bytecode 0xabcd`
 
 Submit a solution
 ```
-./evm-runners submit --level <level_name> --user_id <userid>
+./evm-runners submit <level_name> --user_id <userid>
 ```
-Optional flag `--bytecode`, to submit bytecode directly
+Optional flag `--bytecode` or `-b`, to submit bytecode directly, e.g. `./evm-runners submit Average -b 0xabcd`
 
-Display a list of all levels (WIP)
+Display a list of all levels
 ```
 ./evm-runners list
 ```
