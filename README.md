@@ -44,18 +44,24 @@ Start a challenge
 ./evm-runners start --level <level_name>
 ```
 e.g. `./evm-runners start Average`
+Optional flags:
+- `--lang` or `-l`, to directly choose the language of the solution file you want to work on, e.g. `./evm-runners start Average -l sol`
 
 Validate a challenge
 ```
 ./evm-runners validate <level_name>
 ``` 
-Optional flag `--bytecode` or `-b`, to validate bytecode directly, e.g. `./evm-runners validate Average --bytecode 0xabcd`
+Optional flags:
+- `--bytecode` or `-b`, to validate bytecode directly, e.g. `./evm-runners validate Average --bytecode 0xabcd`
+- `--lang` or `-l`, to choose the language of the solution file when more than one solution file is present, e.g. `./evm-runners validate Average -l sol`
 
 Submit a solution
 ```
 ./evm-runners submit <level_name> --user_id <userid>
 ```
-Optional flag `--bytecode` or `-b`, to submit bytecode directly, e.g. `./evm-runners submit Average -b 0xabcd`
+Optional flags:
+- `--bytecode` or `-b`, to submit bytecode directly, e.g. `./evm-runners submit Average -b 0xabcd`
+- `--lang` or `-l`, to choose the language of the solution file when more than one solution file is present, e.g. `./evm-runners submit Average -l sol`
 
 Display a list of all levels
 ```
