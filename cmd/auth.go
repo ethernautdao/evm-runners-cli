@@ -3,15 +3,25 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"os/exec"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
+	"net/http"
+	"os/exec"
 )
 
-type AccessTokenResponse struct {
-	AccessToken string `json:"access_token"`
+type AuthResponse struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Discriminator int    `json:"discriminator"`
+	AccessToken   string `json:"access_token"`
+}
+
+type Config struct {
+	EVMR_SERVER string `mapstructure:"EVMR_SERVER"`
+	EVMR_TOKEN  string `mapstructure:"EVMR_TOKEN"`
+	EVMR_ID     string `mapstructure:"EVMR_ID"`
+	EVMR_NAME   string `mapstructure:"EVMR_NAME"`
 }
 
 var authCmd = &cobra.Command{
@@ -37,31 +47,28 @@ var authCmd = &cobra.Command{
 				return fmt.Errorf("failed to read PIN: %v", err)
 			}
 
-			tokenUrl := fmt.Sprintf("https://evm-runners.fly.dev/auth/token/%s", pin)
-			fmt.Println("\nRequesting your access token ...")
+			tokenUrl := fmt.Sprintf("https://evm-runners.fly.dev/users/info/%s", pin)
 			resp, err := http.Get(tokenUrl)
 			if err != nil {
-				return fmt.Errorf("failed to perform GET request: %v", err)
+				return fmt.Errorf("error making GET request: %v", err)
 			}
 			defer resp.Body.Close()
 
-			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("unexpected status code %d", resp.StatusCode)
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return fmt.Errorf("error reading response body: %v", err)
 			}
 
-			var tokenResp AccessTokenResponse
-			if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-				return fmt.Errorf("failed to decode response body: %v", err)
+			var authResp AuthResponse
+			if err := json.Unmarshal(body, &authResp); err != nil {
+				return fmt.Errorf("error unmarshalling response body: %v", err)
 			}
 
-			accessToken := tokenResp.AccessToken
-			fmt.Printf("Access token: %s\n", accessToken)
-
-			if err := saveAccessToken(accessToken); err != nil {
-				return fmt.Errorf("failed to save access token: %v", err)
+			if err := saveDataToEnv(authResp); err != nil {
+				return fmt.Errorf("failed to save auth data: %v", err)
 			}
 		} else {
-			fmt.Println("Invalid authentication method. Only Discord is available yet.")
+			return fmt.Errorf("Invalid authentication method. Only Discord is available yet.")
 		}
 
 		return nil
@@ -77,7 +84,7 @@ func openBrowser(url string) error {
 	return cmd.Start()
 }
 
-func saveAccessToken(token string) error {
+func saveDataToEnv(authResp AuthResponse) error {
 	/*     homeDir, err := os.UserHomeDir()
 	    if err != nil {
 	        return fmt.Errorf("failed to get home directory: %v", err)
@@ -88,14 +95,22 @@ func saveAccessToken(token string) error {
 	*/
 
 	viper.SetConfigFile(".env")
+	viper.SetConfigType("env")
+	viper.AddConfigPath(".")
 
-	viper.Set("EVMR_AUTH", token)
-
-	if err := viper.WriteConfig(); err != nil {
-		return fmt.Errorf("failed to write config file: %v", err)
+	if err := viper.ReadInConfig(); err != nil {
+		return fmt.Errorf("failed to read config file: %v", err)
 	}
 
-	fmt.Println("\nAccess token saved in your .env file!")
+	viper.Set("EVMR_TOKEN", authResp.AccessToken)
+	viper.Set("EVMR_ID", authResp.ID)
+	viper.Set("EVMR_NAME", fmt.Sprintf("%s#%04d", authResp.Name, authResp.Discriminator))
+
+	if err := viper.WriteConfig(); err != nil {
+		return fmt.Errorf("failed to write config: %v", err)
+	}
+
+	fmt.Println("\nUser data saved in your .env file!")
 
 	return nil
 }

@@ -11,8 +11,10 @@ import (
 )
 
 type Config struct {
-	EVMR_SERVER string `mapstructure:"EVMR_SERVER"`
-	EVMR_AUTH   string `mapstructure:"EVMR_AUTH"`
+	EVMR_SERVER	string `mapstructure:"EVMR_SERVER"`
+	EVMR_TOKEN	string `mapstructure:"EVMR_TOKEN"`
+	EVMR_ID		string `mapstructure:"EVMR_ID"`
+	EVMR_NAME	string `mapstructure:"EVMR_NAME"`
 }
 
 type Level struct {
@@ -24,17 +26,19 @@ type Level struct {
 }
 
 func LoadConfig() (Config, error) {
-	config := Config{EVMR_SERVER: "https://evm-runners.fly.dev/", EVMR_AUTH: ""}
+	config := Config{EVMR_SERVER: "https://evm-runners.fly.dev/"}
 
 	viper.SetConfigFile(".env")
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Error reading config file:", err)
 		return config, err
 	}
 
-	config.EVMR_AUTH = viper.GetString("EVMR_AUTH")
+	// load env variables
+	config.EVMR_TOKEN = viper.GetString("EVMR_TOKEN")
+	config.EVMR_ID = viper.GetString("EVMR_ID")
+	config.EVMR_NAME = viper.GetString("EVMR_NAME")
 
 	return config, nil
 }
@@ -44,7 +48,6 @@ func LoadLevels() (map[string]Level, error) {
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Error reading config file:", err)
 		return nil, err
 	}
 
@@ -101,7 +104,7 @@ func GetSolves() map[string]string {
 	return solves
 }
 
-func CheckValidBytecode(bytecode string) string {
+func CheckValidBytecode(bytecode string) (string, error) {
 	// remove whitespace
 	bytecode = strings.TrimSpace(bytecode)
 	// remove 0x prefix if present
@@ -109,43 +112,38 @@ func CheckValidBytecode(bytecode string) string {
 
 	// check if bytecode has even length
 	if len(bytecode)%2 != 0 {
-		fmt.Println("Invalid bytecode length")
-		return ""
+		return "", fmt.Errorf("Invalid bytecode length")
 	}
 
 	// check if bytecode is valid hex
 	if _, err := hex.DecodeString(bytecode); err != nil {
-		fmt.Println("Invalid bytecode: ", err)
-		return ""
+		return "", fmt.Errorf("Invalid bytecode: %v", err)
+
 	}
 
 	// add 0x prefix again
 	bytecode = "0x" + bytecode
 
 	// return sanitized bytecode
-	return bytecode
+	return bytecode, nil
 }
 
-// TODO: return costum error?
-func CheckSolutionFile(File string, langFlag string) string {
+func CheckSolutionFile(File string, langFlag string) (string, error) {
 	// Check existence of solution files
 	_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", File))
 	_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", File))
 
 	if os.IsNotExist(err1) && os.IsNotExist(err2) {
-		fmt.Println("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
-		return "nil"
+		return "", fmt.Errorf("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
 	} else if err1 == nil && err2 == nil && langFlag == "" {
-		fmt.Println("More than one solution file found!\nDelete a solution file or use the --lang flag to choose which one to validate.")
-		return "nil"
+		return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use the --lang flag to choose which one to validate.")
 	}
 
 	if err1 == nil && (langFlag == "sol" || langFlag == "") {
-		return "sol"
+		return "sol", nil
 	} else if err2 == nil && (langFlag == "huff" || langFlag == "") {
-		return "huff"
+		return "huff", nil
 	} else {
-		fmt.Println("Invalid language flag. Please use either 'sol' or 'huff'.")
-		return "nil"
+		return "", fmt.Errorf("Invalid language flag. Please use either 'sol' or 'huff'.")
 	}
 }
