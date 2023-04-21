@@ -13,6 +13,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type SubmitResponse struct {
+	ID       string `json:"id"`
+	LevelID  int    `json:"level_id"`
+	UserID   int    `json:"user_id"`
+	Bytecode string `json:"bytecode"`
+	Gas      string `json:"gas"`
+	Size     string `json:"size"`
+}
+
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
 	Use:   "submit <level>",
@@ -20,14 +29,17 @@ var submitCmd = &cobra.Command{
 	Long:  `Submit the bytecode to the server for processing.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
-		userID, _ := cmd.Flags().GetString("user_id")
 		lang, _ := cmd.Flags().GetString("lang")
 
 		// load server/auth config
 		configStruct, err := utils.LoadConfig()
 		if err != nil {
-			fmt.Println("Error loading config")
-			return err
+			return fmt.Errorf("Error loading config: %v", err)
+		}
+
+		// check if user authenticated
+		if configStruct.EVMR_TOKEN == "" {
+			return fmt.Errorf("Please authorize first with 'evm-runners auth discord'")
 		}
 
 		if len(args) == 0 {
@@ -38,14 +50,12 @@ var submitCmd = &cobra.Command{
 		// get level information
 		levels, err := utils.LoadLevels()
 		if err != nil {
-			fmt.Println("Error loading levels")
-			return err
+			return fmt.Errorf("Error loading levels: %v", err)
 		}
 
 		// check if level exists
 		if _, ok := levels[level]; !ok {
-			fmt.Println("Invalid level")
-			return nil
+			return fmt.Errorf("Invalid level: %v", level)
 		}
 
 		// get filename and test contract of level
@@ -57,12 +67,14 @@ var submitCmd = &cobra.Command{
 		// check if bytecode was provided, if not get the bytecode from the huff/sol solution
 		if bytecode != "" {
 			// check if bytecode is valid
-			bytecode = utils.CheckValidBytecode(bytecode)
-
+			bytecode, err = utils.CheckValidBytecode(bytecode)
+			if err != nil {
+				return err
+			}
 		} else {
-			solutionType := utils.CheckSolutionFile(filename, lang)
-			if solutionType == "nil" {
-				return nil
+			solutionType, err := utils.CheckSolutionFile(filename, lang)
+			if err != nil {
+				return err
 			}
 
 			// .sol solution
@@ -78,20 +90,23 @@ var submitCmd = &cobra.Command{
 				// Read the JSON file
 				file, err := ioutil.ReadFile(fmt.Sprintf("./levels/out/%s.sol/%s.json", filename, level))
 				if err != nil {
-					panic(err)
+					return fmt.Errorf("error reading JSON file: %v", err)
 				}
 
 				// Parse the JSON data
 				var data map[string]interface{}
 				err = json.Unmarshal([]byte(file), &data)
 				if err != nil {
-					panic(err)
+					return fmt.Errorf("error parsing JSON data: %v", err)
 				}
 
 				// Extract the "bytecode" field
 				bytecodeField := data["bytecode"].(map[string]interface{})
 
-				bytecode = utils.CheckValidBytecode(bytecodeField["object"].(string))
+				bytecode, err = utils.CheckValidBytecode(bytecodeField["object"].(string))
+				if err != nil {
+					return err
+				}
 			}
 
 			// .huff solution
@@ -104,7 +119,10 @@ var submitCmd = &cobra.Command{
 					return fmt.Errorf("%s: %s", err, output)
 				}
 
-				bytecode = utils.CheckValidBytecode(string(output))
+				bytecode, err = utils.CheckValidBytecode(string(output))
+				if err != nil {
+					return err
+				}
 			}
 		}
 
@@ -127,7 +145,7 @@ var submitCmd = &cobra.Command{
 		// Create a JSON payload
 		payload := map[string]string{
 			"bytecode": bytecode,
-			"user_id":  userID,
+			"user_id":  configStruct.EVMR_ID,
 			"level_id": levels[level].ID,
 		}
 		jsonPayload, _ := json.Marshal(payload)
@@ -136,6 +154,8 @@ var submitCmd = &cobra.Command{
 		url := configStruct.EVMR_SERVER + "submissions"
 		req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+configStruct.EVMR_TOKEN)
+
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
@@ -143,10 +163,20 @@ var submitCmd = &cobra.Command{
 		}
 		defer resp.Body.Close()
 
+		// Check the response status code
+		if resp.StatusCode != http.StatusOK {
+			return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		}
+
+		// Parse the response body
+		var response SubmitResponse
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		if err != nil {
+			return fmt.Errorf("error decoding response: %v", err)
+		}
+
 		// Print the response
-		fmt.Println("Response Status:", resp.Status)
-		body, _ := ioutil.ReadAll(resp.Body)
-		fmt.Println("Response Body:", string(body))
+		fmt.Printf("\nSolution for level %s submitted successfully!\nGas: %s, Size: %s\n", level, response.Gas, response.Size)
 
 		return nil
 	},
@@ -156,8 +186,5 @@ func init() {
 	rootCmd.AddCommand(submitCmd)
 
 	submitCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
-	submitCmd.Flags().StringP("user_id", "u", "", "User ID")
 	submitCmd.Flags().StringP("lang", "l", "", "The language of the solution file. Either 'sol' or 'huff'")
-
-	submitCmd.MarkFlagRequired("user_id")
 }
