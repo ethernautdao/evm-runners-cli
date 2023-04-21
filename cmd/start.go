@@ -23,22 +23,20 @@ var startCmd = &cobra.Command{
 		// get level information
 		levels, err := utils.LoadLevels()
 		if err != nil {
-			fmt.Println("Error loading levels")
-			return err
+			return fmt.Errorf("error loading levels: %v", err)
 		}
 
 		// if argument is empty, open level list
 		if len(args) == 0 {
 			solves := utils.GetSolves()
 
-			fmt.Println("Select a level with ENTER to start:")
-			
+			fmt.Println("Press ENTER to select a level: ")
+
 			model := tui.NewLevelList(levels, solves)
 			p := tea.NewProgram(model)
 
 			if err := p.Start(); err != nil {
-				fmt.Println("Error displaying level list")
-				return err
+				return fmt.Errorf("error displaying level list: %v", err)
 			}
 
 			if model.Done {
@@ -54,8 +52,7 @@ var startCmd = &cobra.Command{
 
 		// check if level exists
 		if _, ok := levels[level]; !ok {
-			fmt.Println("Invalid level")
-			return nil
+			return fmt.Errorf("level %s does not exist", level)
 		}
 
 		// get filename of level and declare test file
@@ -72,8 +69,7 @@ var startCmd = &cobra.Command{
 			p := tea.NewProgram(model)
 
 			if err := p.Start(); err != nil {
-				fmt.Println("Error displaying language selection")
-				return err
+				return fmt.Errorf("error displaying language selection list: %v", err)
 			}
 
 			if model.Done {
@@ -93,8 +89,7 @@ var startCmd = &cobra.Command{
 			fileToCopy = filename + ".huff"
 			testToCopy = filename + "-Huff.t.sol"
 		default:
-			fmt.Println("Invalid language")
-			return nil
+			return fmt.Errorf("invalid language: %s", selection)
 		}
 
 		// copy level from template/src to src
@@ -104,13 +99,11 @@ var startCmd = &cobra.Command{
 		// Check if file already exists. If yes, print warning and return
 		_, err1 := os.Stat(dst)
 		if err1 == nil {
-			fmt.Println("File already exists. Please delete it first.")
-			return nil
+			return fmt.Errorf("file already exists: %s", dst)
 		}
 
 		if err := copyFile(src, dst); err != nil {
-			fmt.Println("Error copying file")
-			return err
+			return fmt.Errorf("error copying file: %v", err)
 		}
 
 		// copy test file from template to test
@@ -118,11 +111,10 @@ var startCmd = &cobra.Command{
 		dst = "./levels/test/" + testToCopy
 
 		if err := copyFile(src, dst); err != nil {
-			fmt.Println("Error copying file")
-			return err
+			return fmt.Errorf("error copying file: %v", err)
 		}
 
-		fmt.Println("\nYour challenge is ready! Check out the levels/src folder for your level file. Good luck!")
+		fmt.Println("\nYour challenge is ready!\nCheck out the levels/src folder for your level file.\n\nGood luck!")
 
 		return nil
 	},

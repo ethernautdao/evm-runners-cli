@@ -17,8 +17,7 @@ var listCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		levels, err := utils.LoadLevels()
 		if err != nil {
-			fmt.Println("Error loading levels")
-			return err
+			return fmt.Errorf("error loading levels: %v", err)
 		}
 
 		solves := utils.GetSolves()
@@ -27,8 +26,7 @@ var listCmd = &cobra.Command{
 		p := tea.NewProgram(model)
 
 		if err := p.Start(); err != nil {
-			fmt.Println("Error displaying level list")
-			return err
+			return fmt.Errorf("error displaying level list: %v", err)
 		}
 
 		return nil

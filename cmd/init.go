@@ -24,8 +24,7 @@ var initCmd = &cobra.Command{
 		// create file
 		f, err := os.Create(".env")
 		if err != nil {
-			fmt.Println("Error creating .env file")
-			return err
+			return fmt.Errorf("error creating .env file: %v", err)
 		}
 		// remember to close the file
 		defer f.Close()
@@ -33,8 +32,7 @@ var initCmd = &cobra.Command{
 		// load config
 		configStruct, err := utils.LoadConfig()
 		if err != nil {
-			fmt.Println("Error loading config")
-			return err
+			return fmt.Errorf("error loading config: %v", err)
 		}
 
 		// iterate over struct fields
@@ -47,8 +45,7 @@ var initCmd = &cobra.Command{
 			// write key-value pair to file
 			_, err := f.WriteString(fmt.Sprintf("%s=%v\n", key, value))
 			if err != nil {
-				fmt.Println("Error writing to .env file")
-				return err
+				return fmt.Errorf("error writing to .env file: %v", err)
 			}
 		}
 
@@ -63,8 +60,7 @@ var initCmd = &cobra.Command{
 			execCmd.Stdout = os.Stdout
 			execCmd.Stderr = os.Stderr
 			if err := execCmd.Run(); err != nil {
-				fmt.Println("Failed to clone ethernautdao/evm-runners-levels.git")
-				return err
+				return fmt.Errorf("error cloning ethernautdao/evm-runners-levels.git: %v", err)
 			}
 			fmt.Println("evm-runners-levels cloned successfully")
 		} else {

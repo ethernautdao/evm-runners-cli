@@ -28,14 +28,12 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		// get level information
 		levels, err := utils.LoadLevels()
 		if err != nil {
-			fmt.Println("Error loading levels")
-			return err
+			return fmt.Errorf("Error loading levels: %v", err)
 		}
 
 		// check if level exists
 		if _, ok := levels[level]; !ok {
-			fmt.Println("Invalid level")
-			return nil
+			return fmt.Errorf("Invalid level: %v", level)
 		}
 
 		// get filename and test contract of level
@@ -44,12 +42,15 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 
 		// if bytecode is provided, set the BYTECODE env variable
 		if bytecode != "" {
-			bytecode = utils.CheckValidBytecode(bytecode)
+			bytecode, err = utils.CheckValidBytecode(bytecode)
+			if err != nil {
+				return err
+			}
 			os.Setenv("BYTECODE", bytecode)
 		} else {
-			solutionType := utils.CheckSolutionFile(filename, lang)
-			if solutionType == "nil" {
-				return nil
+			solutionType, err := utils.CheckSolutionFile(filename, lang)
+			if err != nil {
+				return err
 			}
 
 			// choose specific test contract (either sol or huff version)
@@ -59,8 +60,6 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 				testContract = testContract + "Huff"
 			}
 		}
-
-		// TODO: check if test files got tampered with
 
 		// Create the command to be run in the subdirectory
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract, "-vv")
@@ -73,7 +72,7 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		if err != nil {
 			return fmt.Errorf("%s", output)
 		}
-
+		
 		// Print the output of the command to the console
 		fmt.Println(string(output))
 
