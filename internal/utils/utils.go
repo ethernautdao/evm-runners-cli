@@ -3,18 +3,26 @@ package utils
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
+
+	"github.com/spf13/viper"
+)
+
+const (
+	configFile  = ".env"
+	levelsFile  = "./levels/levels.toml"
+	solutionDir = "./levels/src"
 )
 
 type Config struct {
-	EVMR_SERVER	string `mapstructure:"EVMR_SERVER"`
-	EVMR_TOKEN	string `mapstructure:"EVMR_TOKEN"`
-	EVMR_ID		string `mapstructure:"EVMR_ID"`
-	EVMR_NAME	string `mapstructure:"EVMR_NAME"`
+	EVMR_SERVER string `mapstructure:"EVMR_SERVER"`
+	EVMR_TOKEN  string `mapstructure:"EVMR_TOKEN"`
+	EVMR_ID     string `mapstructure:"EVMR_ID"`
+	EVMR_NAME   string `mapstructure:"EVMR_NAME"`
 }
 
 type Level struct {
@@ -28,7 +36,7 @@ type Level struct {
 func LoadConfig() (Config, error) {
 	config := Config{EVMR_SERVER: "https://evm-runners.fly.dev/"}
 
-	viper.SetConfigFile(".env")
+	viper.SetConfigFile(configFile)
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
@@ -128,22 +136,31 @@ func CheckValidBytecode(bytecode string) (string, error) {
 	return bytecode, nil
 }
 
-func CheckSolutionFile(File string, langFlag string) (string, error) {
+func CheckSolutionFile(file string, langFlag string) (string, error) {
 	// Check existence of solution files
-	_, err1 := os.Stat(fmt.Sprintf("./levels/src/%s.sol", File))
-	_, err2 := os.Stat(fmt.Sprintf("./levels/src/%s.huff", File))
+	solFile := filepath.Join(solutionDir, file+".sol")
+	huffFile := filepath.Join(solutionDir, file+".huff")
 
-	if os.IsNotExist(err1) && os.IsNotExist(err2) {
-		return "", fmt.Errorf("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
-	} else if err1 == nil && err2 == nil && langFlag == "" {
+	if _, err := os.Stat(solFile); os.IsNotExist(err) {
+		if _, err := os.Stat(huffFile); os.IsNotExist(err) {
+			return "", fmt.Errorf("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
+		} else if langFlag == "huff" || langFlag == "" {
+			return "huff", nil
+		}
+	} else if _, err := os.Stat(huffFile); os.IsNotExist(err) {
+		if langFlag == "sol" || langFlag == "" {
+			return "sol", nil
+		}
+	} else if langFlag == "" {
 		return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use the --lang flag to choose which one to validate.")
 	}
 
-	if err1 == nil && (langFlag == "sol" || langFlag == "") {
+	switch langFlag {
+	case "sol":
 		return "sol", nil
-	} else if err2 == nil && (langFlag == "huff" || langFlag == "") {
+	case "huff":
 		return "huff", nil
-	} else {
+	default:
 		return "", fmt.Errorf("Invalid language flag. Please use either 'sol' or 'huff'.")
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"os/exec"
 )
 
@@ -54,6 +55,10 @@ var authCmd = &cobra.Command{
 			}
 			defer resp.Body.Close()
 
+			if resp.StatusCode != http.StatusOK {
+				return fmt.Errorf("failed to authenticate with server: %s", resp.Status)
+			}
+
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				return fmt.Errorf("error reading response body: %v", err)
@@ -98,8 +103,25 @@ func saveDataToEnv(authResp AuthResponse) error {
 	viper.SetConfigType("env")
 	viper.AddConfigPath(".")
 
+	// Check if the config file exists before trying to read it
+	if _, err := os.Stat(".env"); os.IsNotExist(err) {
+		// print error to run evm-runners init first
+		return fmt.Errorf("No config file found. Please run 'evm-runners init' first!")
+	}
+
 	if err := viper.ReadInConfig(); err != nil {
 		return fmt.Errorf("failed to read config file: %v", err)
+	}
+
+	// Check if the required environment variables are already set
+	if viper.GetString("EVMR_TOKEN") != "" || viper.GetString("EVMR_ID") != "" || viper.GetString("EVMR_NAME") != "" {
+		var overwrite string
+		fmt.Printf("The following environment variables are already set:\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\nDo you want to overwrite them with the new values? (y/n): ", viper.GetString("EVMR_TOKEN"), viper.GetString("EVMR_ID"), viper.GetString("EVMR_NAME"))
+		fmt.Scanln(&overwrite)
+		if overwrite != "y" && overwrite != "Y" {
+			fmt.Println("Aborted.")
+			return nil
+		}
 	}
 
 	viper.Set("EVMR_TOKEN", authResp.AccessToken)

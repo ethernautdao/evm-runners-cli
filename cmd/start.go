@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 // startCmd represents the start command
@@ -93,28 +94,40 @@ var startCmd = &cobra.Command{
 		}
 
 		// copy level from template/src to src
-		src := "./levels/template/src/" + fileToCopy
-		dst := "./levels/src/" + fileToCopy
+		src := filepath.Join(".", "levels", "template", "src", fileToCopy)
+		dstSource := filepath.Join(".", "levels", "src", fileToCopy)
 
-		// Check if file already exists. If yes, print warning and return
-		_, err1 := os.Stat(dst)
-		if err1 == nil {
-			return fmt.Errorf("file already exists: %s", dst)
+		// add blank line
+		fmt.Printf("\n")
+
+		// Check if file already exists. If yes, ask if overwrite is wanted
+		_, err = os.Stat(dstSource)
+		if !os.IsNotExist(err) {
+			fmt.Printf("File %s already exists. Overwrite? (y/n): ", dstSource)
+			var overwrite string
+			_, err := fmt.Scanln(&overwrite)
+			if err != nil {
+				return fmt.Errorf("error reading input: %w", err)
+			}
+			if overwrite != "y" && overwrite != "Y" {
+				fmt.Println("Aborted.")
+				return nil
+			}
 		}
 
-		if err := copyFile(src, dst); err != nil {
+		if err := copyFile(src, dstSource); err != nil {
 			return fmt.Errorf("error copying file: %v", err)
 		}
 
 		// copy test file from template to test
-		src = "./levels/template/" + testToCopy
-		dst = "./levels/test/" + testToCopy
+		src = filepath.Join(".", "levels", "template", testToCopy)
+		dstTest := filepath.Join(".", "levels", "test", testToCopy)
 
-		if err := copyFile(src, dst); err != nil {
+		if err := copyFile(src, dstTest); err != nil {
 			return fmt.Errorf("error copying file: %v", err)
 		}
 
-		fmt.Println("\nYour challenge is ready!\nCheck out the levels/src folder for your level file.\n\nGood luck!")
+		fmt.Printf("Your challenge is ready!\nCheck out %s for your level file and %s for your test file.\n\nGood luck!\n", dstSource, dstTest)
 
 		return nil
 	},
