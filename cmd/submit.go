@@ -11,6 +11,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 type SubmitResponse struct {
@@ -135,12 +138,106 @@ var submitCmd = &cobra.Command{
 		testContract = testContract + "Base"
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
 		execCmd.Dir = config.EVMR_LEVELS_DIR
-		if err = execCmd.Run(); err != nil {
+		output, err := execCmd.CombinedOutput()
+		if err != nil {
 			fmt.Println("Solution is not correct!")
 			return nil
 		}
 
-		// check if new solution is worse than existing one, if yes ask if user wants to submit anyway
+		// Parse the output to get gas and size values
+		var gasValue int
+		var sizeValue int
+		outputStr := string(output)
+		outputLines := strings.Split(outputStr, "\n")
+		for _, line := range outputLines {
+			if strings.Contains(line, "_gas") {
+				re := regexp.MustCompile(`(μ|~:)\s*(\d+)`)
+				match := re.FindStringSubmatch(line)
+
+				if len(match) > 0 {
+					gasValue, err = strconv.Atoi(match[2])
+					if err != nil {
+						fmt.Printf("Error: %s\n", err.Error())
+					}
+				} else {
+					fmt.Println("No matching value found")
+				}
+			}
+			if strings.Contains(line, "Contract size:") {
+
+				re := regexp.MustCompile(`Contract size:\s*(\d+)`)
+				match := re.FindStringSubmatch(line)
+
+				if len(match) > 1 {
+					sizeValue, err = strconv.Atoi(match[1])
+					if err != nil {
+						fmt.Printf("Error: %s\n", err.Error())
+					}
+				} else {
+					fmt.Println("No matching value found")
+				}
+			}
+		}
+
+		fmt.Println("Gas value:", gasValue)
+		fmt.Println("Size value:", sizeValue)
+
+		// Fetch existing submission data
+		url := config.EVMR_SERVER + "submissions/user/" + levels[level].ID
+		req, _ := http.NewRequest("GET", url, nil)
+		req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			return fmt.Errorf("Error sending the request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		// Read the response
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("Error reading the response: %v", err)
+		}
+
+		// Check for errors in the response
+		if resp.StatusCode != 200 {
+			return fmt.Errorf("Error submitting solution: %s", body)
+		}
+
+		// Parse the response
+		type SubmissionData struct {
+			Gas  string `json:"gas"`
+			Size string `json:"size"`
+		}
+		var submissions []SubmissionData
+
+		err = json.Unmarshal(body, &submissions)
+		if err != nil {
+			return fmt.Errorf("Error parsing the response: %v", err)
+		}
+
+		fmt.Println("Existing submission:", submissions)
+
+		// Compare new solution's gas and size with existing submission
+		var existingGas int
+		var existingSize int
+		if len(submissions) > 0 {
+			floatGas, _ := strconv.ParseFloat(submissions[0].Gas, 64)
+			existingGas = int(floatGas)
+			existingSize, _ = strconv.Atoi(submissions[0].Size)
+
+			if gasValue >= existingGas || sizeValue >= existingSize {
+				fmt.Printf("Warning: New solution has a higher or equal gas (%d) or size (%d) compared to the existing submission (gas: %d, size: %d).\nThis will overwrite the existing solution.\n", gasValue, sizeValue, existingGas, existingSize)
+				fmt.Print("Do you want to submit anyway? (y/n): ")
+				var overwrite string
+				fmt.Scanln(&overwrite)
+				if overwrite != "y" && overwrite != "Y" {
+					fmt.Println("Submission cancelled.")
+					return nil
+				}
+			}
+		}
 
 		fmt.Println("Solution is correct! Submitting to the server ...")
 
@@ -153,32 +250,39 @@ var submitCmd = &cobra.Command{
 		jsonPayload, _ := json.Marshal(payload)
 
 		// Make the HTTP request
-		url := config.EVMR_SERVER + "submissions"
-		req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+		url = config.EVMR_SERVER + "submissions"
+		req, _ = http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
 
-		client := &http.Client{}
-		resp, err := client.Do(req)
+		// Send the request
+		client = &http.Client{}
+		resp, err = client.Do(req)
 		if err != nil {
-			panic(err)
+			return fmt.Errorf("Error sending the request: %v", err)
 		}
 		defer resp.Body.Close()
 
-		// Check the response status code
-		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		// Read the response
+		body, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("Error reading the response: %v", err)
 		}
 
-		// Parse the response body
-		var response SubmitResponse
-		err = json.NewDecoder(resp.Body).Decode(&response)
+		// Check for errors in the response
+		if resp.StatusCode != 200 {
+			return fmt.Errorf("Error submitting solution: %s", body)
+		}
+
+		// Parse the response
+		var res SubmitResponse
+		err = json.Unmarshal(body, &res)
 		if err != nil {
-			return fmt.Errorf("error decoding response: %v", err)
+			return fmt.Errorf("Error parsing the response: %v", err)
 		}
 
 		// Print the response
-		fmt.Printf("\nSolution for level %s submitted successfully!\nGas: %s, Size: %s\n", level, response.Gas, response.Size)
+		fmt.Printf("\nSolution for level %s submitted successfully!\nGas: %s, Size: %s\n", level, res.Gas, res.Size)
 
 		return nil
 	},
@@ -187,6 +291,7 @@ var submitCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(submitCmd)
 
-	submitCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
-	submitCmd.Flags().StringP("lang", "l", "", "The language of the solution file. Either 'sol' or 'huff'")
+	// Flags
+	submitCmd.Flags().StringP("bytecode", "b", "", "The bytecode of the solution")
+	submitCmd.Flags().StringP("lang", "l", "", "The programming language of the solution (e.g. 'huff' or 'sol')")
 }
