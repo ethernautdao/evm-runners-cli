@@ -132,7 +132,7 @@ func saveDataToEnv(authResp AuthResponse) error {
 		return fmt.Errorf("failed to write config: %v", err)
 	}
 
-	fmt.Println("\nUser data saved in your .env file!")
+	fmt.Println("\nSuccessfully authenticated with Discord!")
 
 	return nil
 }

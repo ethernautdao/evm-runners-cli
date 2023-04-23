@@ -2,9 +2,9 @@ package tui
 
 import (
 	"fmt"
-	"sort"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
+	"sort"
 	"strings"
 )
 

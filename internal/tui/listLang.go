@@ -40,7 +40,7 @@ func (m *langListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *langListModel) View() string {
-	s := "Do you want to solve it in Solidity or Huff?\n\n"
+	s := "Do you want to solve the level in Solidity or Huff?\n\n"
 
 	for i, option := range m.Options {
 		// Add a ">" symbol before the selected option
@@ -51,6 +51,8 @@ func (m *langListModel) View() string {
 		}
 		s += option + "\n"
 	}
+
+	s += "\n\x1b[90m↑ / ↓ - Navigate | ENTER - select language\x1b[0m"
 
 	return s
 }

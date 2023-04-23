@@ -47,6 +47,9 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 				return err
 			}
 			os.Setenv("BYTECODE", bytecode)
+
+			// set the test contract to the bytecode test contract
+			testContract = testContract + "Base"
 		} else {
 			solutionType, err := utils.CheckSolutionFile(filename, lang)
 			if err != nil {
@@ -61,6 +64,9 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 			}
 		}
 
+		fmt.Println("Validating level", level, "with filename", filename)
+		fmt.Println("Test contract:", testContract)
+
 		// Create the command to be run in the subdirectory
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract, "-vv")
 
@@ -72,7 +78,7 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		if err != nil {
 			return fmt.Errorf("%s", output)
 		}
-		
+
 		// Print the output of the command to the console
 		fmt.Println(string(output))
 
