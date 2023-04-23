@@ -25,6 +25,12 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		}
 		level := args[0]
 
+		// load config
+		config, err := utils.LoadConfig()
+		if err != nil {
+			return fmt.Errorf("Error loading config: %v", err)
+		}
+
 		// get level information
 		levels, err := utils.LoadLevels()
 		if err != nil {
@@ -64,14 +70,11 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 			}
 		}
 
-		fmt.Println("Validating level", level, "with filename", filename)
-		fmt.Println("Test contract:", testContract)
-
 		// Create the command to be run in the subdirectory
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract, "-vv")
 
 		// Set the working directory to the subdirectory
-		execCmd.Dir = "./levels/"
+		execCmd.Dir = config.EVMR_LEVELS_DIR
 
 		// Capture the standard output and standard error of the command
 		output, err := execCmd.CombinedOutput()

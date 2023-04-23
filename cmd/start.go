@@ -78,6 +78,9 @@ var startCmd = &cobra.Command{
 			} else {
 				return nil
 			}
+
+			// add blank line
+			fmt.Printf("\n")
 		} else {
 			selection = lang
 		}
@@ -94,11 +97,15 @@ var startCmd = &cobra.Command{
 		}
 
 		// copy level from template/src to src
-		src := filepath.Join(".", "levels", "template", "src", fileToCopy)
-		dstSource := filepath.Join(".", "levels", "src", fileToCopy)
 
-		// add blank line
-		fmt.Printf("\n")
+		config, err := utils.LoadConfig()
+		if err != nil {
+			fmt.Println("Error loading config")
+			return err
+		}
+
+		src := filepath.Join(config.EVMR_LEVELS_DIR, "template", "src", fileToCopy)
+		dstSource := filepath.Join(config.EVMR_LEVELS_DIR, "src", fileToCopy)
 
 		// Check if file already exists. If yes, ask if overwrite is wanted
 		_, err = os.Stat(dstSource)
@@ -120,14 +127,14 @@ var startCmd = &cobra.Command{
 		}
 
 		// copy test file from template to test
-		src = filepath.Join(".", "levels", "template", testToCopy)
-		dstTest := filepath.Join(".", "levels", "test", testToCopy)
+		src = filepath.Join(config.EVMR_LEVELS_DIR, "template", testToCopy)
+		dstTest := filepath.Join(config.EVMR_LEVELS_DIR, "test", testToCopy)
 
 		if err := copyFile(src, dstTest); err != nil {
 			return fmt.Errorf("error copying file: %v", err)
 		}
 
-		fmt.Printf("Your challenge is ready!\nCheck out %s for your level file and %s for your test file.\n\nGood luck!\n", dstSource, dstTest)
+		fmt.Printf("Your challenge is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\n")
 
 		return nil
 	},

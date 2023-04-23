@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
 
@@ -14,15 +15,16 @@ import (
 
 const (
 	configFile  = ".env"
-	levelsFile  = "./levels/levels.toml"
-	solutionDir = "./levels/src"
+	levelsFile  = "levels.toml"
+	solutionDir = "src"
 )
 
 type Config struct {
-	EVMR_SERVER string `mapstructure:"EVMR_SERVER"`
-	EVMR_TOKEN  string `mapstructure:"EVMR_TOKEN"`
-	EVMR_ID     string `mapstructure:"EVMR_ID"`
-	EVMR_NAME   string `mapstructure:"EVMR_NAME"`
+	EVMR_SERVER     string `mapstructure:"EVMR_SERVER"`
+	EVMR_TOKEN      string `mapstructure:"EVMR_TOKEN"`
+	EVMR_ID         string `mapstructure:"EVMR_ID"`
+	EVMR_NAME       string `mapstructure:"EVMR_NAME"`
+	EVMR_LEVELS_DIR string `mapstructure:"EVMR_LEVELS_DIR"`
 }
 
 type Level struct {
@@ -34,25 +36,36 @@ type Level struct {
 }
 
 func LoadConfig() (Config, error) {
-	config := Config{EVMR_SERVER: "https://evm-runners.fly.dev/"}
+	var config Config
 
-	viper.SetConfigFile(configFile)
+	usr, err := user.Current()
+	if err != nil {
+		return config, fmt.Errorf("error getting user's home directory: %v", err)
+	}
+
+	envFilePath := filepath.Join(usr.HomeDir, ".config", "evm-runners", configFile)
+	viper.SetConfigFile(envFilePath)
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
 		return config, err
 	}
 
-	// load env variables
-	config.EVMR_TOKEN = viper.GetString("EVMR_TOKEN")
-	config.EVMR_ID = viper.GetString("EVMR_ID")
-	config.EVMR_NAME = viper.GetString("EVMR_NAME")
+	// Automatically load environment variables
+	viper.AutomaticEnv()
+
+	// Unmarshal the config into the Config struct
+	if err := viper.Unmarshal(&config); err != nil {
+		return config, fmt.Errorf("error unmarshalling config: %v", err)
+	}
 
 	return config, nil
 }
 
 func LoadLevels() (map[string]Level, error) {
-	viper.SetConfigFile("./levels/levels.toml")
+	config, _ := LoadConfig()
+
+	viper.SetConfigFile(filepath.Join(config.EVMR_LEVELS_DIR, levelsFile))
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
@@ -137,9 +150,11 @@ func CheckValidBytecode(bytecode string) (string, error) {
 }
 
 func CheckSolutionFile(file string, langFlag string) (string, error) {
+	config, _ := LoadConfig()
+
 	// Check existence of solution files
-	solFile := filepath.Join(solutionDir, file+".sol")
-	huffFile := filepath.Join(solutionDir, file+".huff")
+	solFile := filepath.Join(config.EVMR_LEVELS_DIR, solutionDir, file+".sol")
+	huffFile := filepath.Join(config.EVMR_LEVELS_DIR, solutionDir, file+".huff")
 
 	if _, err := os.Stat(solFile); os.IsNotExist(err) {
 		if _, err := os.Stat(huffFile); os.IsNotExist(err) {

@@ -60,14 +60,14 @@ func fetchLeaderboardData(url string) ([]tui.Submission, error) {
 }
 
 func displayLeaderboard(levelID string) error {
-	configStruct, err := utils.LoadConfig()
+	config, err := utils.LoadConfig()
 	if err != nil {
 		fmt.Println("Error loading config")
 		return err
 	}
 
-	gasURL := fmt.Sprintf("%ssubmissions/leaderboard/gas/%s", configStruct.EVMR_SERVER, levelID)
-	sizeURL := fmt.Sprintf("%ssubmissions/leaderboard/size/%s", configStruct.EVMR_SERVER, levelID)
+	gasURL := fmt.Sprintf("%ssubmissions/leaderboard/gas/%s", config.EVMR_SERVER, levelID)
+	sizeURL := fmt.Sprintf("%ssubmissions/leaderboard/size/%s", config.EVMR_SERVER, levelID)
 
 	// Fetch gas leaderboard data
 	gasLeaderboardData, err := fetchLeaderboardData(gasURL)

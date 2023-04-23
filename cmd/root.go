@@ -13,11 +13,11 @@ var rootCmd = &cobra.Command{
 	Long: `A terminal-based game for developers with EVM-based challenges.
 
 How to play:
-1. Run 'evm-runners init' to initialize the game
-2. Run 'evm-runners list' to list all available levels
-3. Run 'evm-runners start <level>' to start solving a level
-4. Run 'evm-runners validate <level>' to validate your solution
-5. Run 'evm-runners submit <level>' to submit your solution`,
+1. 'evm-runners init' to initialize the game
+2. 'evm-runners auth' to authenticate with the server
+3. 'evm-runners start <level>' to start solving a level
+4. 'evm-runners validate <level>' to validate your solution
+5. 'evm-runners submit <level>' to submit your solution`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
 )
 
 type AuthResponse struct {
@@ -90,21 +92,17 @@ func openBrowser(url string) error {
 }
 
 func saveDataToEnv(authResp AuthResponse) error {
-	/*     homeDir, err := os.UserHomeDir()
-	    if err != nil {
-	        return fmt.Errorf("failed to get home directory: %v", err)
-	    }
+	usr, err := user.Current()
+	if err != nil {
+		return fmt.Errorf("error getting user's home directory: %v", err)
+	}
 
-	    configFile := fmt.Sprintf("%s/.env", homeDir)
-		    viper.SetConfigFile(configFile)
-	*/
-
-	viper.SetConfigFile(".env")
+	envFilePath := filepath.Join(usr.HomeDir, ".config", "evm-runners", ".env")
+	viper.SetConfigFile(envFilePath)
 	viper.SetConfigType("env")
-	viper.AddConfigPath(".")
 
 	// Check if the config file exists before trying to read it
-	if _, err := os.Stat(".env"); os.IsNotExist(err) {
+	if _, err := os.Stat(envFilePath); os.IsNotExist(err) {
 		// print error to run evm-runners init first
 		return fmt.Errorf("No config file found. Please run 'evm-runners init' first!")
 	}
@@ -116,7 +114,7 @@ func saveDataToEnv(authResp AuthResponse) error {
 	// Check if the required environment variables are already set
 	if viper.GetString("EVMR_TOKEN") != "" || viper.GetString("EVMR_ID") != "" || viper.GetString("EVMR_NAME") != "" {
 		var overwrite string
-		fmt.Printf("The following environment variables are already set:\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\nDo you want to overwrite them with the new values? (y/n): ", viper.GetString("EVMR_TOKEN"), viper.GetString("EVMR_ID"), viper.GetString("EVMR_NAME"))
+		fmt.Printf("\nThe following environment variables are already set:\n\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\n\nDo you want to overwrite them with the new values? (y/n): ", viper.GetString("EVMR_TOKEN"), viper.GetString("EVMR_ID"), viper.GetString("EVMR_NAME"))
 		fmt.Scanln(&overwrite)
 		if overwrite != "y" && overwrite != "Y" {
 			fmt.Println("Aborted.")

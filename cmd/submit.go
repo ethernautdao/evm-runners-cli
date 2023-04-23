@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
+	"github.com/spf13/cobra"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
-
-	"github.com/ethernautdao/evm-runners-cli/internal/utils"
-	"github.com/spf13/cobra"
+	"path/filepath"
 )
 
 type SubmitResponse struct {
@@ -31,14 +31,14 @@ var submitCmd = &cobra.Command{
 		bytecode, _ := cmd.Flags().GetString("bytecode")
 		lang, _ := cmd.Flags().GetString("lang")
 
-		// load server/auth config
-		configStruct, err := utils.LoadConfig()
+		// load config
+		config, err := utils.LoadConfig()
 		if err != nil {
 			return fmt.Errorf("Error loading config: %v", err)
 		}
 
 		// check if user authenticated
-		if configStruct.EVMR_TOKEN == "" {
+		if config.EVMR_TOKEN == "" {
 			return fmt.Errorf("Please authorize first with 'evm-runners auth discord'")
 		}
 
@@ -81,14 +81,14 @@ var submitCmd = &cobra.Command{
 			if solutionType == "sol" {
 				// Compile all contracts
 				execCmd := exec.Command("forge", "build")
-				execCmd.Dir = "./levels/"
+				execCmd.Dir = config.EVMR_LEVELS_DIR
 				output, err := execCmd.CombinedOutput()
 				if err != nil {
 					return fmt.Errorf("%s: %s", err, output)
 				}
 
 				// Read the JSON file
-				file, err := ioutil.ReadFile(fmt.Sprintf("./levels/out/%s.sol/%s.json", filename, level))
+				file, err := ioutil.ReadFile(filepath.Join(config.EVMR_LEVELS_DIR, "out", fmt.Sprintf("%s.sol", filename), fmt.Sprintf("%s.json", level)))
 				if err != nil {
 					return fmt.Errorf("error reading JSON file: %v", err)
 				}
@@ -112,8 +112,9 @@ var submitCmd = &cobra.Command{
 			// .huff solution
 			if solutionType == "huff" {
 				// Compile the solution
-				execCmd := exec.Command("huffc", fmt.Sprintf("./src/%s.huff", filename), "--bin-runtime")
-				execCmd.Dir = "./levels/"
+				huffPath := filepath.Join("src", fmt.Sprintf("%s.huff", filename))
+				execCmd := exec.Command("huffc", huffPath, "--bin-runtime")
+				execCmd.Dir = config.EVMR_LEVELS_DIR
 				output, err := execCmd.CombinedOutput()
 				if err != nil {
 					return fmt.Errorf("%s: %s", err, output)
@@ -126,35 +127,36 @@ var submitCmd = &cobra.Command{
 			}
 		}
 
-		//fmt.Println("bytecode:", bytecode)
-
 		// Check if solution is correct
 		fmt.Println("Validating solution...")
 
 		os.Setenv("BYTECODE", bytecode)
 		// Run test
+		testContract = testContract + "Base"
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
-		execCmd.Dir = "./levels/"
+		execCmd.Dir = config.EVMR_LEVELS_DIR
 		if err = execCmd.Run(); err != nil {
 			fmt.Println("Solution is not correct!")
 			return nil
 		}
 
-		fmt.Println("Solution is correct! Submitting to server ...")
+		// check if new solution is worse than existing one, if yes ask if user wants to submit anyway
+
+		fmt.Println("Solution is correct! Submitting to the server ...")
 
 		// Create a JSON payload
 		payload := map[string]string{
 			"bytecode": bytecode,
-			"user_id":  configStruct.EVMR_ID,
+			"user_id":  config.EVMR_ID,
 			"level_id": levels[level].ID,
 		}
 		jsonPayload, _ := json.Marshal(payload)
 
 		// Make the HTTP request
-		url := configStruct.EVMR_SERVER + "submissions"
+		url := config.EVMR_SERVER + "submissions"
 		req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", "Bearer "+configStruct.EVMR_TOKEN)
+		req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
