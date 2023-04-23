@@ -1,8 +1,5 @@
 package cmd
 
-import "github.com/ethernautdao/evm-runners-cli/internal/tui"
-import "github.com/ethernautdao/evm-runners-cli/internal/utils"
-
 import (
 	"encoding/json"
 	"fmt"
@@ -11,6 +8,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
+
+	"github.com/ethernautdao/evm-runners-cli/internal/tui"
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 )
 
 var leaderboardCmd = &cobra.Command{
