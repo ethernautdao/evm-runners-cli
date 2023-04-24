@@ -107,7 +107,7 @@ func (ui *CombinedLeaderboardUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q", "esc":
+		default:
 			return ui, tea.Quit
 		}
 	}
@@ -115,5 +115,5 @@ func (ui *CombinedLeaderboardUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (ui *CombinedLeaderboardUI) View() string {
-	return ui.GasUI.View() + "\n\n" + ui.SizeUI.View()
+	return "\n" + ui.GasUI.View() + "\n\n" + ui.SizeUI.View() + "\n\nPress any key to exit."
 }

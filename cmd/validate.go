@@ -28,7 +28,7 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		// load config
 		config, err := utils.LoadConfig()
 		if err != nil {
-			return fmt.Errorf("Error loading config: %v", err)
+			return fmt.Errorf("error loading config: %v", err)
 		}
 
 		// get level information

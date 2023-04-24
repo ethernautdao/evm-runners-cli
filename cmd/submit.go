@@ -28,8 +28,13 @@ type SubmitResponse struct {
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
 	Use:   "submit <level>",
-	Short: "Submit the solution",
-	Long:  `Submit the bytecode to the server for processing.`,
+	Short: "Submits a solution for a level to the server",
+	Long: `Submits a solution for a level to the server by 
+	
+1. Validating if the solution is correct
+2. Checking if an existing solution will be overwritten
+3. Sending the bytecode to the server`,
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
 		lang, _ := cmd.Flags().GetString("lang")
@@ -37,7 +42,7 @@ var submitCmd = &cobra.Command{
 		// load config
 		config, err := utils.LoadConfig()
 		if err != nil {
-			return fmt.Errorf("Error loading config: %v", err)
+			return fmt.Errorf("error loading config: %v", err)
 		}
 
 		// check if user authenticated
@@ -61,11 +66,10 @@ var submitCmd = &cobra.Command{
 			return fmt.Errorf("Invalid level: %v", level)
 		}
 
-		// get filename and test contract of level
+		// get filename of level
 		filename := levels[level].File
-		testContract := levels[level].Test
 
-		fmt.Println("Submitting solution for level", level, "with filename", filename)
+		fmt.Println("Submitting solution for level", level, "...")
 
 		// check if bytecode was provided, if not get the bytecode from the huff/sol solution
 		if bytecode != "" {
@@ -134,8 +138,9 @@ var submitCmd = &cobra.Command{
 		fmt.Println("Validating solution...")
 
 		os.Setenv("BYTECODE", bytecode)
+
 		// Run test
-		testContract = testContract + "Base"
+		testContract := levels[level].Test + "Base"
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
 		execCmd.Dir = config.EVMR_LEVELS_DIR
 		output, err := execCmd.CombinedOutput()
@@ -179,8 +184,7 @@ var submitCmd = &cobra.Command{
 			}
 		}
 
-		fmt.Println("Gas value:", gasValue)
-		fmt.Println("Size value:", sizeValue)
+		fmt.Printf("Solution is correct! Gas: %d, Size: %d\nSubmitting to the server...\n", gasValue, sizeValue)
 
 		// Fetch existing submission data
 		url := config.EVMR_SERVER + "submissions/user/" + levels[level].ID
@@ -217,8 +221,6 @@ var submitCmd = &cobra.Command{
 			return fmt.Errorf("Error parsing the response: %v", err)
 		}
 
-		fmt.Println("Existing submission:", submissions)
-
 		// Compare new solution's gas and size with existing submission
 		var existingGas int
 		var existingSize int
@@ -228,7 +230,7 @@ var submitCmd = &cobra.Command{
 			existingSize, _ = strconv.Atoi(submissions[0].Size)
 
 			if gasValue >= existingGas || sizeValue >= existingSize {
-				fmt.Printf("Warning: New solution has a higher or equal gas (%d) or size (%d) compared to the existing submission (gas: %d, size: %d).\nThis will overwrite the existing solution.\n", gasValue, sizeValue, existingGas, existingSize)
+				fmt.Printf("Warning: Gas (%d) or size (%d) of the new solution is higher or equal to the existing submission (gas: %d, size: %d).\n", gasValue, sizeValue, existingGas, existingSize)
 				fmt.Print("Do you want to submit anyway? (y/n): ")
 				var overwrite string
 				fmt.Scanln(&overwrite)
@@ -238,8 +240,6 @@ var submitCmd = &cobra.Command{
 				}
 			}
 		}
-
-		fmt.Println("Solution is correct! Submitting to the server ...")
 
 		// Create a JSON payload
 		payload := map[string]string{
@@ -282,7 +282,7 @@ var submitCmd = &cobra.Command{
 		}
 
 		// Print the response
-		fmt.Printf("\nSolution for level %s submitted successfully!\nGas: %s, Size: %s\n", level, res.Gas, res.Size)
+		fmt.Printf("\nSolution for level %s submitted successfully!", level)
 
 		return nil
 	},

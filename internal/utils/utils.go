@@ -48,7 +48,7 @@ func LoadConfig() (Config, error) {
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
-		return config, err
+		return config, fmt.Errorf("error reading in config file: %v", err)
 	}
 
 	// Automatically load environment variables
@@ -63,13 +63,17 @@ func LoadConfig() (Config, error) {
 }
 
 func LoadLevels() (map[string]Level, error) {
-	config, _ := LoadConfig()
+	config, err := LoadConfig()
+	if err != nil {
+		return nil, fmt.Errorf("error loading config: %v", err)
+
+	}
 
 	viper.SetConfigFile(filepath.Join(config.EVMR_LEVELS_DIR, levelsFile))
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error reading in config file: %v", err)
 	}
 
 	// Get the levels array from the config file
@@ -96,7 +100,10 @@ func LoadLevels() (map[string]Level, error) {
 }
 
 func GetSolves() map[string]string {
-	levels, _ := LoadLevels()
+	levels, err := LoadLevels()
+	if err != nil {
+		return nil
+	}
 
 	solves := make(map[string]string)
 
@@ -150,32 +157,45 @@ func CheckValidBytecode(bytecode string) (string, error) {
 }
 
 func CheckSolutionFile(file string, langFlag string) (string, error) {
-	config, _ := LoadConfig()
+	config, err := LoadConfig()
+	if err != nil {
+		return "", fmt.Errorf("error loading config: %v", err)
+	}
 
 	// Check existence of solution files
 	solFile := filepath.Join(config.EVMR_LEVELS_DIR, solutionDir, file+".sol")
 	huffFile := filepath.Join(config.EVMR_LEVELS_DIR, solutionDir, file+".huff")
 
-	if _, err := os.Stat(solFile); os.IsNotExist(err) {
-		if _, err := os.Stat(huffFile); os.IsNotExist(err) {
-			return "", fmt.Errorf("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
-		} else if langFlag == "huff" || langFlag == "" {
-			return "huff", nil
-		}
-	} else if _, err := os.Stat(huffFile); os.IsNotExist(err) {
-		if langFlag == "sol" || langFlag == "" {
-			return "sol", nil
-		}
-	} else if langFlag == "" {
-		return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use the --lang flag to choose which one to validate.")
+	solExists := fileExists(solFile)
+	huffExists := fileExists(huffFile)
+
+	if !solExists && !huffExists {
+		return "", fmt.Errorf("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
 	}
 
-	switch langFlag {
-	case "sol":
-		return "sol", nil
-	case "huff":
-		return "huff", nil
-	default:
+	if langFlag != "" && langFlag != "sol" && langFlag != "huff" {
 		return "", fmt.Errorf("Invalid language flag. Please use either 'sol' or 'huff'.")
 	}
+
+	if langFlag == "" {
+		if solExists && huffExists {
+			return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use the --lang flag to choose which one to validate.")
+		}
+		if solExists {
+			langFlag = "sol"
+		} else {
+			langFlag = "huff"
+		}
+	}
+
+	if (langFlag == "sol" && !solExists) || (langFlag == "huff" && !huffExists) {
+		return "", fmt.Errorf("Solution file not found for the specified language flag.")
+	}
+
+	return langFlag, nil
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
 }

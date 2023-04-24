@@ -16,6 +16,7 @@ import (
 var leaderboardCmd = &cobra.Command{
 	Use:   "leaderboard <level>",
 	Short: "Displays the gas and codesize leaderboard for the specified level.",
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			return fmt.Errorf("Please provide a level\n")
@@ -25,8 +26,7 @@ var leaderboardCmd = &cobra.Command{
 		// get level information
 		levels, err := utils.LoadLevels()
 		if err != nil {
-			fmt.Println("Error loading levels")
-			return err
+			return fmt.Errorf("error loading levels: %v", err)
 		}
 
 		// check if level exists
@@ -62,8 +62,7 @@ func fetchLeaderboardData(url string) ([]tui.Submission, error) {
 func displayLeaderboard(levelID string) error {
 	config, err := utils.LoadConfig()
 	if err != nil {
-		fmt.Println("Error loading config")
-		return err
+		return fmt.Errorf("error loading config: %v", err)
 	}
 
 	gasURL := fmt.Sprintf("%ssubmissions/leaderboard/gas/%s", config.EVMR_SERVER, levelID)
