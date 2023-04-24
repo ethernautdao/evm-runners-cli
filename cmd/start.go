@@ -15,8 +15,9 @@ import (
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start <level>",
-	Short: "Starts a challenge",
-	Long:  `Starts a challenge by copying the respective template files from levels/template to levels/src and levels/test`,
+	Short: "Starts a level",
+	Long: `Starts a level by copying the respective template files from 
+evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/test`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		lang, _ := cmd.Flags().GetString("lang")
@@ -100,8 +101,7 @@ var startCmd = &cobra.Command{
 
 		config, err := utils.LoadConfig()
 		if err != nil {
-			fmt.Println("Error loading config")
-			return err
+			return fmt.Errorf("error loading config: %v", err)
 		}
 
 		src := filepath.Join(config.EVMR_LEVELS_DIR, "template", "src", fileToCopy)
@@ -134,7 +134,7 @@ var startCmd = &cobra.Command{
 			return fmt.Errorf("error copying file: %v", err)
 		}
 
-		fmt.Printf("Your challenge is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\n")
+		fmt.Printf("Your level is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\n")
 
 		return nil
 	},

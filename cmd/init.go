@@ -15,8 +15,9 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initializes EVM Runners",
 	Long: `Initializes EVM Runners by
-	1. Cloning the ethernautdao/evm-runners-levels.git repository into ./evm-runners-levels
-	2. Creating a .env file with the server and auth information`,
+	
+1. Cloning the ethernautdao/evm-runners-levels.git repository into ./evm-runners-levels
+2. Creating a .env file in ~/.config/evm-runners/`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Initializing EVM Runners ...")

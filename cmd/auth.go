@@ -29,8 +29,10 @@ type Config struct {
 
 var authCmd = &cobra.Command{
 	Use:   "auth <platform>",
-	Short: "Authenticate with Discord",
-	Long:  `Authenticate with Discord by visiting a webpage and entering a PIN`,
+	Short: "Authenticates with Discord",
+	Long: `Authenticates with Discord. 
+For updating your username, run 'evm-runners auth discord' again.`,
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		if len(args) == 0 {

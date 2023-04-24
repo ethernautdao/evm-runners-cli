@@ -14,6 +14,7 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all emv-runners levels",
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 		levels, err := utils.LoadLevels()
 		if err != nil {
