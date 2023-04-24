@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -71,67 +70,9 @@ var submitCmd = &cobra.Command{
 
 		fmt.Println("Submitting solution for level", level, "...")
 
-		// check if bytecode was provided, if not get the bytecode from the huff/sol solution
-		if bytecode != "" {
-			// check if bytecode is valid
-			bytecode, err = utils.CheckValidBytecode(bytecode)
-			if err != nil {
-				return err
-			}
-		} else {
-			solutionType, err := utils.CheckSolutionFile(filename, lang)
-			if err != nil {
-				return err
-			}
-
-			// .sol solution
-			if solutionType == "sol" {
-				// Compile all contracts
-				execCmd := exec.Command("forge", "build")
-				execCmd.Dir = config.EVMR_LEVELS_DIR
-				output, err := execCmd.CombinedOutput()
-				if err != nil {
-					return fmt.Errorf("%s: %s", err, output)
-				}
-
-				// Read the JSON file
-				file, err := ioutil.ReadFile(filepath.Join(config.EVMR_LEVELS_DIR, "out", fmt.Sprintf("%s.sol", filename), fmt.Sprintf("%s.json", level)))
-				if err != nil {
-					return fmt.Errorf("error reading JSON file: %v", err)
-				}
-
-				// Parse the JSON data
-				var data map[string]interface{}
-				err = json.Unmarshal([]byte(file), &data)
-				if err != nil {
-					return fmt.Errorf("error parsing JSON data: %v", err)
-				}
-
-				// Extract the "bytecode" field
-				bytecodeField := data["bytecode"].(map[string]interface{})
-
-				bytecode, err = utils.CheckValidBytecode(bytecodeField["object"].(string))
-				if err != nil {
-					return err
-				}
-			}
-
-			// .huff solution
-			if solutionType == "huff" {
-				// Compile the solution
-				huffPath := filepath.Join("src", fmt.Sprintf("%s.huff", filename))
-				execCmd := exec.Command("huffc", huffPath, "--bin-runtime")
-				execCmd.Dir = config.EVMR_LEVELS_DIR
-				output, err := execCmd.CombinedOutput()
-				if err != nil {
-					return fmt.Errorf("%s: %s", err, output)
-				}
-
-				bytecode, err = utils.CheckValidBytecode(string(output))
-				if err != nil {
-					return err
-				}
-			}
+		bytecode, err = utils.GetBytecodeToValidate(bytecode, level, filename, config.EVMR_LEVELS_DIR, lang)
+		if err != nil {
+			return err
 		}
 
 		// Check if solution is correct

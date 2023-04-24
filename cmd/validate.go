@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"github.com/spf13/cobra"
+	"os"
+	"os/exec"
 )
 
 // validateCmd represents the validate command
@@ -44,39 +43,21 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 
 		// get filename and test contract of level
 		filename := levels[level].File
-		testContract := levels[level].Test
 
-		// if bytecode is provided, set the BYTECODE env variable
-		if bytecode != "" {
-			bytecode, err = utils.CheckValidBytecode(bytecode)
-			if err != nil {
-				return err
-			}
-			os.Setenv("BYTECODE", bytecode)
-
-			// set the test contract to the bytecode test contract
-			testContract = testContract + "Base"
-		} else {
-			solutionType, err := utils.CheckSolutionFile(filename, lang)
-			if err != nil {
-				return err
-			}
-
-			// choose specific test contract (either sol or huff version)
-			if solutionType == "sol" {
-				testContract = testContract + "Sol"
-			} else {
-				testContract = testContract + "Huff"
-			}
+		bytecode, err = utils.GetBytecodeToValidate(bytecode, level, filename, config.EVMR_LEVELS_DIR, lang)
+		if err != nil {
+			return err
 		}
 
-		// Create the command to be run in the subdirectory
-		execCmd := exec.Command("forge", "test", "--match-contract", testContract, "-vv")
+		// Check if solution is correct
+		fmt.Println("Validating solution...")
 
-		// Set the working directory to the subdirectory
+		os.Setenv("BYTECODE", bytecode)
+
+		// Run test
+		testContract := levels[level].Test + "Base"
+		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
 		execCmd.Dir = config.EVMR_LEVELS_DIR
-
-		// Capture the standard output and standard error of the command
 		output, err := execCmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("%s", output)
