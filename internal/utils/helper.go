@@ -132,7 +132,7 @@ func getSolutionFile(file string, langFlag string) (string, error) {
 	huffExists := fileExists(huffFile)
 
 	if !solExists && !huffExists {
-		return "", fmt.Errorf("No solution file found. Add a solution file or submit bytecode with the --bytecode flag!")
+		return "", fmt.Errorf("No solution file found! Run 'evm-runners start <level>' or submit bytecode with --bytecode")
 	}
 
 	if langFlag != "" && langFlag != "sol" && langFlag != "huff" {
@@ -141,7 +141,7 @@ func getSolutionFile(file string, langFlag string) (string, error) {
 
 	if langFlag == "" {
 		if solExists && huffExists {
-			return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use the --lang flag to choose which one to validate.")
+			return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use --lang to choose which one to validate.")
 		}
 		if solExists {
 			langFlag = "sol"

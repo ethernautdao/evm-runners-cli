@@ -15,13 +15,9 @@ import (
 	"strings"
 )
 
-type SubmitResponse struct {
-	ID       string `json:"id"`
-	LevelID  int    `json:"level_id"`
-	UserID   int    `json:"user_id"`
-	Bytecode string `json:"bytecode"`
-	Gas      string `json:"gas"`
-	Size     string `json:"size"`
+type SubmissionData struct {
+	Gas  string `json:"gas"`
+	Size string `json:"size"`
 }
 
 // submitCmd represents the submit command
@@ -91,76 +87,12 @@ var submitCmd = &cobra.Command{
 		}
 
 		// Parse the output to get gas and size values
-		var gasValue int
-		var sizeValue int
-		outputStr := string(output)
-		outputLines := strings.Split(outputStr, "\n")
-		for _, line := range outputLines {
-			if strings.Contains(line, "_gas") {
-				re := regexp.MustCompile(`(μ|~:)\s*(\d+)`)
-				match := re.FindStringSubmatch(line)
-
-				if len(match) > 0 {
-					gasValue, err = strconv.Atoi(match[2])
-					if err != nil {
-						fmt.Printf("Error: %s\n", err.Error())
-					}
-				} else {
-					fmt.Println("No matching value found")
-				}
-			}
-			if strings.Contains(line, "Contract size:") {
-
-				re := regexp.MustCompile(`Contract size:\s*(\d+)`)
-				match := re.FindStringSubmatch(line)
-
-				if len(match) > 1 {
-					sizeValue, err = strconv.Atoi(match[1])
-					if err != nil {
-						fmt.Printf("Error: %s\n", err.Error())
-					}
-				} else {
-					fmt.Println("No matching value found")
-				}
-			}
-		}
+		gasValue, sizeValue, err := parseOutput(string(output))
 
 		fmt.Printf("Solution is correct! Gas: %d, Size: %d\nSubmitting to the server...\n", gasValue, sizeValue)
 
 		// Fetch existing submission data
-		url := config.EVMR_SERVER + "submissions/user/" + levels[level].ID
-		req, _ := http.NewRequest("GET", url, nil)
-		req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			return fmt.Errorf("Error sending the request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		// Read the response
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("Error reading the response: %v", err)
-		}
-
-		// Check for errors in the response
-		if resp.StatusCode != 200 {
-			return fmt.Errorf("Error submitting solution: %s", body)
-		}
-
-		// Parse the response
-		type SubmissionData struct {
-			Gas  string `json:"gas"`
-			Size string `json:"size"`
-		}
-		var submissions []SubmissionData
-
-		err = json.Unmarshal(body, &submissions)
-		if err != nil {
-			return fmt.Errorf("Error parsing the response: %v", err)
-		}
+		submissions, err := fetchSubmissionData(config, levels[level].ID)
 
 		// Compare new solution's gas and size with existing submission
 		var existingGas int
@@ -191,21 +123,21 @@ var submitCmd = &cobra.Command{
 		jsonPayload, _ := json.Marshal(payload)
 
 		// Make the HTTP request
-		url = config.EVMR_SERVER + "submissions"
-		req, _ = http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+		url := config.EVMR_SERVER + "submissions"
+		req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
 
 		// Send the request
-		client = &http.Client{}
-		resp, err = client.Do(req)
+		client := &http.Client{}
+		resp, err := client.Do(req)
 		if err != nil {
 			return fmt.Errorf("Error sending the request: %v", err)
 		}
 		defer resp.Body.Close()
 
 		// Read the response
-		body, err = ioutil.ReadAll(resp.Body)
+		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return fmt.Errorf("Error reading the response: %v", err)
 		}
@@ -215,18 +147,84 @@ var submitCmd = &cobra.Command{
 			return fmt.Errorf("Error submitting solution: %s", body)
 		}
 
-		// Parse the response
-		var res SubmitResponse
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			return fmt.Errorf("Error parsing the response: %v", err)
-		}
-
-		// Print the response
-		fmt.Printf("\nSolution for level %s submitted successfully!", level)
+		fmt.Printf("\nSolution for level %s submitted successfully!\n", level)
 
 		return nil
 	},
+}
+
+// parseOutput function to parse gas and size values
+func parseOutput(output string) (int, int, error) {
+	var gasValue int
+	var sizeValue int
+	var err error
+	outputLines := strings.Split(output, "\n")
+	for _, line := range outputLines {
+		if strings.Contains(line, "_gas") {
+			re := regexp.MustCompile(`(μ|~:)\s*(\d+)`)
+			match := re.FindStringSubmatch(line)
+
+			if len(match) > 0 {
+				gasValue, err = strconv.Atoi(match[2])
+				if err != nil {
+					return 0, 0, fmt.Errorf("Error: %s", err.Error())
+				}
+			} else {
+				fmt.Println("No matching value found")
+			}
+		}
+		if strings.Contains(line, "Contract size:") {
+
+			re := regexp.MustCompile(`Contract size:\s*(\d+)`)
+			match := re.FindStringSubmatch(line)
+
+			if len(match) > 1 {
+				sizeValue, err = strconv.Atoi(match[1])
+				if err != nil {
+					return 0, 0, fmt.Errorf("Error: %s", err.Error())
+				}
+			} else {
+				fmt.Println("No matching value found")
+			}
+		}
+	}
+
+	return gasValue, sizeValue, nil
+}
+
+// fetchSubmissionData function to fetch existing submission data
+func fetchSubmissionData(config utils.Config, levelID string) ([]SubmissionData, error) {
+	url := config.EVMR_SERVER + "submissions/user/" + levelID
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("Error sending the request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading the response: %v", err)
+	}
+
+	// Check for errors in the response
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("Error submitting solution: %s", body)
+	}
+
+	// Parse the response
+	var submissions []SubmissionData
+
+	err = json.Unmarshal(body, &submissions)
+	if err != nil {
+		return nil, fmt.Errorf("Error parsing the response: %v", err)
+	}
+
+	return submissions, nil
 }
 
 func init() {

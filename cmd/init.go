@@ -15,7 +15,7 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initializes EVM Runners",
 	Long: `Initializes EVM Runners by
-	
+
 1. Cloning the ethernautdao/evm-runners-levels.git repository into ./evm-runners-levels
 2. Creating a .env file in ~/.config/evm-runners/`,
 
@@ -33,7 +33,7 @@ var initCmd = &cobra.Command{
 			return fmt.Errorf("error getting absolute path for evm-runners-levels: %v", err)
 		}
 
-		fmt.Printf("\nCloning ethernautdao/evm-runners-levels.git into %s ...\n", subdir)
+		fmt.Printf("\nCloning ethernautdao/evm-runners-levels.git ...\n")
 
 		if _, err := os.Stat(subdir); os.IsNotExist(err) {
 			execCmd := exec.Command("git", "clone", "https://github.com/ethernautdao/evm-runners-levels.git", subdir)
@@ -42,13 +42,15 @@ var initCmd = &cobra.Command{
 			if err := execCmd.Run(); err != nil {
 				return fmt.Errorf("error cloning ethernautdao/evm-runners-levels.git: %v", err)
 			}
-			fmt.Println("evm-runners-levels cloned successfully")
+			fmt.Println("\nevm-runners-levels cloned successfully")
 		} else {
-			fmt.Println("evm-runners-levels already exists")
+			fmt.Println("\nevm-runners-levels already exists")
 		}
 
 		envDirPath := filepath.Join(usr.HomeDir, ".config", "evm-runners")
 		envFilePath := filepath.Join(envDirPath, ".env")
+
+		fmt.Printf("\nCreating .env file at %s ...\n", envFilePath)
 
 		// Set the fields in the config struct
 		configStruct := utils.Config{
@@ -81,7 +83,6 @@ var initCmd = &cobra.Command{
 				}
 			}
 
-			fmt.Printf("\nCreating .env file at %s ...\n", envFilePath)
 			err = writeEnvFile()
 			if err != nil {
 				return err
@@ -89,19 +90,19 @@ var initCmd = &cobra.Command{
 			fmt.Println(".env file created successfully.")
 		} else {
 			fmt.Printf(".env file already exists at %s. Do you want to overwrite it? (y/n): ", envFilePath)
+			// TODO: show .env file contents
 			var overwrite string
 			fmt.Scanln(&overwrite)
 			if overwrite != "y" && overwrite != "Y" {
-				fmt.Println("Aborted.")
-				return nil
+				fmt.Println("\nNot overwriting .env file")
+			} else {
+				fmt.Printf("\nOverwriting .env file at %s ...\n", envFilePath)
+				err = writeEnvFile()
+				if err != nil {
+					return err
+				}
+				fmt.Println(".env file overwritten successfully.")
 			}
-
-			fmt.Printf("\nOverwriting .env file at %s ...\n", envFilePath)
-			err = writeEnvFile()
-			if err != nil {
-				return err
-			}
-			fmt.Println(".env file overwritten successfully.")
 		}
 
 		fmt.Println("\nEVM Runners initialized successfully!\nSee 'evm-runners --help' for a list of all available commands.")
