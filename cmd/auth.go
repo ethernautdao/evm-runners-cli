@@ -35,11 +35,17 @@ For updating your username, run 'evm-runners auth discord' again.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
+		// check if config file exists
+		err := configExists()
+		if err != nil {
+			return err
+		}
+
 		if len(args) == 0 {
 			return fmt.Errorf("Please provide a platform, e.g. Discord\n")
 		} else if args[0] == ("discord") || args[0] == ("d") || args[0] == ("Discord") {
 			url := "https://evm-runners.fly.dev/auth"
-			fmt.Printf("Opening %s in your default browser...\n", url)
+			fmt.Printf("\nOpening %s in your default browser...\n", url)
 			if err := openBrowser(url); err != nil {
 				return fmt.Errorf("failed to open URL: %v", err)
 			}
@@ -93,7 +99,8 @@ func openBrowser(url string) error {
 	return cmd.Start()
 }
 
-func saveDataToEnv(authResp AuthResponse) error {
+// check if config file exists
+func configExists() error {
 	usr, err := user.Current()
 	if err != nil {
 		return fmt.Errorf("error getting user's home directory: %v", err)
@@ -116,14 +123,17 @@ func saveDataToEnv(authResp AuthResponse) error {
 	// Check if the required environment variables are already set
 	if viper.GetString("EVMR_TOKEN") != "" || viper.GetString("EVMR_ID") != "" || viper.GetString("EVMR_NAME") != "" {
 		var overwrite string
-		fmt.Printf("\nThe following environment variables are already set:\n\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\n\nDo you want to overwrite them with the new values? (y/n): ", viper.GetString("EVMR_TOKEN"), viper.GetString("EVMR_ID"), viper.GetString("EVMR_NAME"))
+		fmt.Printf("\nThe following environment variables are already set:\n\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\n\nDo you want to update them? (y/n): ", viper.GetString("EVMR_TOKEN"), viper.GetString("EVMR_ID"), viper.GetString("EVMR_NAME"))
 		fmt.Scanln(&overwrite)
 		if overwrite != "y" && overwrite != "Y" {
-			fmt.Println("Aborted.")
-			return nil
+			return fmt.Errorf("Aborting authentication")
 		}
 	}
 
+	return nil
+}
+
+func saveDataToEnv(authResp AuthResponse) error {
 	viper.Set("EVMR_TOKEN", authResp.AccessToken)
 	viper.Set("EVMR_ID", authResp.ID)
 	viper.Set("EVMR_NAME", fmt.Sprintf("%s#%04d", authResp.Name, authResp.Discriminator))
