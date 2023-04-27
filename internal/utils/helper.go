@@ -102,7 +102,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 		if solutionType == "huff" {
 			// Compile the solution
 			huffPath := filepath.Join("src", fmt.Sprintf("%s.huff", filename))
-			execCmd := exec.Command("huffc", huffPath, "--bin-runtime")
+			execCmd := exec.Command("huffc", huffPath, "--bytecode")
 			execCmd.Dir = levelsDir
 			output, err := execCmd.CombinedOutput()
 			if err != nil {
