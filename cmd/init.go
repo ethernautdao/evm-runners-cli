@@ -53,24 +53,26 @@ var initCmd = &cobra.Command{
 		fmt.Printf("\nCreating .env file at %s ...\n", envFilePath)
 
 		// Set the fields in the config struct
-		configStruct := utils.Config{
+		config := utils.Config{
 			EVMR_SERVER:     "https://evm-runners.fly.dev/",
 			EVMR_LEVELS_DIR: subdir,
+			EVMR_TOKEN:      "",
+			EVMR_ID:         "",
+			EVMR_NAME:       "",
 		}
 
 		// Write or overwrite .env file
-		writeEnvFile := func() error {
+		createEnvFile := func() error {
 			f, err := os.Create(envFilePath)
 			if err != nil {
 				return fmt.Errorf("error creating .env file: %v", err)
 			}
 			defer f.Close()
 
-			_, err = f.WriteString(fmt.Sprintf("EVMR_SERVER=%s\nEVMR_LEVELS_DIR=%s\n", configStruct.EVMR_SERVER, configStruct.EVMR_LEVELS_DIR))
+			err = utils.WriteConfig(config)
 			if err != nil {
 				return fmt.Errorf("error writing to .env file: %v", err)
 			}
-
 			return nil
 		}
 
@@ -83,7 +85,7 @@ var initCmd = &cobra.Command{
 				}
 			}
 
-			err = writeEnvFile()
+			err = createEnvFile()
 			if err != nil {
 				return err
 			}
@@ -96,7 +98,7 @@ var initCmd = &cobra.Command{
 				fmt.Println("\nNot overwriting .env file")
 			} else {
 				fmt.Printf("\nOverwriting .env file at %s ...\n", envFilePath)
-				err = writeEnvFile()
+				err = createEnvFile()
 				if err != nil {
 					return err
 				}

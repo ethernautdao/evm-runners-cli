@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"encoding/json"
 	"fmt"
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
+	"time"
 )
 
 type AuthResponse struct {
@@ -33,8 +33,14 @@ For updating your username, run 'evm-runners auth discord' again.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
+		// load config
+		config, err := utils.LoadConfig()
+		if err != nil {
+			return err
+		}
+
 		// check if config was already set
-		err := configExists()
+		err = configExists(config)
 		if err != nil {
 			return err
 		}
@@ -77,7 +83,12 @@ For updating your username, run 'evm-runners auth discord' again.`,
 				return fmt.Errorf("error unmarshalling response body: %v", err)
 			}
 
-			if err := saveDataToEnv(authResp); err != nil {
+			// set or overwrite config elements
+			config.EVMR_ID = authResp.ID
+			config.EVMR_NAME = fmt.Sprintf("%s#%04d", authResp.Name, authResp.Discriminator)
+			config.EVMR_TOKEN = authResp.AccessToken
+
+			if err := utils.WriteConfig(config); err != nil {
 				return fmt.Errorf("failed to save auth data: %v", err)
 			}
 		} else {
@@ -93,19 +104,16 @@ func init() {
 }
 
 func openBrowser(url string) error {
-	cmd := exec.Command("open", url) // Use "open" command on macOS
+	// wait for two seconds before opening the url
+	time.Sleep(1 * time.Second)
+
+	// open url
+	cmd := exec.Command("open", url)
 	return cmd.Start()
 }
 
-// check if config file exists
-func configExists() error {
-
-	// load config
-	config, err := utils.LoadConfig()
-	if err != nil {
-		return err
-	}
-
+// check if config file vars are already set
+func configExists(config utils.Config) error {
 	// Check if the required environment variables are already set
 	if config.EVMR_TOKEN != "" || config.EVMR_ID != "" || config.EVMR_NAME != "" {
 		var overwrite string
@@ -115,20 +123,6 @@ func configExists() error {
 			return fmt.Errorf("Aborting authentication")
 		}
 	}
-
-	return nil
-}
-
-func saveDataToEnv(authResp AuthResponse) error {
-	viper.Set("EVMR_TOKEN", authResp.AccessToken)
-	viper.Set("EVMR_ID", authResp.ID)
-	viper.Set("EVMR_NAME", fmt.Sprintf("%s#%04d", authResp.Name, authResp.Discriminator))
-
-	if err := viper.WriteConfig(); err != nil {
-		return fmt.Errorf("failed to write config: %v", err)
-	}
-
-	fmt.Println("\nSuccessfully authenticated with Discord!")
 
 	return nil
 }

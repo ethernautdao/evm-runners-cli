@@ -29,7 +29,6 @@ type Level struct {
 	Description string
 }
 
-
 func LoadConfig() (Config, error) {
 	var config Config
 
@@ -61,6 +60,36 @@ func LoadConfig() (Config, error) {
 	}
 
 	return config, nil
+}
+
+func WriteConfig(config Config) error {
+	usr, err := user.Current()
+	if err != nil {
+		return fmt.Errorf("error getting user's home directory: %v", err)
+	}
+
+	envFilePath := filepath.Join(usr.HomeDir, ".evm-runners", ".env")
+	viper.SetConfigFile(envFilePath)
+	viper.SetConfigType("env")
+
+	// Read the config file
+	if err := viper.ReadInConfig(); err != nil {
+		return fmt.Errorf("error reading in config file: %v", err)
+	}
+
+	viper.Set("EVMR_SERVER", config.EVMR_SERVER)
+	viper.Set("EVMR_LEVELS_DIR", config.EVMR_LEVELS_DIR)
+	viper.Set("EVMR_TOKEN", config.EVMR_TOKEN)
+	viper.Set("EVMR_ID", config.EVMR_ID)
+	viper.Set("EVMR_NAME", config.EVMR_NAME)
+
+	if err := viper.WriteConfig(); err != nil {
+		return fmt.Errorf("failed to write config: %v", err)
+	}
+
+	fmt.Println("\nSuccessfully authenticated with Discord!")
+
+	return nil
 }
 
 func LoadLevels() (map[string]Level, error) {
