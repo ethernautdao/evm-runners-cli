@@ -63,16 +63,14 @@ var submitCmd = &cobra.Command{
 
 		// get filename of level
 		filename := levels[level].File
-
-		fmt.Println("Submitting solution for level", level, "...")
-
+		
 		bytecode, err = utils.GetBytecodeToValidate(bytecode, level, filename, config.EVMR_LEVELS_DIR, lang)
 		if err != nil {
 			return err
 		}
 
 		// Check if solution is correct
-		fmt.Println("Validating solution...")
+		fmt.Println("\nValidating solution for level", level, "...")
 
 		os.Setenv("BYTECODE", bytecode)
 
@@ -89,7 +87,7 @@ var submitCmd = &cobra.Command{
 		// Parse the output to get gas and size values
 		gasValue, sizeValue, err := parseOutput(string(output))
 
-		fmt.Printf("Solution is correct! Gas: %d, Size: %d\nSubmitting to the server...\n", gasValue, sizeValue)
+		fmt.Printf("Solution is correct! Gas: %d, Size: %d\n\nSubmitting to the server...\n", gasValue, sizeValue)
 
 		// Fetch existing submission data
 		submissions, err := fetchSubmissionData(config, levels[level].ID)
@@ -104,7 +102,7 @@ var submitCmd = &cobra.Command{
 
 			if gasValue >= existingGas || sizeValue >= existingSize {
 				fmt.Printf("Warning: Gas (%d) or size (%d) of the new solution is higher or equal to the existing submission (gas: %d, size: %d).\n", gasValue, sizeValue, existingGas, existingSize)
-				fmt.Print("Do you want to submit anyway? (y/n): ")
+				fmt.Print("\nDo you want to submit anyway? (y/n): ")
 				var overwrite string
 				fmt.Scanln(&overwrite)
 				if overwrite != "y" && overwrite != "Y" {

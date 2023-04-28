@@ -56,7 +56,7 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 
 		// Run test
 		testContract := level + "TestBase"
-		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
+		execCmd := exec.Command("forge", "test", "--match-contract", testContract, "-vv")
 		execCmd.Dir = config.EVMR_LEVELS_DIR
 		output, err := execCmd.CombinedOutput()
 		if err != nil {
