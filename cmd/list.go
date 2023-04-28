@@ -21,7 +21,7 @@ var listCmd = &cobra.Command{
 			return fmt.Errorf("error loading levels: %v", err)
 		}
 
-		// TODO: Add timeout if no resp 
+		// TODO: Add timeout if no resp
 
 		solves := utils.GetSolves()
 
@@ -32,7 +32,7 @@ var listCmd = &cobra.Command{
 			return fmt.Errorf("error displaying level list: %v", err)
 		}
 
-		// TODO: Show last solve time? 
+		// TODO: Show last solve time?
 
 		return nil
 	},

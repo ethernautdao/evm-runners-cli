@@ -91,6 +91,9 @@ For updating your username, run 'evm-runners auth discord' again.`,
 			if err := utils.WriteConfig(config); err != nil {
 				return fmt.Errorf("failed to save auth data: %v", err)
 			}
+
+			fmt.Println("\nSuccessfully authenticated with Discord!")
+
 		} else {
 			return fmt.Errorf("Invalid authentication method. Only Discord is available yet.")
 		}

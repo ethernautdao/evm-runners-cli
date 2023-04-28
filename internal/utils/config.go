@@ -86,9 +86,7 @@ func WriteConfig(config Config) error {
 	if err := viper.WriteConfig(); err != nil {
 		return fmt.Errorf("failed to write config: %v", err)
 	}
-
-	fmt.Println("\nSuccessfully authenticated with Discord!")
-
+	
 	return nil
 }
 
