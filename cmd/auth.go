@@ -1,16 +1,14 @@
 package cmd
 
 import (
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"os/exec"
-	"os/user"
-	"path/filepath"
 )
 
 type AuthResponse struct {
@@ -35,7 +33,7 @@ For updating your username, run 'evm-runners auth discord' again.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		// check if config file exists
+		// check if config was already set
 		err := configExists()
 		if err != nil {
 			return err
@@ -101,29 +99,17 @@ func openBrowser(url string) error {
 
 // check if config file exists
 func configExists() error {
-	usr, err := user.Current()
+
+	// load config
+	config, err := utils.LoadConfig()
 	if err != nil {
-		return fmt.Errorf("error getting user's home directory: %v", err)
-	}
-
-	envFilePath := filepath.Join(usr.HomeDir, ".config", "evm-runners", ".env")
-	viper.SetConfigFile(envFilePath)
-	viper.SetConfigType("env")
-
-	// Check if the config file exists before trying to read it
-	if _, err := os.Stat(envFilePath); os.IsNotExist(err) {
-		// print error to run evm-runners init first
-		return fmt.Errorf("No config file found. Please run 'evm-runners init' first!")
-	}
-
-	if err := viper.ReadInConfig(); err != nil {
-		return fmt.Errorf("failed to read config file: %v", err)
+		return err
 	}
 
 	// Check if the required environment variables are already set
-	if viper.GetString("EVMR_TOKEN") != "" || viper.GetString("EVMR_ID") != "" || viper.GetString("EVMR_NAME") != "" {
+	if config.EVMR_TOKEN != "" || config.EVMR_ID != "" || config.EVMR_NAME != "" {
 		var overwrite string
-		fmt.Printf("\nThe following environment variables are already set:\n\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\n\nDo you want to update them? (y/n): ", viper.GetString("EVMR_TOKEN"), viper.GetString("EVMR_ID"), viper.GetString("EVMR_NAME"))
+		fmt.Printf("\nThe following environment variables are already set:\n\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\n\nDo you want to update them? (y/n): ", config.EVMR_TOKEN, config.EVMR_ID, config.EVMR_NAME)
 		fmt.Scanln(&overwrite)
 		if overwrite != "y" && overwrite != "Y" {
 			return fmt.Errorf("Aborting authentication")

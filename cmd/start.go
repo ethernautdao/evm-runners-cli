@@ -101,7 +101,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 
 		config, err := utils.LoadConfig()
 		if err != nil {
-			return fmt.Errorf("error loading config: %v", err)
+			return err
 		}
 
 		src := filepath.Join(config.EVMR_LEVELS_DIR, "template", "src", fileToCopy)
@@ -110,7 +110,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 		// Check if file already exists. If yes, ask if overwrite is wanted
 		_, err = os.Stat(dstSource)
 		if !os.IsNotExist(err) {
-			fmt.Printf("File %s already exists. Overwrite? (y/n): ", dstSource)
+			fmt.Printf("File %s already exists in evm-runners-levels/src. Overwrite? (y/n): ", fileToCopy)
 			var overwrite string
 			_, err := fmt.Scanln(&overwrite)
 			if err != nil {

@@ -78,7 +78,7 @@ func (m *levelListModel) View() string {
 		}
 		sb.WriteString(fmt.Sprintf("%s	  %-12s    %s\n", l.ID, l.Name, m.solves[l.Name]))
 		if m.Cursor == i && m.descriptionShown {
-			sb.WriteString("\n" + "  " + l.Description + "\n\n")
+			sb.WriteString("\n" + "  " + l.Description + "\n")
 		}
 	}
 
