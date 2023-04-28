@@ -42,12 +42,12 @@ var initCmd = &cobra.Command{
 			if err := execCmd.Run(); err != nil {
 				return fmt.Errorf("error cloning ethernautdao/evm-runners-levels.git: %v", err)
 			}
-			fmt.Println("\nevm-runners-levels cloned successfully")
+			fmt.Println("evm-runners-levels cloned successfully")
 		} else {
-			fmt.Println("\nevm-runners-levels already exists")
+			fmt.Println("evm-runners-levels already exists")
 		}
 
-		envDirPath := filepath.Join(usr.HomeDir, ".config", "evm-runners")
+		envDirPath := filepath.Join(usr.HomeDir, ".evm-runners")
 		envFilePath := filepath.Join(envDirPath, ".env")
 
 		fmt.Printf("\nCreating .env file at %s ...\n", envFilePath)
@@ -89,8 +89,7 @@ var initCmd = &cobra.Command{
 			}
 			fmt.Println(".env file created successfully.")
 		} else {
-			fmt.Printf(".env file already exists at %s. Do you want to overwrite it? (y/n): ", envFilePath)
-			// TODO: show .env file contents
+			fmt.Printf(".env file already exists at the destination. Do you want to overwrite it? (y/n): ")
 			var overwrite string
 			fmt.Scanln(&overwrite)
 			if overwrite != "y" && overwrite != "Y" {
