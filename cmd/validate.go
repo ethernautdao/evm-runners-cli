@@ -27,7 +27,7 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		// load config
 		config, err := utils.LoadConfig()
 		if err != nil {
-			return fmt.Errorf("error loading config: %v", err)
+			return err
 		}
 
 		// get level information
@@ -50,12 +50,12 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		}
 
 		// Check if solution is correct
-		fmt.Println("Validating solution...")
+		fmt.Printf("Validating solution...\n\n")
 
 		os.Setenv("BYTECODE", bytecode)
 
 		// Run test
-		testContract := levels[level].Test + "Base"
+		testContract := level + "TestBase"
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
 		execCmd.Dir = config.EVMR_LEVELS_DIR
 		output, err := execCmd.CombinedOutput()

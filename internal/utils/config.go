@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"os/user"
 	"path/filepath"
 
@@ -25,9 +26,9 @@ type Level struct {
 	ID          string
 	File        string
 	Name        string
-	Test        string
 	Description string
 }
+
 
 func LoadConfig() (Config, error) {
 	var config Config
@@ -37,8 +38,14 @@ func LoadConfig() (Config, error) {
 		return config, fmt.Errorf("error getting user's home directory: %v", err)
 	}
 
-	envFilePath := filepath.Join(usr.HomeDir, ".config", "evm-runners", configFile)
+	envFilePath := filepath.Join(usr.HomeDir, ".evm-runners", ".env")
 	viper.SetConfigFile(envFilePath)
+
+	// Check if the config file exists before trying to read it
+	if _, err := os.Stat(envFilePath); os.IsNotExist(err) {
+		// print error to run evm-runners init first
+		return config, fmt.Errorf("No config file found. Please run 'evm-runners init' first!")
+	}
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
@@ -83,7 +90,6 @@ func LoadLevels() (map[string]Level, error) {
 			ID:          l["id"].(string),
 			File:        l["file"].(string),
 			Name:        l["name"].(string),
-			Test:        l["test"].(string),
 			Description: l["description"].(string),
 		}
 		// Add the new Level struct to the map

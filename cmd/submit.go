@@ -37,7 +37,7 @@ var submitCmd = &cobra.Command{
 		// load config
 		config, err := utils.LoadConfig()
 		if err != nil {
-			return fmt.Errorf("error loading config: %v", err)
+			return err
 		}
 
 		// check if user authenticated
@@ -77,7 +77,7 @@ var submitCmd = &cobra.Command{
 		os.Setenv("BYTECODE", bytecode)
 
 		// Run test
-		testContract := levels[level].Test + "Base"
+		testContract := level + "TestBase"
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
 		execCmd.Dir = config.EVMR_LEVELS_DIR
 		output, err := execCmd.CombinedOutput()
