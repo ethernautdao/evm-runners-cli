@@ -13,7 +13,7 @@ import (
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "Lists all emv-runners levels",
+	Short: "Lists all evm-runners levels",
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		levels, err := utils.LoadLevels()

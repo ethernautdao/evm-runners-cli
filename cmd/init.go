@@ -56,10 +56,9 @@ var initCmd = &cobra.Command{
 		config := utils.Config{
 			EVMR_SERVER:     "https://evm-runners.fly.dev/",
 			EVMR_LEVELS_DIR: subdir,
-			EVMR_TOKEN:      "",
-			EVMR_ID:         "",
-			EVMR_NAME:       "",
 		}
+
+		// TODO: Only update EVMR_SERVER and LEVELS_DIR if user already authenticated
 
 		// Write or overwrite .env file
 		createEnvFile := func() error {
@@ -91,7 +90,7 @@ var initCmd = &cobra.Command{
 			}
 			fmt.Println(".env file created successfully.")
 		} else {
-			fmt.Printf(".env file already exists at the destination. Do you want to overwrite it? (y/n): ")
+			fmt.Printf(".env file already exists at the destination. You have to run 'evm-runners auth' again if you continue.\nDo you want to overwrite it? (y/n): ")
 			var overwrite string
 			fmt.Scanln(&overwrite)
 			if overwrite != "y" && overwrite != "Y" {

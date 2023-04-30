@@ -67,8 +67,8 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 
 		var selection string
 
-		// if lang flag is not sol or huff, open list
-		if lang != "sol" && lang != "huff" {
+		// if lang flag is not sol, huff, or vyper => open list
+		if lang != "sol" && lang != "huff" && lang != "vyper" {
 			model := tui.NewLangListModel()
 			p := tea.NewProgram(model)
 
@@ -95,6 +95,9 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 		case "Huff", "huff":
 			fileToCopy = filename + ".huff"
 			testToCopy = filename + "-Huff.t.sol"
+		case "Vyper", "vyper":
+			fileToCopy = filename + ".vy"
+			testToCopy = filename + "-Vyper.t.sol"
 		default:
 			return fmt.Errorf("invalid language: %s", selection)
 		}
@@ -136,7 +139,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			return fmt.Errorf("error copying file: %v", err)
 		}
 
-		fmt.Printf("Your level is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate <level>'")
+		fmt.Printf("Your level is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate <level>'\n")
 
 		return nil
 	},

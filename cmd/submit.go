@@ -64,7 +64,7 @@ var submitCmd = &cobra.Command{
 		// get filename of level
 		filename := levels[level].File
 
-		bytecode, err = utils.GetBytecodeToValidate(bytecode, level, filename, config.EVMR_LEVELS_DIR, lang)
+		bytecode, solutionType, err := utils.GetBytecodeToValidate(bytecode, level, filename, config.EVMR_LEVELS_DIR, lang)
 		if err != nil {
 			return err
 		}
@@ -75,7 +75,7 @@ var submitCmd = &cobra.Command{
 		os.Setenv("BYTECODE", bytecode)
 
 		// Run test
-		testContract := level + "TestBase"
+		testContract := levels[level].Name + "TestBase"
 		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
 		execCmd.Dir = config.EVMR_LEVELS_DIR
 		output, err := execCmd.CombinedOutput()
@@ -115,6 +115,7 @@ var submitCmd = &cobra.Command{
 		// Create a JSON payload
 		payload := map[string]string{
 			"bytecode": bytecode,
+			"type":     solutionType,
 			"user_id":  config.EVMR_ID,
 			"level_id": levels[level].ID,
 		}

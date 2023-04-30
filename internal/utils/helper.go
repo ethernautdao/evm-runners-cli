@@ -49,21 +49,25 @@ func GetSolves() map[string]string {
 	return solves
 }
 
-func GetBytecodeToValidate(bytecode string, level string, filename string, levelsDir string, lang string) (string, error) {
+func GetBytecodeToValidate(bytecode string, level string, filename string, levelsDir string, lang string) (string, string, error) {
+	levels, err := LoadLevels()
+	if err != nil {
+		return "", "", nil
+	}
 
 	// check if bytecode was provided, if not get the bytecode from the huff/sol solution
 	if bytecode != "" {
 		// check if bytecode is valid
 		bytecode, err := validateBytecode(bytecode)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 
-		return bytecode, nil
+		return bytecode, "bytecode", nil
 	} else {
 		solutionType, err := getSolutionFile(filename, lang)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 
 		// .sol solution
@@ -73,20 +77,20 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 			execCmd.Dir = levelsDir
 			output, err := execCmd.CombinedOutput()
 			if err != nil {
-				return "", fmt.Errorf("%s: %s", err, output)
+				return "", "", fmt.Errorf("%s: %s", err, output)
 			}
 
 			// Read the JSON file
-			file, err := ioutil.ReadFile(filepath.Join(levelsDir, "out", fmt.Sprintf("%s.sol", filename), fmt.Sprintf("%s.json", level)))
+			file, err := ioutil.ReadFile(filepath.Join(levelsDir, "out", fmt.Sprintf("%s.sol", filename), fmt.Sprintf("%s.json", levels[level].Name)))
 			if err != nil {
-				return "", fmt.Errorf("error reading JSON file: %v", err)
+				return "", "", fmt.Errorf("error reading JSON file: %v", err)
 			}
 
 			// Parse the JSON data
 			var data map[string]interface{}
 			err = json.Unmarshal([]byte(file), &data)
 			if err != nil {
-				return "", fmt.Errorf("error parsing JSON data: %v", err)
+				return "", "", fmt.Errorf("error parsing JSON data: %v", err)
 			}
 
 			// Extract the "bytecode" field
@@ -94,7 +98,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 
 			bytecode, err = validateBytecode(bytecodeField["object"].(string))
 			if err != nil {
-				return "", err
+				return "", "", err
 			}
 		}
 
@@ -106,15 +110,33 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 			execCmd.Dir = levelsDir
 			output, err := execCmd.CombinedOutput()
 			if err != nil {
-				return "", fmt.Errorf("%s: %s", err, output)
+				return "", "", fmt.Errorf("%s: %s", err, output)
 			}
 
 			bytecode, err = validateBytecode(string(output))
 			if err != nil {
-				return "", err
+				return "", "", err
 			}
 		}
-		return bytecode, nil
+
+		// .vy solution
+		if solutionType == "vyper" {
+			// Compile the solution
+			vyPath := filepath.Join("src", fmt.Sprintf("%s.vy", filename))
+			execCmd := exec.Command("vyper", vyPath)
+			execCmd.Dir = levelsDir
+			output, err := execCmd.CombinedOutput()
+			if err != nil {
+				return "", "", fmt.Errorf("%s: %s", err, output)
+			}
+
+			bytecode, err = validateBytecode(string(output))
+			if err != nil {
+				return "", "", err
+			}
+		}
+
+		return bytecode, solutionType, nil
 	}
 }
 
@@ -124,34 +146,39 @@ func getSolutionFile(file string, langFlag string) (string, error) {
 		return "", fmt.Errorf("error loading config: %v", err)
 	}
 
+	// Define the supported languages and their file extensions
+	languages := map[string]string{
+		"sol":   ".sol",
+		"huff":  ".huff",
+		"vyper": ".vy",
+	}
+
+	// Check if the given langFlag is valid
+	if langFlag != "" {
+		if _, exists := languages[langFlag]; !exists {
+			return "", fmt.Errorf("Invalid language flag. Please use either 'sol', 'huff', or 'vyper'.")
+		}
+	}
+
 	// Check existence of solution files
-	solFile := filepath.Join(config.EVMR_LEVELS_DIR, solutionDir, file+".sol")
-	huffFile := filepath.Join(config.EVMR_LEVELS_DIR, solutionDir, file+".huff")
+	var existingFiles []string
+	for lang, ext := range languages {
+		filePath := filepath.Join(config.EVMR_LEVELS_DIR, solutionDir, file+ext)
+		if fileExists(filePath) {
+			existingFiles = append(existingFiles, lang)
+		}
+	}
 
-	solExists := fileExists(solFile)
-	huffExists := fileExists(huffFile)
-
-	if !solExists && !huffExists {
+	// Handle cases with no solution files or multiple solution files
+	if len(existingFiles) == 0 {
 		return "", fmt.Errorf("No solution file found! Run 'evm-runners start <level>' or submit bytecode with --bytecode")
+	} else if langFlag == "" && len(existingFiles) > 1 {
+		return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use --lang to choose which one to validate.")
 	}
 
-	if langFlag != "" && langFlag != "sol" && langFlag != "huff" {
-		return "", fmt.Errorf("Invalid language flag. Please use either 'sol' or 'huff'.")
-	}
-
+	// Set langFlag if not provided
 	if langFlag == "" {
-		if solExists && huffExists {
-			return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use --lang to choose which one to validate.")
-		}
-		if solExists {
-			langFlag = "sol"
-		} else {
-			langFlag = "huff"
-		}
-	}
-
-	if (langFlag == "sol" && !solExists) || (langFlag == "huff" && !huffExists) {
-		return "", fmt.Errorf("Solution file not found for the specified language flag.")
+		langFlag = existingFiles[0]
 	}
 
 	return langFlag, nil

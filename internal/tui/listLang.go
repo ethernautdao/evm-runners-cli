@@ -40,7 +40,7 @@ func (m *langListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *langListModel) View() string {
-	s := "Do you want to solve the level in Solidity or Huff?\n\n"
+	s := "Pick the language you want to use and let the challenge begin!\n\n"
 
 	for i, option := range m.Options {
 		// Add a ">" symbol before the selected option
@@ -59,7 +59,7 @@ func (m *langListModel) View() string {
 
 func NewLangListModel() *langListModel {
 	return &langListModel{
-		Options: []string{"Solidity", "Huff"},
+		Options: []string{"Solidity", "Vyper", "Huff"},
 		Cursor:  0,
 	}
 }

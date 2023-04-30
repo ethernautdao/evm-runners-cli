@@ -14,11 +14,12 @@ var validateCmd = &cobra.Command{
 	Use:   "validate <level>",
 	Short: "Validates a level",
 	Long: `Validates a level by running the predefined Foundry tests against 
-the submitted solution file (either .huff or .sol) or against the provided bytecode, if set.`,
+the solution file or against the provided bytecode, if set.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
 		lang, _ := cmd.Flags().GetString("lang")
+		verbose, _ := cmd.Flags().GetBool("verbose")
 
 		if len(args) == 0 {
 			return fmt.Errorf("Please provide a level\n")
@@ -45,7 +46,7 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		// get filename and test contract of level
 		filename := levels[level].File
 
-		bytecode, err = utils.GetBytecodeToValidate(bytecode, level, filename, config.EVMR_LEVELS_DIR, lang)
+		bytecode, solutionType, err := utils.GetBytecodeToValidate(bytecode, level, filename, config.EVMR_LEVELS_DIR, lang)
 		if err != nil {
 			return err
 		}
@@ -56,8 +57,30 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		os.Setenv("BYTECODE", bytecode)
 
 		// Run test
-		testContract := level + "TestBase"
-		execCmd := exec.Command("forge", "test", "--match-contract", testContract, "-vv")
+		testContract := levels[level].Name + "TestBase"
+
+		// run forge test based on verbose flag
+		var execCmd *exec.Cmd
+		if verbose {
+			var userTestContract string
+			switch solutionType {
+			case "sol":
+				userTestContract = levels[level].Name + "TestSol"
+			case "huff":
+				userTestContract = levels[level].Name + "TestHuff"
+			case "vyper":
+				userTestContract = levels[level].Name + "TestVyper"
+			case "bytecode":
+				userTestContract = testContract
+			}
+
+			// show user which command is run
+			fmt.Printf("To test the solution yourself, run 'forge test --mc %s -vvvvv' in %s\n\n", userTestContract, config.EVMR_LEVELS_DIR)
+			execCmd = exec.Command("forge", "test", "--match-contract", testContract, "-vvvvv")
+		} else {
+			execCmd = exec.Command("forge", "test", "--match-contract", testContract, "-vv")
+		}
+
 		execCmd.Dir = config.EVMR_LEVELS_DIR
 		output, err := execCmd.CombinedOutput()
 		if err != nil {
@@ -78,4 +101,5 @@ func init() {
 
 	validateCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
 	validateCmd.Flags().StringP("lang", "l", "", "The language of the solution file. Either 'sol' or 'huff'")
+	validateCmd.Flags().BoolP("verbose", "v", false, "Verbose output, shows stack and setup traces")
 }

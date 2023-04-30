@@ -73,7 +73,7 @@ func leaderboardTable(submissions []Submission, field string) string {
 	}
 
 	dateLayout := "2006-01-02T15:04:05.000Z"
-	displayLayout := "Jan 02 03:04 PM UTC"
+	displayLayout := "Jan 02 2006"
 
 	for i, submission := range submissions {
 		userStr := fmt.Sprintf("%s#%04d", submission.Username, submission.Discriminator)
