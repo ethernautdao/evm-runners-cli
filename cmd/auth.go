@@ -33,21 +33,21 @@ For updating your username, run 'evm-runners auth discord' again.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		// load config
-		config, err := utils.LoadConfig()
-		if err != nil {
-			return err
-		}
-
-		// check if config was already set
-		err = configExists(config)
-		if err != nil {
-			return err
-		}
-
 		if len(args) == 0 {
 			return fmt.Errorf("Please provide a platform, e.g. Discord\n")
 		} else if args[0] == ("discord") || args[0] == ("d") || args[0] == ("Discord") {
+			// load config
+			config, err := utils.LoadConfig()
+			if err != nil {
+				return err
+			}
+
+			// check if config was already set
+			err = configExists(config)
+			if err != nil {
+				return err
+			}
+
 			url := "https://evm-runners.fly.dev/auth"
 			fmt.Printf("\nOpening %s in your default browser...\n", url)
 			if err := openBrowser(url); err != nil {
