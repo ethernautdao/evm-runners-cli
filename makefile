@@ -1,4 +1,5 @@
 BINARY_NAME=evm-runners
+ALT_NAME=evmr
 INSTALL_DIR=${HOME}/.evm-runners
 
 all: clean build
@@ -9,7 +10,11 @@ build:
 install:
 	mkdir -p ${INSTALL_DIR}
 	cp ${BINARY_NAME} ${INSTALL_DIR}
+	make symlink
+
+symlink:
+	ln -s ${INSTALL_DIR}/${BINARY_NAME} ${INSTALL_DIR}/${ALT_NAME}
 
 clean:
 	go clean
-	rm -f ${BINARY_NAME} ${INSTALL_DIR}/${BINARY_NAME}
+	rm -f ${BINARY_NAME} ${INSTALL_DIR}/${BINARY_NAME} ${INSTALL_DIR}/${ALT_NAME}
