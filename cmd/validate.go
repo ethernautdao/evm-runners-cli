@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // validateCmd represents the validate command
@@ -22,7 +23,7 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 		if len(args) == 0 {
 			return fmt.Errorf("Please provide a level\n")
 		}
-		level := args[0]
+		level := strings.ToLower(args[0])
 
 		// load config
 		config, err := utils.LoadConfig()
@@ -65,6 +66,8 @@ the submitted solution file (either .huff or .sol) or against the provided bytec
 
 		// Print the output of the command to the console
 		fmt.Println(string(output))
+
+		// Todo: Print solution correct, submit it with evmrunners submit, ...
 
 		return nil
 	},

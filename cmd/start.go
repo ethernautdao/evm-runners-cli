@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // startCmd represents the start command
@@ -45,12 +46,13 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 				selectedLevelKey := model.Keys[model.Cursor]
 				selectedLevel := model.Levels[selectedLevelKey]
 				args = append(args, selectedLevel.Name)
+
 			} else {
 				return nil
 			}
 		}
 
-		level := args[0]
+		level := strings.ToLower(args[0])
 
 		// check if level exists
 		if _, ok := levels[level]; !ok {
@@ -134,7 +136,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			return fmt.Errorf("error copying file: %v", err)
 		}
 
-		fmt.Printf("Your level is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\n")
+		fmt.Printf("Your level is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate <level>'")
 
 		return nil
 	},

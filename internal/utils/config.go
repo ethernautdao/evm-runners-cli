@@ -2,11 +2,11 @@ package utils
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 	"os"
 	"os/user"
 	"path/filepath"
-
-	"github.com/spf13/viper"
+	"strings"
 )
 
 const (
@@ -86,7 +86,7 @@ func WriteConfig(config Config) error {
 	if err := viper.WriteConfig(); err != nil {
 		return fmt.Errorf("failed to write config: %v", err)
 	}
-	
+
 	return nil
 }
 
@@ -120,7 +120,7 @@ func LoadLevels() (map[string]Level, error) {
 			Description: l["description"].(string),
 		}
 		// Add the new Level struct to the map
-		levels[level.Name] = level
+		levels[strings.ToLower(level.Name)] = level
 	}
 
 	return levels, nil

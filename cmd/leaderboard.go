@@ -3,11 +3,11 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
+	"io/ioutil"
+	"net/http"
+	"strings"
 
 	"github.com/ethernautdao/evm-runners-cli/internal/tui"
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
@@ -21,7 +21,7 @@ var leaderboardCmd = &cobra.Command{
 		if len(args) == 0 {
 			return fmt.Errorf("Please provide a level\n")
 		}
-		level := args[0]
+		level := strings.ToLower(args[0])
 
 		// get level information
 		levels, err := utils.LoadLevels()

@@ -48,7 +48,7 @@ var submitCmd = &cobra.Command{
 		if len(args) == 0 {
 			return fmt.Errorf("Please provide a level\n")
 		}
-		level := args[0]
+		level := strings.ToLower(args[0])
 
 		// get level information
 		levels, err := utils.LoadLevels()
@@ -63,7 +63,7 @@ var submitCmd = &cobra.Command{
 
 		// get filename of level
 		filename := levels[level].File
-		
+
 		bytecode, err = utils.GetBytecodeToValidate(bytecode, level, filename, config.EVMR_LEVELS_DIR, lang)
 		if err != nil {
 			return err
