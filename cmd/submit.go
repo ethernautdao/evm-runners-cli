@@ -101,14 +101,8 @@ var submitCmd = &cobra.Command{
 			existingSize, _ = strconv.Atoi(submissions[0].Size)
 
 			if gasValue >= existingGas || sizeValue >= existingSize {
-				fmt.Printf("Warning: Gas (%d) or size (%d) of the new solution is higher or equal to the existing submission (gas: %d, size: %d).\n", gasValue, sizeValue, existingGas, existingSize)
-				fmt.Print("\nDo you want to submit anyway? (y/n): ")
-				var overwrite string
-				fmt.Scanln(&overwrite)
-				if overwrite != "y" && overwrite != "Y" {
-					fmt.Println("Submission cancelled.")
-					return nil
-				}
+				fmt.Printf("\nWarning: Gas (%d) or size (%d) of the new solution is higher or equal to the existing solution (gas: %d, size: %d).\n", gasValue, sizeValue, existingGas, existingSize)
+				fmt.Println("Only the better score will be replaced.")
 			}
 		}
 
@@ -146,7 +140,7 @@ var submitCmd = &cobra.Command{
 			return fmt.Errorf("Error submitting solution: %s", body)
 		}
 
-		fmt.Printf("\nSolution for level %s submitted successfully!\n", level)
+		fmt.Printf("\nSolution for level '%s' submitted successfully!\n", level)
 
 		return nil
 	},

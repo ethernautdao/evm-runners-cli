@@ -14,6 +14,7 @@ type Submission struct {
 	Gas           float64 `json:"gas,string"`
 	Size          int     `json:"size,string"`
 	SubmittedAt   string  `json:"submitted_at"`
+	Type          string  `json:"type"`
 	Username      string  `json:"user_name"`
 	Discriminator int     `json:"discriminator"`
 	LevelName     string  `json:"level_name"`
@@ -51,24 +52,14 @@ func leaderboardTable(submissions []Submission, field string) string {
 	maxUsernameWidth += 4
 
 	if len(submissions) > 0 {
-		/*         levelName := submissions[0].LevelName
-		           title := fmt.Sprintf("%s Leaderboard for level %s", strings.ToUpper(field), levelName) */
+		header := fmt.Sprintf(" #\t%-*s\t%-5s\t%s\t\t%s\n", maxUsernameWidth, "USER", strings.ToUpper(field), "DATE", "TYPE")
+		separator := strings.Repeat("-", maxUsernameWidth+45) + "\n"
 
-		header := fmt.Sprintf(" #\t%-*s\t%-5s\t%s\n", maxUsernameWidth, "User", strings.ToUpper(field), "Date")
-		separator := strings.Repeat("-", maxUsernameWidth+38) + "\n"
-
-		// Calculate padding for centered title
-		/*         tableWidth := maxUsernameWidth + 38
-		           titlePadding := (tableWidth - len(title)) / 2
-		           titleLine := fmt.Sprintf("%-*s%s\n", titlePadding, "", title) */
-
-		//sb.WriteString(titleLine)
-		//sb.WriteString("\n")
 		sb.WriteString(header)
 		sb.WriteString(separator)
 	} else {
 		// No submissions, display a message
-		sb.WriteString("No submissions available for this leaderboard.")
+		sb.WriteString(fmt.Sprintf("No submissions available for this leaderboard. Type: %s", field))
 		return sb.String()
 	}
 
@@ -86,9 +77,9 @@ func leaderboardTable(submissions []Submission, field string) string {
 		dateStr := date.Format(displayLayout)
 
 		if field == "gas" {
-			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%d\t%s\n", i+1, maxUsernameWidth, userStr, int(submission.Gas), dateStr))
+			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%d\t%s\t%s\n", i+1, maxUsernameWidth, userStr, int(submission.Gas), dateStr, submission.Type))
 		} else if field == "size" {
-			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%d\t%s\n", i+1, maxUsernameWidth, userStr, submission.Size, dateStr))
+			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%d\t%s\t%s\n", i+1, maxUsernameWidth, userStr, submission.Size, dateStr, submission.Type))
 		}
 	}
 
