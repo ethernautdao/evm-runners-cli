@@ -23,6 +23,12 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 	RunE: func(cmd *cobra.Command, args []string) error {
 		lang, _ := cmd.Flags().GetString("lang")
 
+		// load config
+		config, err := utils.LoadConfig()
+		if err != nil {
+			return err
+		}
+
 		// get level information
 		levels, err := utils.LoadLevels()
 		if err != nil {
@@ -68,7 +74,14 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 		var selection string
 
 		// if lang flag is not sol, huff, or vyper => open list
-		if lang != "sol" && lang != "huff" && lang != "vyper" {
+		switch lang {
+		case "Solidity", "solidity", "sol":
+			selection = "sol"
+		case "Huff", "huff":
+			selection = "huff"
+		case "Vyper", "vyper", "vy":
+			selection = "vyper"
+		default:
 			model := tui.NewLangListModel()
 			p := tea.NewProgram(model)
 
@@ -81,11 +94,6 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			} else {
 				return nil
 			}
-
-			// add blank line
-			fmt.Printf("\n")
-		} else {
-			selection = lang
 		}
 
 		switch selection {
@@ -98,29 +106,30 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 		case "Vyper", "vyper":
 			fileToCopy = filename + ".vy"
 			testToCopy = filename + "-Vyper.t.sol"
+		case "no template":
+			fmt.Printf("No template file choosen. You can start working on your solution in '%s'!\nTo validate it, run 'evm-runners validate <level>'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"))
+			return nil
 		default:
 			return fmt.Errorf("invalid language: %s", selection)
 		}
 
 		// copy level from template/src to src
-
-		config, err := utils.LoadConfig()
-		if err != nil {
-			return err
-		}
-
 		src := filepath.Join(config.EVMR_LEVELS_DIR, "template", "src", fileToCopy)
 		dstSource := filepath.Join(config.EVMR_LEVELS_DIR, "src", fileToCopy)
 
 		// Check if file already exists. If yes, ask if overwrite is wanted
 		_, err = os.Stat(dstSource)
 		if !os.IsNotExist(err) {
-			fmt.Printf("File %s already exists in evm-runners-levels/src. Overwrite? (y/n): ", fileToCopy)
+			fmt.Printf("File %s already exists in evm-runners-levels/src/. Overwrite? (y/n): ", fileToCopy)
 			var overwrite string
 			_, err := fmt.Scanln(&overwrite)
 			if err != nil {
 				return fmt.Errorf("error reading input: %w", err)
 			}
+
+			// print new line
+			fmt.Printf("\n")
+
 			if overwrite != "y" && overwrite != "Y" {
 				fmt.Println("Aborted.")
 				return nil
