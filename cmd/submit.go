@@ -24,10 +24,14 @@ var submitCmd = &cobra.Command{
 	Use:   "submit <level>",
 	Short: "Submits a solution for a level to the server",
 	Long: `Submits a solution for a level to the server by 
-	
-1. Validating if the solution is correct
-2. Checking if an existing solution will be overwritten
-3. Sending the bytecode to the server`,
+
+1. Compiling the solution
+2. Validating the solution's bytecode 
+3. Sending the bytecode to the server
+
+The resulting codesize score is determined by the result
+of 'test_<level_id>_size', and the gas score is determined 
+by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")

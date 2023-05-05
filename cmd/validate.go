@@ -13,11 +13,13 @@ import (
 var validateCmd = &cobra.Command{
 	Use:   "validate <level>",
 	Short: "Validates a level",
-	Long: `Validates a level by running the predefined Foundry tests against 
-the solution file or against the provided bytecode, if the bytecode -b flag is set.
+	Long: `Validates a level by running the predefined Foundry tests 
+against the solution file or against the provided bytecode,
+if the bytecode -b flag is set.
 
-The resulting codesize score is determined by the result of 'test_<level_id>_size',
-and the gas score is determined by the µ value of the 'test_<level_id>_gas' fuzz test.`,
+The resulting codesize score is determined by the result
+of 'test_<level_id>_size', and the gas score is determined 
+by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
