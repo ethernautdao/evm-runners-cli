@@ -26,7 +26,6 @@ type Level struct {
 	ID          string
 	File        string
 	Name        string
-	Author      string
 	Description string
 }
 
@@ -118,7 +117,6 @@ func LoadLevels() (map[string]Level, error) {
 			ID:          l["id"].(string),
 			File:        l["file"].(string),
 			Name:        l["name"].(string),
-			Author:      l["author"].(string),
 			Description: l["description"].(string),
 		}
 		// Add the new Level struct to the map
