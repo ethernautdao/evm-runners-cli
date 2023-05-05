@@ -52,7 +52,7 @@ func (m *langListModel) View() string {
 		s += option + "\n"
 	}
 
-	s += "\n\x1b[90m↑ / ↓ - Navigate | ENTER - select language\x1b[0m"
+	s += "\n\x1b[90m↑ / ↓ - Navigate | ENTER - select language | q to exit\x1b[0m"
 
 	return s
 }

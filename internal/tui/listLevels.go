@@ -82,7 +82,7 @@ func (m *levelListModel) View() string {
 		}
 	}
 
-	sb.WriteString("\n\x1b[90m↑ / ↓ - Navigate | ← / → - Toggle Description\x1b[0m")
+	sb.WriteString("\n\x1b[90m↑ / ↓ - Navigate | ← / → - Toggle Description | q to exit\x1b[0m")
 
 	return sb.String()
 }

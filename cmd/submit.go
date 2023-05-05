@@ -206,7 +206,7 @@ func fetchSubmissionData(config utils.Config, levelID string) ([]SubmissionData,
 
 	// Check for errors in the response
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Error submitting solution: %s", body)
+		return nil, fmt.Errorf("Error submitting solution (status code %d): %s", resp.StatusCode, string(body))
 	}
 
 	// Parse the response
