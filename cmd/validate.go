@@ -14,7 +14,10 @@ var validateCmd = &cobra.Command{
 	Use:   "validate <level>",
 	Short: "Validates a level",
 	Long: `Validates a level by running the predefined Foundry tests against 
-the solution file or against the provided bytecode, if set.`,
+the solution file or against the provided bytecode, if the bytecode -b flag is set.
+
+The resulting codesize score is determined by the result of 'test_<level_id>_size',
+and the gas score is determined by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
@@ -90,7 +93,14 @@ the solution file or against the provided bytecode, if set.`,
 		// Print the output of the command to the console
 		fmt.Println(string(output))
 
-		// Todo: Print solution correct, submit it with evmrunners submit, ...
+		// Parse the output to get gas and size values
+		gasValue, sizeValue, err := utils.ParseOutput(string(output))
+		if err != nil {
+			return err
+		}
+
+		// Print the gas and size values
+		fmt.Printf("Solution is correct! Gas: %d, Size: %d\n", gasValue, sizeValue)
 
 		return nil
 	},

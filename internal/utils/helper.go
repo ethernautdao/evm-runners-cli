@@ -9,12 +9,53 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
 const (
 	solutionDir = "src"
 )
+
+// parseOutput function to parse gas and size values
+func ParseOutput(output string) (int, int, error) {
+	var gasValue int
+	var sizeValue int
+	var err error
+	outputLines := strings.Split(output, "\n")
+
+	for _, line := range outputLines {
+		if strings.Contains(line, "_gas") {
+			re := regexp.MustCompile(`(μ: )\s*(\d+)`)
+			match := re.FindStringSubmatch(line)
+
+			if len(match) > 1 {
+				gasValue, err = strconv.Atoi(match[2])
+				if err != nil {
+					return 0, 0, fmt.Errorf("Error: %v", err)
+				}
+			} else {
+				fmt.Println("No matching value found")
+			}
+		}
+		if strings.Contains(line, "Contract size:") {
+			re := regexp.MustCompile(`Contract size:\s*(\d+)`)
+			match := re.FindStringSubmatch(line)
+
+			if len(match) > 1 {
+				sizeValue, err = strconv.Atoi(match[1])
+				if err != nil {
+					return 0, 0, fmt.Errorf("Error: %v", err)
+				}
+			} else {
+				fmt.Println("No matching value found")
+			}
+		}
+	}
+
+	return gasValue, sizeValue, nil
+}
 
 func GetSolves() map[string]string {
 	levels, err := LoadLevels()

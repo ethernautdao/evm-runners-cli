@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -85,12 +84,18 @@ var submitCmd = &cobra.Command{
 		}
 
 		// Parse the output to get gas and size values
-		gasValue, sizeValue, err := parseOutput(string(output))
+		gasValue, sizeValue, err := utils.ParseOutput(string(output))
+		if err != nil {
+			return err
+		}
 
 		fmt.Printf("Solution is correct! Gas: %d, Size: %d\n\nSubmitting to the server...\n", gasValue, sizeValue)
 
 		// Fetch existing submission data
 		submissions, err := fetchSubmissionData(config, levels[level].ID)
+		if err != nil {
+			return err
+		}
 
 		// Compare new solution's gas and size with existing submission
 		var existingGas int
@@ -144,45 +149,6 @@ var submitCmd = &cobra.Command{
 
 		return nil
 	},
-}
-
-// parseOutput function to parse gas and size values
-func parseOutput(output string) (int, int, error) {
-	var gasValue int
-	var sizeValue int
-	var err error
-	outputLines := strings.Split(output, "\n")
-	for _, line := range outputLines {
-		if strings.Contains(line, "_gas") {
-			re := regexp.MustCompile(`(μ|~:)\s*(\d+)`)
-			match := re.FindStringSubmatch(line)
-
-			if len(match) > 0 {
-				gasValue, err = strconv.Atoi(match[2])
-				if err != nil {
-					return 0, 0, fmt.Errorf("Error: %s", err.Error())
-				}
-			} else {
-				fmt.Println("No matching value found")
-			}
-		}
-		if strings.Contains(line, "Contract size:") {
-
-			re := regexp.MustCompile(`Contract size:\s*(\d+)`)
-			match := re.FindStringSubmatch(line)
-
-			if len(match) > 1 {
-				sizeValue, err = strconv.Atoi(match[1])
-				if err != nil {
-					return 0, 0, fmt.Errorf("Error: %s", err.Error())
-				}
-			} else {
-				fmt.Println("No matching value found")
-			}
-		}
-	}
-
-	return gasValue, sizeValue, nil
 }
 
 // fetchSubmissionData function to fetch existing submission data
