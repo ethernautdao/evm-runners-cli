@@ -107,7 +107,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			fileToCopy = filename + ".vy"
 			testToCopy = filename + "-Vyper.t.sol"
 		case "no template":
-			fmt.Printf("No template file choosen. You can start working on your solution in '%s'!\nTo validate it, run 'evm-runners validate <level>'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"))
+			fmt.Printf("No template file choosen.\nYou can start working on your solution in '%s'!\nTo validate it, run 'evm-runners validate <level>'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"))
 			return nil
 		default:
 			return fmt.Errorf("invalid language: %s", selection)

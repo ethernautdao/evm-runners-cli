@@ -33,67 +33,35 @@ For updating your username, run 'evm-runners auth discord' again.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
+		// check if argument is empty
 		if len(args) == 0 {
 			return fmt.Errorf("Please provide a platform, e.g. Discord\n")
-		} else if args[0] == ("discord") || args[0] == ("d") || args[0] == ("Discord") {
-			// load config
-			config, err := utils.LoadConfig()
+		}
+
+		// load config
+		config, err := utils.LoadConfig()
+		if err != nil {
+			return err
+		}
+
+		// Check if the required environment variables are already set
+		if config.EVMR_TOKEN != "" || config.EVMR_ID != "" || config.EVMR_NAME != "" {
+			var overwrite string
+			fmt.Printf("\nThe following environment variables are already set:\n\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\n\nDo you want to update them? (y/n): ", config.EVMR_TOKEN, config.EVMR_ID, config.EVMR_NAME)
+			fmt.Scanln(&overwrite)
+			if overwrite != "y" && overwrite != "Y" {
+				fmt.Println("\nAborting authentication")
+				return nil
+			}
+		}
+
+		if args[0] == ("discord") || args[0] == ("d") || args[0] == ("Discord") {
+			err := authDiscord(config)
 			if err != nil {
-				return err
-			}
-
-			// check if config was already set
-			err = configExists(config)
-			if err != nil {
-				return err
-			}
-
-			url := "https://evm-runners.fly.dev/auth"
-			fmt.Printf("\nOpening %s in your default browser...\n", url)
-			if err := openBrowser(url); err != nil {
-				return fmt.Errorf("failed to open URL: %v", err)
-			}
-
-			fmt.Println("When you're done authenticating, enter the provided PIN code.")
-
-			var pin string
-			fmt.Printf("\nPIN: ")
-			if _, err := fmt.Scanln(&pin); err != nil {
-				return fmt.Errorf("failed to read PIN: %v", err)
-			}
-
-			tokenUrl := fmt.Sprintf("https://evm-runners.fly.dev/users/info/%s", pin)
-			resp, err := http.Get(tokenUrl)
-			if err != nil {
-				return fmt.Errorf("error making GET request: %v", err)
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("failed to authenticate with server: %s", resp.Status)
-			}
-
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				return fmt.Errorf("error reading response body: %v", err)
-			}
-
-			var authResp AuthResponse
-			if err := json.Unmarshal(body, &authResp); err != nil {
-				return fmt.Errorf("error unmarshalling response body: %v", err)
-			}
-
-			// set or overwrite config elements
-			config.EVMR_ID = authResp.ID
-			config.EVMR_NAME = fmt.Sprintf("%s#%04d", authResp.Name, authResp.Discriminator)
-			config.EVMR_TOKEN = authResp.AccessToken
-
-			if err := utils.WriteConfig(config); err != nil {
-				return fmt.Errorf("failed to save auth data: %v", err)
+				return fmt.Errorf("failed to authenticate with Discord: %v", err)
 			}
 
 			fmt.Println("\nSuccessfully authenticated with Discord!")
-
 		} else {
 			return fmt.Errorf("Invalid authentication method. Only Discord is available yet.")
 		}
@@ -115,16 +83,49 @@ func openBrowser(url string) error {
 	return cmd.Start()
 }
 
-// check if config file vars are already set
-func configExists(config utils.Config) error {
-	// Check if the required environment variables are already set
-	if config.EVMR_TOKEN != "" || config.EVMR_ID != "" || config.EVMR_NAME != "" {
-		var overwrite string
-		fmt.Printf("\nThe following environment variables are already set:\n\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\n\nDo you want to update them? (y/n): ", config.EVMR_TOKEN, config.EVMR_ID, config.EVMR_NAME)
-		fmt.Scanln(&overwrite)
-		if overwrite != "y" && overwrite != "Y" {
-			return fmt.Errorf("Aborting authentication")
-		}
+func authDiscord(config utils.Config) error {
+	url := config.EVMR_SERVER + "auth"
+	fmt.Printf("\nOpening %s in your default browser...\n", url)
+	if err := openBrowser(url); err != nil {
+		return fmt.Errorf("failed to open URL: %v", err)
+	}
+
+	fmt.Println("When you're done authenticating, enter the provided PIN code.")
+
+	var pin string
+	fmt.Printf("\nPIN: ")
+	if _, err := fmt.Scanln(&pin); err != nil {
+		return fmt.Errorf("failed to read PIN: %v", err)
+	}
+
+	tokenUrl := fmt.Sprintf("%susers/info/%s", config.EVMR_SERVER, pin)
+	resp, err := http.Get(tokenUrl)
+	if err != nil {
+		return fmt.Errorf("error making GET request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to authenticate with server: %s", resp.Status)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("error reading response body: %v", err)
+	}
+
+	var authResp AuthResponse
+	if err := json.Unmarshal(body, &authResp); err != nil {
+		return fmt.Errorf("error unmarshalling response body: %v", err)
+	}
+
+	// set or overwrite config elements
+	config.EVMR_ID = authResp.ID
+	config.EVMR_NAME = fmt.Sprintf("%s#%04d", authResp.Name, authResp.Discriminator)
+	config.EVMR_TOKEN = authResp.AccessToken
+
+	if err := utils.WriteConfig(config); err != nil {
+		return fmt.Errorf("failed to save auth data: %v", err)
 	}
 
 	return nil

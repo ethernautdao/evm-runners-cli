@@ -22,14 +22,18 @@ var aboutCmd = &cobra.Command{
 		fmt.Println("A terminal-based game for developers with EVM-based challenges")
 		fmt.Println("\nSponsored by @EthernautDAO")
 		fmt.Println("Authors: @0xkarmacoma, @beskay0x, @kyre_rs")
-		fmt.Println("Website: evmr.sh")
+		fmt.Println("Website: https://evmr.sh")
+		fmt.Println("Discord: https://discord.gg/RQ5WYDxUF3")
 
-		fmt.Println("\nevm-runners is not a regular CTF:")
+		fmt.Println("\nevm-runners is not just a regular CTF:")
+		fmt.Println(" - Gradual introduction to the EVM")
 		fmt.Println(" - Score based, not hack based")
 		fmt.Println(" - Dual scores (gas and codesize), not a compound score")
-		fmt.Println(" - No time limit")
 		fmt.Println(" - Linear progression: Challenges get more complex as you progress")
-		fmt.Println()
+		fmt.Println(" - Multiplayer: Compare your scores with other players")
+		fmt.Println(" - Singleplayer: Play at your own pace, learn usefull skills")
+		fmt.Println(" - Work on solutions in any EVM-language (Solidity, Vyper, Huff, etc.)")
+		fmt.Println("")
 	},
 }
 
