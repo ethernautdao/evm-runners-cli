@@ -28,6 +28,7 @@ var initCmd = &cobra.Command{
 			return fmt.Errorf("error getting user's home directory: %v", err)
 		}
 
+		// Get absolute path for evm-runners-levels
 		subdir, err := filepath.Abs("evm-runners-levels")
 		if err != nil {
 			return fmt.Errorf("error getting absolute path for evm-runners-levels: %v", err)
@@ -57,8 +58,6 @@ var initCmd = &cobra.Command{
 			EVMR_SERVER:     "https://evm-runners.fly.dev/",
 			EVMR_LEVELS_DIR: subdir,
 		}
-
-		// TODO: Only update EVMR_SERVER and LEVELS_DIR if user already authenticated
 
 		// Write or overwrite .env file
 		createEnvFile := func() error {
@@ -90,22 +89,35 @@ var initCmd = &cobra.Command{
 			}
 			fmt.Println(".env file created successfully.")
 		} else {
-			fmt.Printf(".env file already exists at the destination. You have to run 'evm-runners auth' again if you continue.\nDo you want to overwrite it? (y/n): ")
+			fmt.Printf(".env file already exists at the destination.\nDo you want to update it? (y/n): ")
 			var overwrite string
 			fmt.Scanln(&overwrite)
 			if overwrite != "y" && overwrite != "Y" {
-				fmt.Println("\nNot overwriting .env file")
+				fmt.Println("\nNot updating .env file")
 			} else {
-				fmt.Printf("\nOverwriting .env file at %s ...\n", envFilePath)
-				err = createEnvFile()
+				fmt.Printf("\nUpdating .env file at %s ...\n", envFilePath)
+
+				// Load existing config
+				config, err := utils.LoadConfig()
 				if err != nil {
 					return err
 				}
-				fmt.Println(".env file overwritten successfully.")
+
+				fmt.Println(config)
+
+				// replace subdir in config
+				config.EVMR_LEVELS_DIR = subdir
+
+				// Update config
+				err = utils.WriteConfig(config)
+				if err != nil {
+					return fmt.Errorf("error writing to .env file: %v", err)
+				}
+				fmt.Println(".env file updated successfully.")
 			}
 		}
 
-		fmt.Println("\nEVM Runners initialized successfully!\nSee 'evm-runners --help' for a list of all available commands.")
+		fmt.Println("\nevm-runners initialized successfully!\nSee 'evm-runners --help' for a list of all available commands.")
 		return nil
 	},
 }
