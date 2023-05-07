@@ -21,8 +21,6 @@ var listCmd = &cobra.Command{
 			return fmt.Errorf("error loading levels: %v", err)
 		}
 
-		// TODO: Add timeout if no resp
-
 		solves := utils.GetSolves()
 
 		model := tui.NewLevelList(levels, solves)
@@ -31,8 +29,6 @@ var listCmd = &cobra.Command{
 		if err := p.Start(); err != nil {
 			return fmt.Errorf("error displaying level list: %v", err)
 		}
-
-		// TODO: Show last solve time?
 
 		return nil
 	},

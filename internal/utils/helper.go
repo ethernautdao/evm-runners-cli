@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -58,20 +59,30 @@ func ParseOutput(output string) (int, int, error) {
 }
 
 func GetSolves() map[string]string {
+	solves := make(map[string]string)
+
+	config, err := LoadConfig()
+	if err != nil {
+		return solves
+
+	}
+
 	levels, err := LoadLevels()
 	if err != nil {
 		return nil
 	}
 
-	solves := make(map[string]string)
+	// Create a custom HTTP client with a 5-second timeout
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
 
 	for key := range levels {
-		url := fmt.Sprintf("https://evm-runners.fly.dev/levels/%s/total", levels[key].ID)
-		resp, err := http.Get(url)
+		url := fmt.Sprintf("%slevels/%s/total", config.EVMR_SERVER, levels[key].ID)
+		resp, err := client.Get(url)
 
 		// if the get request errors for some reason, we just set the solve count to 0
 		if err != nil {
-			//fmt.Printf("Error fetching submission count for level %s: %v\n", levels[key].Name, err)
 			solves[levels[key].Name] = "0"
 			continue
 		}
@@ -79,7 +90,6 @@ func GetSolves() map[string]string {
 
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			//fmt.Printf("Error reading response body for level %s: %v\n",  levels[key].Name, err)
 			solves[levels[key].Name] = "0"
 			continue
 		}
