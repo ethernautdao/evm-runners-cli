@@ -20,10 +20,11 @@ var aboutCmd = &cobra.Command{
                                                                  `)
 
 		fmt.Println("A terminal-based game for developers with EVM-based challenges")
-		fmt.Println("\nSponsored by @EthernautDAO")
-		fmt.Println("Authors: @0xkarmacoma, @beskay0x, @kyre_rs")
-		fmt.Println("Website: https://evmr.sh")
-		fmt.Println("Discord: https://discord.gg/RQ5WYDxUF3")
+		fmt.Println("\nSponsored by \x1b[34m@EthernautDAO\x1b[0m")
+		fmt.Println("Authors: \x1b[34m@0xkarmacoma\x1b[0m, \x1b[34m@beskay0x\x1b[0m, \x1b[34m@kyre_rs\x1b[0m")
+		fmt.Println("")
+		fmt.Println("Website: \x1b[34mhttps://evmr.sh\x1b[0m")
+		fmt.Println("Discord: \x1b[34mhttps://discord.gg/RQ5WYDxUF3\x1b[0m")
 
 		fmt.Println("\nevm-runners is not just a regular CTF:")
 		fmt.Println(" - Gradual introduction to the EVM")

@@ -53,7 +53,7 @@ func leaderboardTable(submissions []Submission, field string) string {
 
 	if len(submissions) > 0 {
 		header := fmt.Sprintf(" #\t%-*s\t%-5s\t%s\t\t%s\n", maxUsernameWidth, "USER", strings.ToUpper(field), "DATE", "TYPE")
-		separator := strings.Repeat("-", maxUsernameWidth+45) + "\n"
+		separator := "\x1b[90m" + strings.Repeat("-", maxUsernameWidth+48) + "\n" + "\x1b[0m"
 
 		sb.WriteString(header)
 		sb.WriteString(separator)
@@ -106,5 +106,5 @@ func (ui *CombinedLeaderboardUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (ui *CombinedLeaderboardUI) View() string {
-	return "\n" + ui.GasUI.View() + "\n\n" + ui.SizeUI.View() + "\n\nPress any key to exit."
+	return "\n" + ui.GasUI.View() + "\n\n" + ui.SizeUI.View() + "\x1b[90m" + "\n\nPress any key to exit." + "\x1b[0m"
 }

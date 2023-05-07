@@ -65,7 +65,7 @@ func (m *levelListModel) View() string {
 
 		
 	header := fmt.Sprintf("\n  #\t%-14s%s\t%s\t\t%s\n", "NAME", "SOLVES", "#1 GAS", "1# SIZE")
-	headerSeparator := strings.Repeat("-", len(header)+28) + "\n"
+	headerSeparator := "\x1b[90m" + strings.Repeat("-", len(header)+28) + "\n" + "\x1b[0m"
 
 	sb.WriteString(header)
 	sb.WriteString(headerSeparator)
@@ -79,7 +79,7 @@ func (m *levelListModel) View() string {
 		}
 		sb.WriteString(fmt.Sprintf("%s\t%-14s%s\t\t%s\t%s\n", l.ID, strings.ToLower(l.Name), m.solves[l.Name], "placeholder", "placeholder"))
 		if m.Cursor == i && m.descriptionShown {
-			sb.WriteString("\n" + "  " + l.Description + "\n")
+			sb.WriteString("\n" + "\x1b[32m" + l.Description + "\x1b[0m" + "\n")
 		}
 	}
 
