@@ -103,8 +103,6 @@ var initCmd = &cobra.Command{
 					return err
 				}
 
-				fmt.Println(config)
-
 				// replace subdir in config
 				config.EVMR_LEVELS_DIR = subdir
 

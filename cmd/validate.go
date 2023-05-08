@@ -67,20 +67,6 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		// run forge test based on verbose flag
 		var execCmd *exec.Cmd
 		if verbose {
-			var userTestContract string
-			switch solutionType {
-			case "sol":
-				userTestContract = levels[level].Name + "TestSol"
-			case "huff":
-				userTestContract = levels[level].Name + "TestHuff"
-			case "vyper":
-				userTestContract = levels[level].Name + "TestVyper"
-			case "bytecode":
-				userTestContract = testContract
-			}
-
-			// show user which command is run
-			fmt.Printf("To test the solution yourself, run 'forge test --mc %s -vvvvv' in %s\n\n", userTestContract, config.EVMR_LEVELS_DIR)
 			execCmd = exec.Command("forge", "test", "--match-contract", testContract, "-vvvvv")
 		} else {
 			execCmd = exec.Command("forge", "test", "--match-contract", testContract, "-vv")
@@ -89,7 +75,27 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		execCmd.Dir = config.EVMR_LEVELS_DIR
 		output, err := execCmd.CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("%s", output)
+			// print the output of forge test
+			fmt.Printf("%s", output)
+
+			// if verbose == true, show the test command to the user
+			if verbose {
+				var userTestContract string
+				switch solutionType {
+				case "sol":
+					userTestContract = levels[level].Name + "TestSol"
+				case "huff":
+					userTestContract = levels[level].Name + "TestHuff"
+				case "vyper":
+					userTestContract = levels[level].Name + "TestVyper"
+				case "bytecode":
+					userTestContract = testContract
+				}
+
+				fmt.Printf("\nTo test the solution yourself, run 'forge test --mc %s -vvvvv' in %s\n\n", userTestContract, config.EVMR_LEVELS_DIR)
+			}
+
+			return nil
 		}
 
 		// Print the output of the command to the console

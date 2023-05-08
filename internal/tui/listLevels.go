@@ -63,7 +63,6 @@ func (m *levelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *levelListModel) View() string {
 	var sb strings.Builder
 
-		
 	header := fmt.Sprintf("\n  #\t%-14s%s\t%s\t\t%s\n", "NAME", "SOLVES", "#1 GAS", "1# SIZE")
 	headerSeparator := "\x1b[90m" + strings.Repeat("-", len(header)+28) + "\n" + "\x1b[0m"
 

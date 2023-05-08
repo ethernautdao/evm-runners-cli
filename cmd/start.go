@@ -65,22 +65,14 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			return fmt.Errorf("level %s does not exist", level)
 		}
 
-		// get filename of level and declare test file
-		filename := levels[level].File
-
-		var fileToCopy string
-		var testToCopy string
-
-		var selection string
-
 		// if lang flag is not sol, huff, or vyper => open list
 		switch lang {
 		case "Solidity", "solidity", "sol":
-			selection = "sol"
+			lang = "sol"
 		case "Huff", "huff":
-			selection = "huff"
+			lang = "huff"
 		case "Vyper", "vyper", "vy":
-			selection = "vyper"
+			lang = "vyper"
 		default:
 			model := tui.NewLangListModel()
 			p := tea.NewProgram(model)
@@ -90,13 +82,19 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			}
 
 			if model.Done {
-				selection = model.Options[model.Cursor]
+				lang = model.Options[model.Cursor]
 			} else {
 				return nil
 			}
 		}
 
-		switch selection {
+		// get filename of level and declare test file
+		filename := levels[level].File
+
+		var fileToCopy string
+		var testToCopy string
+
+		switch lang {
 		case "Solidity", "sol", "solidity":
 			fileToCopy = filename + ".sol"
 			testToCopy = filename + "-Sol.t.sol"
@@ -110,7 +108,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			fmt.Printf("No template file choosen.\nYou can start working on your solution in '%s'!\nTo validate it, run 'evm-runners validate <level>'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"))
 			return nil
 		default:
-			return fmt.Errorf("invalid language: %s", selection)
+			return fmt.Errorf("invalid language: %s", lang)
 		}
 
 		// copy level from template/src to src
