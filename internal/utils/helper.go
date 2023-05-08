@@ -204,6 +204,19 @@ func getSolutionFile(file string, langFlag string) (string, error) {
 		"vyper": ".vy",
 	}
 
+	// Convert the given langFlag to lowercase
+	langFlag = strings.ToLower(langFlag)
+
+	// Map additional flags to their corresponding file extensions
+	switch langFlag {
+	case "solidity":
+		langFlag = "sol"
+	case "huff":
+		langFlag = "huff"
+	case "vy":
+		langFlag = "vyper"
+	}
+
 	// Check if the given langFlag is valid
 	if langFlag != "" {
 		if _, exists := languages[langFlag]; !exists {
