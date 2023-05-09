@@ -63,8 +63,8 @@ func (m *levelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *levelListModel) View() string {
 	var sb strings.Builder
 
-	header := fmt.Sprintf("\n  #\t%-14s%s\t%s\t\t%s\n", "NAME", "SOLVES", "#1 GAS", "1# SIZE")
-	headerSeparator := "\x1b[90m" + strings.Repeat("-", len(header)+28) + "\n" + "\x1b[0m"
+	header := fmt.Sprintf("\n  #\t%-14s%s\t%s\n", "NAME", "SOLVES", "TYPE")
+	headerSeparator := "\x1b[90m" + strings.Repeat("-", len(header)+18) + "\n" + "\x1b[0m"
 
 	sb.WriteString(header)
 	sb.WriteString(headerSeparator)
@@ -76,7 +76,7 @@ func (m *levelListModel) View() string {
 		} else {
 			sb.WriteString("  ")
 		}
-		sb.WriteString(fmt.Sprintf("%s\t%-14s%s\t\t%s\t%s\n", l.ID, strings.ToLower(l.Name), m.solves[l.Name], "placeholder", "placeholder"))
+		sb.WriteString(fmt.Sprintf("%s\t%-14s%s\t\t%s\n", l.ID, strings.ToLower(l.Name), m.solves[l.Name], l.Type))
 		if m.Cursor == i && m.descriptionShown {
 			sb.WriteString("\n" + "\x1b[32m" + l.Description + "\x1b[0m" + "\n")
 		}
