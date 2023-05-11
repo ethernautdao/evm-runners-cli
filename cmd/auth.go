@@ -55,6 +55,7 @@ For updating your username, run 'evm-runners auth discord' again.`,
 			}
 		}
 
+		// discord authentication
 		if args[0] == ("discord") || args[0] == ("d") || args[0] == ("Discord") {
 			err := authDiscord(config)
 			if err != nil {
@@ -75,7 +76,7 @@ func init() {
 }
 
 func openBrowser(url string) error {
-	// wait for two seconds before opening the url
+	// wait for one second before opening the url
 	time.Sleep(1 * time.Second)
 
 	// open url
@@ -84,6 +85,7 @@ func openBrowser(url string) error {
 }
 
 func authDiscord(config utils.Config) error {
+	// get URL to open in the browser
 	url := config.EVMR_SERVER + "auth"
 	fmt.Printf("\nOpening %s in your default browser...\n", url)
 	if err := openBrowser(url); err != nil {
@@ -92,12 +94,14 @@ func authDiscord(config utils.Config) error {
 
 	fmt.Println("When you're done authenticating, enter the provided PIN code.")
 
+	// read PIN from stdin
 	var pin string
 	fmt.Printf("\nPIN: ")
 	if _, err := fmt.Scanln(&pin); err != nil {
 		return fmt.Errorf("failed to read PIN: %v", err)
 	}
 
+	// make GET request to server
 	tokenUrl := fmt.Sprintf("%susers/info/%s", config.EVMR_SERVER, pin)
 	resp, err := http.Get(tokenUrl)
 	if err != nil {
@@ -114,6 +118,7 @@ func authDiscord(config utils.Config) error {
 		return fmt.Errorf("error reading response body: %v", err)
 	}
 
+	// unmarshal response body
 	var authResp AuthResponse
 	if err := json.Unmarshal(body, &authResp); err != nil {
 		return fmt.Errorf("error unmarshalling response body: %v", err)
@@ -124,6 +129,7 @@ func authDiscord(config utils.Config) error {
 	config.EVMR_NAME = fmt.Sprintf("%s#%04d", authResp.Name, authResp.Discriminator)
 	config.EVMR_TOKEN = authResp.AccessToken
 
+	// save config
 	if err := utils.WriteConfig(config); err != nil {
 		return fmt.Errorf("failed to save auth data: %v", err)
 	}

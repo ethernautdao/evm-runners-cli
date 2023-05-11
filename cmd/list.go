@@ -21,8 +21,10 @@ var listCmd = &cobra.Command{
 			return fmt.Errorf("error loading levels: %v", err)
 		}
 
+		// get amount of solves for each level
 		solves := utils.GetSolves()
 
+		// display level list
 		model := tui.NewLevelList(levels, solves)
 		p := tea.NewProgram(model)
 

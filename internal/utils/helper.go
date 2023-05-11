@@ -116,7 +116,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 
 		return bytecode, "bytecode", nil
 	} else {
-		solutionType, err := getSolutionFile(filename, lang)
+		solutionType, err := getSolutionType(filename, lang)
 		if err != nil {
 			return "", "", err
 		}
@@ -191,7 +191,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 	}
 }
 
-func getSolutionFile(file string, langFlag string) (string, error) {
+func getSolutionType(file string, langFlag string) (string, error) {
 	config, err := LoadConfig()
 	if err != nil {
 		return "", fmt.Errorf("error loading config: %v", err)
@@ -199,9 +199,9 @@ func getSolutionFile(file string, langFlag string) (string, error) {
 
 	// Define the supported languages and their file extensions
 	languages := map[string]string{
-		"sol":   ".sol",
-		"huff":  ".huff",
-		"vyper": ".vy",
+		"sol":  ".sol",
+		"huff": ".huff",
+		"vy":   ".vy",
 	}
 
 	// Convert the given langFlag to lowercase
@@ -213,14 +213,14 @@ func getSolutionFile(file string, langFlag string) (string, error) {
 		langFlag = "sol"
 	case "huff":
 		langFlag = "huff"
-	case "vy":
-		langFlag = "vyper"
+	case "vyper":
+		langFlag = "vy"
 	}
 
 	// Check if the given langFlag is valid
 	if langFlag != "" {
 		if _, exists := languages[langFlag]; !exists {
-			return "", fmt.Errorf("Invalid language flag. Please use either 'sol', 'huff', or 'vyper'.")
+			return "", fmt.Errorf("Invalid language flag. Please use either 'sol', 'huff', or 'vy'.")
 		}
 	}
 
