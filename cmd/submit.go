@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -73,15 +72,13 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		}
 
 		// Check if solution is correct
-		fmt.Println("\nValidating solution for level", level, "...")
+		fmt.Printf("\nValidating solution for level '%s' ...\n", level)
 
 		os.Setenv("BYTECODE", bytecode)
 
 		// Run test
 		testContract := levels[level].Name + "TestBase"
-		execCmd := exec.Command("forge", "test", "--match-contract", testContract)
-		execCmd.Dir = config.EVMR_LEVELS_DIR
-		output, err := execCmd.CombinedOutput()
+		output, err := utils.RunTest(config.EVMR_LEVELS_DIR, testContract, false)
 		if err != nil {
 			fmt.Println("Solution is not correct!")
 			return nil
@@ -139,14 +136,14 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		defer resp.Body.Close()
 
 		// Read the response
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("Error reading the response: %v", err)
-		}
+		/* 		body, err := ioutil.ReadAll(resp.Body)
+		   		if err != nil {
+		   			return fmt.Errorf("Error reading the response: %v", err)
+		   		} */
 
 		// Check for errors in the response
-		if resp.StatusCode != 200 {
-			return fmt.Errorf("Error submitting solution: %s", body)
+		if resp.StatusCode != http.StatusOK {
+			return fmt.Errorf("Error submitting solution: %s", resp.Status)
 		}
 
 		fmt.Printf("\nSolution for level '%s' submitted successfully!\n", level)
@@ -175,8 +172,8 @@ func fetchSubmissionData(config utils.Config, levelID string) ([]SubmissionData,
 	}
 
 	// Check for errors in the response
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Error submitting solution (status code %d): %s", resp.StatusCode, string(body))
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Error fetching submission data: %s", resp.Status)
 	}
 
 	// Parse the response

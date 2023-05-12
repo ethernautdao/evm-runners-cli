@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
@@ -275,4 +276,57 @@ func validateBytecode(bytecode string) (string, error) {
 
 	// return sanitized bytecode
 	return bytecode, nil
+}
+
+func RunTest(levelsDir string, testContract string, verbose bool) ([]byte, error) {
+	// seed random number generator
+	rand.Seed(time.Now().UnixNano())
+
+	// Generate a random Ethereum address
+	bytes := make([]byte, 20)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		// Handle error
+	}
+	randAddress := "0x" + hex.EncodeToString(bytes)
+
+	// Generate a random timestamp between 1 Jan 2000 and now
+	end := time.Now().Unix()
+	randTimestamp := rand.Intn(int(end))
+
+	// Generate a random PrevRandao value
+	bytes = make([]byte, 32)
+	_, err = rand.Read(bytes)
+	if err != nil {
+		// Handle error
+	}
+	randPrevRandao := "0x" + hex.EncodeToString(bytes)
+
+	// initialize the command with common arguments
+	execCmd := exec.Command("forge", "test",
+		"--block-coinbase", randAddress,
+		"--block-timestamp", strconv.Itoa(randTimestamp),
+		"--block-number", strconv.Itoa(rand.Intn(17243073)),
+		"--block-difficulty", strconv.Itoa(rand.Intn(5875000371)),
+		"--block-prevrandao", randPrevRandao,
+		"--gas-price", strconv.Itoa(rand.Intn(45014319675)),
+		"--base-fee", strconv.Itoa(rand.Intn(45014319675)),
+		"--match-contract", testContract)
+
+	// append verbose flag based on verbose variable
+	if verbose {
+		execCmd.Args = append(execCmd.Args, "-vvvvv")
+	} else {
+		execCmd.Args = append(execCmd.Args, "-vv")
+	}
+
+	execCmd.Dir = levelsDir
+	output, err := execCmd.CombinedOutput()
+
+	// Check for errors
+	if err != nil {
+		return output, err
+	}
+
+	return output, nil
 }

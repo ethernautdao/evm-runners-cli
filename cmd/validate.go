@@ -5,7 +5,6 @@ import (
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"github.com/spf13/cobra"
 	"os"
-	"os/exec"
 	"strings"
 )
 
@@ -64,16 +63,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		// Run test
 		testContract := levels[level].Name + "TestBase"
 
-		// run forge test based on verbose flag
-		var execCmd *exec.Cmd
-		if verbose {
-			execCmd = exec.Command("forge", "test", "--match-contract", testContract, "-vvvvv")
-		} else {
-			execCmd = exec.Command("forge", "test", "--match-contract", testContract, "-vv")
-		}
-
-		execCmd.Dir = config.EVMR_LEVELS_DIR
-		output, err := execCmd.CombinedOutput()
+		output, err := utils.RunTest(config.EVMR_LEVELS_DIR, testContract, verbose)
 		if err != nil {
 			// print the output of forge test
 			fmt.Printf("%s", output)
