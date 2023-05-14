@@ -77,7 +77,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		os.Setenv("BYTECODE", bytecode)
 
 		// Run test
-		testContract := levels[level].Name + "TestBase"
+		testContract := levels[level].Contract + "TestBase"
 		output, err := utils.RunTest(config.EVMR_LEVELS_DIR, testContract, false)
 		if err != nil {
 			fmt.Println("Solution is not correct!")
@@ -106,11 +106,13 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 			existingGas = int(floatGas)
 			existingSize, _ = strconv.Atoi(submissions[0].Size)
 
-			if gasValue >= existingGas || sizeValue >= existingSize {
-				fmt.Printf("\nWarning: Gas (%d) or size (%d) of the new solution is higher or equal to the existing solution (gas: %d, size: %d).\n", gasValue, sizeValue, existingGas, existingSize)
-				fmt.Println("Only the better score will be replaced.")
+			if gasValue >= existingGas && sizeValue >= existingSize {
+				fmt.Printf("\nWarning: Solution skipped!\nGas and size score is larger than existing one (gas: %d, size: %d).\n", existingGas, existingSize)
+				return nil
 			}
 		}
+
+		// If solution is better than existing one, submit it
 
 		// Create a JSON payload
 		payload := map[string]string{
@@ -135,18 +137,24 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		}
 		defer resp.Body.Close()
 
-		// Read the response
-		/* 		body, err := ioutil.ReadAll(resp.Body)
-		   		if err != nil {
-		   			return fmt.Errorf("Error reading the response: %v", err)
-		   		} */
-
 		// Check for errors in the response
 		if resp.StatusCode != http.StatusOK {
 			return fmt.Errorf("Error submitting solution: %s", resp.Status)
 		}
 
-		fmt.Printf("\nSolution for level '%s' submitted successfully!\n", level)
+		// Decode the JSON response as an array of objects
+		var response []map[string]interface{}
+		dec := json.NewDecoder(resp.Body)
+		if err := dec.Decode(&response); err != nil {
+			return fmt.Errorf("Error decoding response: %v", err)
+		}
+
+		// Extract the gas and size rank from the first object in the array
+		gasRank, _ := response[0]["gas_rank"].(string)
+		sizeRank, _ := response[0]["size_rank"].(string)
+
+		fmt.Printf("\nSolution for level '%s' submitted successfully!\n\n", level)
+		fmt.Printf("Your position on the leaderboard:\n\nSize category: %s\nGas category: %s\n\n", gasRank, sizeRank)
 
 		return nil
 	},
