@@ -61,7 +61,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		os.Setenv("BYTECODE", bytecode)
 
 		// Run test
-		testContract := levels[level].Name + "TestBase"
+		testContract := levels[level].Contract + "TestBase"
 
 		output, err := utils.RunTest(config.EVMR_LEVELS_DIR, testContract, verbose)
 		if err != nil {
@@ -73,11 +73,11 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 				var userTestContract string
 				switch solutionType {
 				case "sol":
-					userTestContract = levels[level].Name + "TestSol"
+					userTestContract = levels[level].Contract + "TestSol"
 				case "huff":
-					userTestContract = levels[level].Name + "TestHuff"
+					userTestContract = levels[level].Contract + "TestHuff"
 				case "vyper":
-					userTestContract = levels[level].Name + "TestVyper"
+					userTestContract = levels[level].Contract + "TestVyper"
 				case "bytecode":
 					userTestContract = testContract
 				}

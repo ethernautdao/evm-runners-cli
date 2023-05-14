@@ -99,7 +99,7 @@ func getLevel(args []string, levels map[string]utils.Level) (string, error) {
 		if model.Done {
 			selectedLevelKey := model.Keys[model.Cursor]
 			selectedLevel := model.Levels[selectedLevelKey]
-			args = append(args, selectedLevel.Name)
+			args = append(args, selectedLevel.Contract)
 
 		} else {
 			return "", nil
@@ -134,7 +134,7 @@ func getLang(lang string) (string, error) {
 		}
 
 		if model.Done {
-			lang = model.Options[model.Cursor]
+			lang = model.Lang[model.Cursor]
 		} else {
 			return "", nil
 		}
@@ -144,14 +144,28 @@ func getLang(lang string) (string, error) {
 }
 
 func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
+	// copy test file from template to test
+	fmt.Printf("Copying test %s...\n", testToCopy)
+
+	src := filepath.Join(levelsDir, "template", testToCopy)
+	dstTest := filepath.Join(levelsDir, "test", testToCopy)
+
+	if err := copyFile(src, dstTest); err != nil {
+		return fmt.Errorf("error copying file: %v", err)
+	}
+
+	fmt.Printf("Test copied successfully.\n\n")
+
+	fmt.Printf("Copying source file %s...\n", fileToCopy)
+
 	// copy level from template/src to src
-	src := filepath.Join(levelsDir, "template", "src", fileToCopy)
+	src = filepath.Join(levelsDir, "template", "src", fileToCopy)
 	dstSource := filepath.Join(levelsDir, "src", fileToCopy)
 
 	// Check if file already exists. If yes, ask if overwrite is wanted
 	_, err := os.Stat(dstSource)
 	if !os.IsNotExist(err) {
-		fmt.Printf("File %s already exists in evm-runners-levels/src/. Overwrite? (y/n): ", fileToCopy)
+		fmt.Printf("Source file already exists in evm-runners-levels/src/. Overwrite? (y/n): ")
 		var overwrite string
 		_, err := fmt.Scanln(&overwrite)
 		if err != nil {
@@ -162,7 +176,7 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 		fmt.Printf("\n")
 
 		if overwrite != "y" && overwrite != "Y" {
-			fmt.Println("Aborted.")
+			fmt.Printf("Not overwriting %s\n", fileToCopy)
 			return nil
 		}
 	}
@@ -171,15 +185,7 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 		return fmt.Errorf("error copying file: %v", err)
 	}
 
-	// copy test file from template to test
-	src = filepath.Join(levelsDir, "template", testToCopy)
-	dstTest := filepath.Join(levelsDir, "test", testToCopy)
-
-	if err := copyFile(src, dstTest); err != nil {
-		return fmt.Errorf("error copying file: %v", err)
-	}
-
-	fmt.Printf("Your level is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate <level>'\n")
+	fmt.Printf("\nYour level is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate <level>'\n")
 
 	return nil
 }

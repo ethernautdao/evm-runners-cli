@@ -6,6 +6,7 @@ import (
 
 type langListModel struct {
 	Options []string
+	Lang    []string
 	Cursor  int
 	Done    bool
 }
@@ -60,6 +61,7 @@ func (m *langListModel) View() string {
 func NewLangListModel() *langListModel {
 	return &langListModel{
 		Options: []string{"solidity", "vyper", "huff", "no template"},
+		Lang:    []string{"sol", "vy", "huff", "no template"},
 		Cursor:  0,
 	}
 }

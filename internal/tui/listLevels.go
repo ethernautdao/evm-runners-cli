@@ -76,7 +76,7 @@ func (m *levelListModel) View() string {
 		} else {
 			sb.WriteString("  ")
 		}
-		sb.WriteString(fmt.Sprintf("%s\t%-14s%s\t\t%s\n", l.ID, strings.ToLower(l.Name), m.solves[l.Name], l.Type))
+		sb.WriteString(fmt.Sprintf("%s\t%-14s%s\t\t%s\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], l.Type))
 		if m.Cursor == i && m.descriptionShown {
 			sb.WriteString("\n" + "\x1b[32m" + l.Description + "\x1b[0m" + "\n")
 		}

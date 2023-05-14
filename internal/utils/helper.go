@@ -84,18 +84,18 @@ func GetSolves() map[string]string {
 
 		// if the get request errors for some reason, we just set the solve count to 0
 		if err != nil {
-			solves[levels[key].Name] = "0"
+			solves[levels[key].Contract] = "0"
 			continue
 		}
 		defer resp.Body.Close()
 
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			solves[levels[key].Name] = "0"
+			solves[levels[key].Contract] = "0"
 			continue
 		}
 
-		solves[levels[key].Name] = string(body)
+		solves[levels[key].Contract] = string(body)
 	}
 
 	return solves
@@ -133,7 +133,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 			}
 
 			// Read the JSON file
-			file, err := ioutil.ReadFile(filepath.Join(levelsDir, "out", fmt.Sprintf("%s.sol", filename), fmt.Sprintf("%s.json", levels[level].Name)))
+			file, err := ioutil.ReadFile(filepath.Join(levelsDir, "out", fmt.Sprintf("%s.sol", filename), fmt.Sprintf("%s.json", levels[level].Contract)))
 			if err != nil {
 				return "", "", fmt.Errorf("error reading JSON file: %v", err)
 			}
@@ -172,7 +172,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 		}
 
 		// .vy solution
-		if solutionType == "vyper" {
+		if solutionType == "vy" {
 			// Compile the solution
 			vyPath := filepath.Join("src", fmt.Sprintf("%s.vy", filename))
 			execCmd := exec.Command("vyper", vyPath)

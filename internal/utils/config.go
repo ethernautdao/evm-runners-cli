@@ -25,7 +25,7 @@ type Config struct {
 type Level struct {
 	ID          string
 	File        string
-	Name        string
+	Contract    string
 	Type        string
 	Description string
 }
@@ -117,12 +117,12 @@ func LoadLevels() (map[string]Level, error) {
 		level := Level{
 			ID:          l["id"].(string),
 			File:        l["file"].(string),
-			Name:        l["name"].(string),
+			Contract:    l["contract"].(string),
 			Type:        l["type"].(string),
 			Description: l["description"].(string),
 		}
 		// Add the new Level struct to the map
-		levels[strings.ToLower(level.Name)] = level
+		levels[strings.ToLower(level.Contract)] = level
 	}
 
 	return levels, nil
