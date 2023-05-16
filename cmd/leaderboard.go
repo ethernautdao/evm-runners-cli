@@ -56,6 +56,11 @@ func fetchLeaderboardData(url string) ([]tui.Submission, error) {
 		return nil, fmt.Errorf("error decoding JSON response: %v", err)
 	}
 
+	// Limit the array length to 10 if it exceeds
+	if len(leaderboardData) > 10 {
+		leaderboardData = leaderboardData[:10]
+	}
+
 	return leaderboardData, nil
 }
 
