@@ -72,7 +72,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			}
 
 		} else if lang == "no template" {
-			fmt.Printf("No template file choosen.\nYou can start working on your solution in '%s'!\nTo validate it, run 'evm-runners validate <level>'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"))
+			fmt.Printf("No template file selected.\nYou can start working on your solution in '%s'!\nTo validate it, run 'evm-runners validate <level>'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"))
 			return nil
 		} else {
 			return fmt.Errorf("invalid language: %s", lang)

@@ -154,7 +154,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		sizeRank, _ := response[0]["size_rank"].(string)
 
 		fmt.Printf("\nSolution for level '%s' submitted successfully!\n\n", level)
-		fmt.Printf("Your position on the leaderboard:\n\nSize category: %s\nGas category: %s\n\n", gasRank, sizeRank)
+		fmt.Printf("Size leaderboard: #%s\nGas leaderboard: #%s\n\n", gasRank, sizeRank)
 
 		return nil
 	},

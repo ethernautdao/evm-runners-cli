@@ -59,7 +59,7 @@ func leaderboardTable(submissions []Submission, field string) string {
 		sb.WriteString(separator)
 	} else {
 		// No submissions, display a message
-		sb.WriteString(fmt.Sprintf("No submissions available for this leaderboard. Type: %s", field))
+		sb.WriteString(fmt.Sprintf("No submissions available for the %s leaderboard!", field))
 		return sb.String()
 	}
 

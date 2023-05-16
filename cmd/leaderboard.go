@@ -51,11 +51,6 @@ func fetchLeaderboardData(url string) ([]tui.Submission, error) {
 		return nil, fmt.Errorf("error reading response body: %v", err)
 	}
 
-	// Check for the "No results" string in the response
-	if strings.Contains(string(body), "No results") {
-		return []tui.Submission{}, nil // Return an empty slice
-	}
-
 	var leaderboardData []tui.Submission
 	if err := json.Unmarshal(body, &leaderboardData); err != nil {
 		return nil, fmt.Errorf("error decoding JSON response: %v", err)
