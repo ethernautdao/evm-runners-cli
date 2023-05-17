@@ -2,6 +2,7 @@
 
 # Define variables
 APP_NAME="evm-runners"
+APP_NAME_ALT="evmr"
 GITHUB_USER="ethernautdao"
 GITHUB_REPO="evm-runners-cli"
 VERSION="v0.1"
@@ -36,8 +37,12 @@ curl -L "$DOWNLOAD_URL" -o "$APP_NAME"
 chmod +x "$APP_NAME"
 
 INSTALL_DIR="${HOME}/.${APP_NAME}"
+
+echo "Moving the binary to $INSTALL_DIR"
+
 mkdir -p "$INSTALL_DIR"
 mv "$APP_NAME" "$INSTALL_DIR"
+ln -sf "$INSTALL_DIR/$APP_NAME" "$INSTALL_DIR/$APP_NAME_ALT"
 
 # Determine shell
 SHELL_NAME="$(basename "$SHELL")"
@@ -52,6 +57,9 @@ else
   exit 1
 fi
 
+echo ""
+echo "Updating the PATH environment variable"
+
 # Update PATH environment variable in the shell configuration file
 if [ -z "$(grep "${INSTALL_DIR}" "$CONFIG_FILE")" ]; then
   echo "export PATH=${INSTALL_DIR}:\$PATH" >> "$CONFIG_FILE"
@@ -60,4 +68,9 @@ else
   echo "$CONFIG_FILE already contains PATH modification"
 fi
 
+echo ""
 echo "$APP_NAME version $VERSION installed successfully!"
+echo ""
+echo "Run 'source $CONFIG_FILE' or start a new terminal session to use evm-runners."
+echo "Then run 'evm-runners help' to get started."
+echo "Alternatively, you can also use 'evmr' instead of 'evm-runners'"
