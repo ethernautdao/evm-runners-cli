@@ -2,24 +2,19 @@
 
 Command line interface for evm-runners
 
-## Prerequisites
-
-- [Go 1.20](https://go.dev/doc/install)
-- [git](https://github.com/git-guides/install-git)
-
-## Building
-
-```
-make
-```
-
-or
-
-```
-go build -o evm-runners main.go
-```
-
 ## Installation
+
+### Shell script
+
+```
+curl -L https://raw.githubusercontent.com/ethernautdao/evm-runners-cli/main/install.sh | bash
+```
+
+This will install the binary in `~/.evm-runners` and updates your shell configuration file (e.g., `~/.bashrc` or `~/.zshrc`).
+
+After successfull installation, restart your terminal to use `evm-runners`.
+
+### From source
 
 ```
 make && make install
@@ -33,6 +28,8 @@ Note that if you want to run the evm-runners binary from any directory, you need
 export PATH="${HOME}/.evm-runners:${PATH}"
 ```
 
+To build from source you need to have [Go 1.20](https://go.dev/doc/install) installed.
+
 ## Commands
 
 **Display help**
@@ -42,26 +39,29 @@ evm-runners -h
 ```
 
 **Initialize evm runners**
-This command clones the [evm-runners-levels repo](https://github.com/ethernautdao/evm-runners-levels) into the current directory and creates a .env file in `~/.evm-runners/`
 
 ```
 evm-runners init
 ```
 
+This command clones the [evm-runners-levels](https://github.com/ethernautdao/evm-runners-levels) repository into the current directory and creates a .env file in `~/.evm-runners/`
+
 **Authentication**
-Authenticates the user. As of now only Discord authentication is available
 
 ```
 evm-runners auth <platform>
 ```
 
+Authenticates the user. As of now only Discord authentication is available, e.g. `evm-runners auth discord`
+
 **Start solving a level**
 
 ```
-evm-runners start --level <level_name>
+evm-runners start
 ```
 
-e.g. `evm-runners start Average`
+Opens a list of levels to choose from. Alternatively, you can also start solving a level by providing the level name as an argument, e.g. `evm-runners start average`
+
 Optional flags:
 
 - `--lang` or `-l`, to directly choose the language of the solution file you want to work on, e.g. `evm-runners start Average -l sol`
@@ -80,7 +80,7 @@ Optional flags:
 **Submit a solution**
 
 ```
-./evm-runners submit <level_name>
+evm-runners submit <level_name>
 ```
 
 Optional flags:
@@ -98,4 +98,10 @@ evm-runners list
 
 ```
 evm-runners leaderboard <level_name>
+```
+
+**Display info about evm-runners**
+
+```
+evm-runners about
 ```
