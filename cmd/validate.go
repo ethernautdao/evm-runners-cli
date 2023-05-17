@@ -99,7 +99,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 
 		// Print the gas and size values
 		fmt.Printf("Solution is correct! Gas: %d, Size: %d\n", gasValue, sizeValue)
-
+		fmt.Printf("To submit it, run 'evm-runners submit %s'\n", level)
 		return nil
 	},
 }

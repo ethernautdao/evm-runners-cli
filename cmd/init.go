@@ -35,7 +35,7 @@ var initCmd = &cobra.Command{
 		}
 
 		// Clone ethernautdao/evm-runners-levels.git
-		fmt.Printf("\nCloning ethernautdao/evm-runners-levels.git ...\n")
+		fmt.Printf("\nCloning 'github.com/ethernautdao/evm-runners-levels.git' ...\n")
 
 		err = cloneRepository(subdir)
 		if err != nil {
@@ -46,7 +46,7 @@ var initCmd = &cobra.Command{
 		envDirPath := filepath.Join(usr.HomeDir, ".evm-runners")
 		envFilePath := filepath.Join(envDirPath, ".env")
 
-		fmt.Printf("\nCreating .env file at %s ...\n", envFilePath)
+		fmt.Printf("\nCreating .env file at '%s' ...\n", envFilePath)
 
 		err = createOrUpdateEnv(subdir, envDirPath, envFilePath)
 		if err != nil {
@@ -64,7 +64,7 @@ func cloneRepository(subdir string) error {
 		execCmd.Stdout = os.Stdout
 		execCmd.Stderr = os.Stderr
 		if err := execCmd.Run(); err != nil {
-			return fmt.Errorf("error cloning ethernautdao/evm-runners-levels.git: %v", err)
+			return fmt.Errorf("error cloning the repository: %v", err)
 		}
 		fmt.Println("evm-runners-levels cloned successfully")
 	} else {
@@ -106,7 +106,7 @@ func createOrUpdateEnv(subdir string, envDirPath string, envFilePath string) err
 
 		fmt.Println(".env file created successfully.")
 	} else {
-		fmt.Printf("Existing .env file detected at %s\n", envFilePath)
+		fmt.Printf("Existing .env file detected at '%s'\n", envFilePath)
 
 		fmt.Printf("Updating the levels directory in the .env file ...\n")
 

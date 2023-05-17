@@ -145,7 +145,7 @@ func getLang(lang string) (string, error) {
 
 func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 	// copy test file from template to test
-	fmt.Printf("Copying test %s...\n", testToCopy)
+	fmt.Printf("Copying test '%s' ...\n", testToCopy)
 
 	src := filepath.Join(levelsDir, "template", testToCopy)
 	dstTest := filepath.Join(levelsDir, "test", testToCopy)
@@ -156,7 +156,7 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 
 	fmt.Printf("Test copied successfully.\n\n")
 
-	fmt.Printf("Copying source file %s...\n", fileToCopy)
+	fmt.Printf("Copying source file '%s' ...\n", fileToCopy)
 
 	// copy level from template/src to src
 	src = filepath.Join(levelsDir, "template", "src", fileToCopy)
@@ -165,7 +165,7 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 	// Check if file already exists. If yes, ask if overwrite is wanted
 	_, err := os.Stat(dstSource)
 	if !os.IsNotExist(err) {
-		fmt.Printf("Source file already exists in evm-runners-levels/src/. Overwrite? (y/n): ")
+		fmt.Printf("Source file already exists in '%s'. Overwrite? (y/n): ", dstSource)
 		var overwrite string
 		_, err := fmt.Scanln(&overwrite)
 		if err != nil {
@@ -176,7 +176,7 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 		fmt.Printf("\n")
 
 		if overwrite != "y" && overwrite != "Y" {
-			fmt.Printf("Not overwriting %s\n", fileToCopy)
+			fmt.Printf("Not overwriting '%s'\n", fileToCopy)
 			return nil
 		}
 	}
@@ -185,7 +185,7 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 		return fmt.Errorf("error copying file: %v", err)
 	}
 
-	fmt.Printf("\nYour level is ready!\nOpen evm-runners-levels/src to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate <level>'\n")
+	fmt.Printf("\nYour level is ready!\nOpen 'evm-runners-levels/src' to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate <level>'\n")
 
 	return nil
 }
