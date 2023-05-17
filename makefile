@@ -4,8 +4,14 @@ INSTALL_DIR=${HOME}/.evm-runners
 
 all: clean build
 
-build:
+build: 
 	go build -o ${BINARY_NAME} main.go
+
+build-linux:
+	GOOS=linux GOARCH=amd64 go build -o ${BINARY_NAME} main.go
+
+build-macos:
+	GOOS=darwin GOARCH=amd64 go build -o ${BINARY_NAME} main.go
 
 install:
 	mkdir -p ${INSTALL_DIR}
