@@ -8,10 +8,13 @@ build:
 	go build -o ${BINARY_NAME} main.go
 
 build-linux:
-	GOOS=linux GOARCH=amd64 go build -o ${BINARY_NAME} main.go
+	GOOS=linux GOARCH=amd64 go build -o ${BINARY_NAME}-linux-amd64 main.go
 
 build-macos:
-	GOOS=darwin GOARCH=amd64 go build -o ${BINARY_NAME} main.go
+	GOOS=darwin GOARCH=amd64 go build -o ${BINARY_NAME}-macos-amd64 main.go
+
+build-macos-arm64:
+	GOOS=darwin GOARCH=arm64 go build -o ${BINARY_NAME}-macos-arm64 main.go
 
 install:
 	mkdir -p ${INSTALL_DIR}
