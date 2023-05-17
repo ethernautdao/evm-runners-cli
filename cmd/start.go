@@ -85,7 +85,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 func getLevel(args []string, levels map[string]utils.Level) (string, error) {
 	// if argument is empty, open level list
 	if len(args) == 0 {
-		solves := utils.GetSolves()
+		solves := utils.GetSolves(levels)
 
 		fmt.Println("Press ENTER to select a level: ")
 

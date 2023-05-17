@@ -106,32 +106,28 @@ func createOrUpdateEnv(subdir string, envDirPath string, envFilePath string) err
 
 		fmt.Println(".env file created successfully.")
 	} else {
-		fmt.Printf(".env file already exists at the destination.\nDo you want to update it? (y/n): ")
-		var overwrite string
-		fmt.Scanln(&overwrite)
-		if overwrite != "y" && overwrite != "Y" {
-			fmt.Println("\nNot updating .env file")
-		} else {
-			fmt.Printf("\nUpdating .env file at %s ...\n", envFilePath)
+		fmt.Printf("Existing .env file detected at %s\n", envFilePath)
 
-			// Load existing config
-			config, err := utils.LoadConfig()
-			if err != nil {
-				return err
-			}
+		fmt.Printf("Updating the levels directory in the .env file ...\n")
 
-			// replace subdir in config
-			config.EVMR_LEVELS_DIR = subdir
-
-			// Update config
-			err = utils.WriteConfig(config)
-			if err != nil {
-				return fmt.Errorf("error writing to .env file: %v", err)
-			}
-
-			fmt.Println(".env file updated successfully.")
+		// Load existing config
+		config, err := utils.LoadConfig()
+		if err != nil {
+			return err
 		}
+
+		// replace subdir in config
+		config.EVMR_LEVELS_DIR = subdir
+
+		// Update config
+		err = utils.WriteConfig(config)
+		if err != nil {
+			return fmt.Errorf("error writing to .env file: %v", err)
+		}
+
+		fmt.Println(".env file updated successfully.")
 	}
+
 	return nil
 }
 

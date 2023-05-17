@@ -111,15 +111,24 @@ func LoadLevels() (map[string]Level, error) {
 	// Create a map of Level structs
 	levels := make(map[string]Level)
 
+	// Function to safely convert interface{} to string
+	getStringValue := func(val interface{}, fieldName string) string {
+		if str, ok := val.(string); ok {
+			return str
+		}
+		fmt.Printf("ERROR: Failed to convert field '%s' to string\nTry running 'evm-runners init' again!\n\n", fieldName)
+		return "ERROR"
+	}
+
 	// Loop through each level and create a new Level struct
 	for _, levelConfig := range levelsConfig {
 		l := levelConfig.(map[string]interface{})
 		level := Level{
-			ID:          l["id"].(string),
-			File:        l["file"].(string),
-			Contract:    l["contract"].(string),
-			Type:        l["type"].(string),
-			Description: l["description"].(string),
+			ID:          getStringValue(l["id"], "id"),
+			File:        getStringValue(l["file"], "file"),
+			Contract:    getStringValue(l["contract"], "contract"),
+			Type:        getStringValue(l["type"], "type"),
+			Description: getStringValue(l["description"], "description"),
 		}
 		// Add the new Level struct to the map
 		levels[strings.ToLower(level.Contract)] = level

@@ -22,7 +22,7 @@ var listCmd = &cobra.Command{
 		}
 
 		// get amount of solves for each level
-		solves := utils.GetSolves()
+		solves := utils.GetSolves(levels)
 
 		// display level list
 		model := tui.NewLevelList(levels, solves)

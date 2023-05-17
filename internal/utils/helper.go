@@ -59,18 +59,13 @@ func ParseOutput(output string) (int, int, error) {
 	return gasValue, sizeValue, nil
 }
 
-func GetSolves() map[string]string {
+func GetSolves(levels map[string]Level) map[string]string {
 	solves := make(map[string]string)
 
 	config, err := LoadConfig()
 	if err != nil {
 		return solves
 
-	}
-
-	levels, err := LoadLevels()
-	if err != nil {
-		return nil
 	}
 
 	// Create a custom HTTP client with a 5-second timeout
