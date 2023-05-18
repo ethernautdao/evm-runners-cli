@@ -91,7 +91,7 @@ Optional flags:
 **Display a list of all levels**
 
 ```
-evm-runners list
+evm-runners levels
 ```
 
 **Display the gas and codesize leaderboard of a level**

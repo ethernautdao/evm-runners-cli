@@ -72,11 +72,13 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			}
 
 		} else if lang == "no template" {
-			fmt.Printf("No template file selected.\nYou can start working on your solution in '%s'!\nTo validate it, run 'evm-runners validate <level>'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"))
+			fmt.Printf("No template file selected.\nYou can start working on your solution in '%s'!\nTo validate it, run 'evm-runners validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
 			return nil
 		} else {
 			return fmt.Errorf("invalid language: %s", lang)
 		}
+
+		fmt.Printf("\nYour level is ready!\nOpen 'evm-runners-levels/src' to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate %s'\n", level)
 
 		return nil
 	},
@@ -184,8 +186,6 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 	if err := copyFile(src, dstSource); err != nil {
 		return fmt.Errorf("error copying file: %v", err)
 	}
-
-	fmt.Printf("\nYour level is ready!\nOpen 'evm-runners-levels/src' to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate <level>'\n")
 
 	return nil
 }

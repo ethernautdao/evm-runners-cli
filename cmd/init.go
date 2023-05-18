@@ -53,7 +53,7 @@ var initCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("\nevm-runners initialized successfully!\nSee 'evm-runners --help' for a list of all available commands.")
+		fmt.Println("\nevm-runners initialized successfully!\nRun 'evm-runners start' to begin solving a level!")
 		return nil
 	},
 }

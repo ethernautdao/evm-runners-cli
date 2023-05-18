@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// listCmd represents the list command
-var listCmd = &cobra.Command{
-	Use:   "list",
+// levelsCmd represents the levels command
+var levelsCmd = &cobra.Command{
+	Use:   "levels",
 	Short: "Lists all evm-runners levels",
 
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -37,5 +37,6 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(levelsCmd)
+
 }
