@@ -36,7 +36,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 		}
 
 		// get level
-		level, err := getLevel(args, levels)
+		level, err := getLevel(args, config, levels)
 		if err != nil {
 			return err
 		}
@@ -84,14 +84,33 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 	},
 }
 
-func getLevel(args []string, levels map[string]utils.Level) (string, error) {
+func getLevel(args []string, config utils.Config, levels map[string]utils.Level) (string, error) {
 	// if argument is empty, open level list
 	if len(args) == 0 {
 		solves := utils.GetSolves(levels)
 
 		fmt.Println("Press ENTER to select a level: ")
 
-		model := tui.NewLevelList(levels, solves)
+		// Fetch existing submission data
+		var submissions map[string]string
+		for key := range levels {
+			sub, err := utils.FetchSubmissionData(config, "2")
+
+			// if it errors, just return an empty string
+			if err != nil {
+				submissions[levels[key].Contract] = ""
+			}
+
+			if len(sub) == 0 {
+				submissions[levels[key].Contract] = ""
+			} else {
+				submissions[levels[key].Contract] = "x"
+			}
+
+		}
+
+		// display level list
+		model := tui.NewLevelList(levels, solves, submissions)
 		p := tea.NewProgram(model)
 
 		if err := p.Start(); err != nil {

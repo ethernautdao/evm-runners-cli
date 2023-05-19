@@ -20,6 +20,11 @@ const (
 	solutionDir = "src"
 )
 
+type SubmissionData struct {
+	Gas  string `json:"gas"`
+	Size string `json:"size"`
+}
+
 // parseOutput function to parse gas and size values
 func ParseOutput(output string) (int, int, error) {
 	var gasValue int
@@ -324,4 +329,39 @@ func RunTest(levelsDir string, testContract string, verbose bool) ([]byte, error
 	}
 
 	return output, nil
+}
+
+// fetchSubmissionData function to fetch existing submission data
+func FetchSubmissionData(config Config, levelID string) ([]SubmissionData, error) {
+	url := config.EVMR_SERVER + "submissions/user/" + levelID
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("Error sending the request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading the response: %v", err)
+	}
+
+	// Check for errors in the response
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Error fetching submission data: %s", resp.Status)
+	}
+
+	// Parse the response
+	var submissions []SubmissionData
+
+	err = json.Unmarshal(body, &submissions)
+	if err != nil {
+		return nil, fmt.Errorf("Error parsing the response: %v", err)
+	}
+
+	return submissions, nil
 }

@@ -11,6 +11,7 @@ import (
 type levelListModel struct {
 	Levels           map[string]utils.Level
 	solves           map[string]string
+	submissions      map[string]string
 	Keys             []string
 	Cursor           int
 	Done             bool
@@ -63,7 +64,7 @@ func (m *levelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *levelListModel) View() string {
 	var sb strings.Builder
 
-	header := fmt.Sprintf("\n  #\t%-14s%s\t%s\n", "NAME", "SOLVES", "TYPE")
+	header := fmt.Sprintf("\n  #\t%-14s%-10s%-10s%s\n", "NAME", "SOLVES", "SOLVED", "TYPE")
 	headerSeparator := "\x1b[90m" + strings.Repeat("-", len(header)+18) + "\n" + "\x1b[0m"
 
 	sb.WriteString(header)
@@ -76,7 +77,7 @@ func (m *levelListModel) View() string {
 		} else {
 			sb.WriteString("  ")
 		}
-		sb.WriteString(fmt.Sprintf("%s\t%-14s%s\t\t%s\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], l.Type))
+		sb.WriteString(fmt.Sprintf("%s\t%-14s%-10s%-10s%s\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], m.submissions[l.Contract], l.Type))
 		if m.Cursor == i && m.descriptionShown {
 			sb.WriteString("\n" + "\x1b[32m" + l.Description + "\x1b[0m" + "\n")
 		}
@@ -87,6 +88,6 @@ func (m *levelListModel) View() string {
 	return sb.String()
 }
 
-func NewLevelList(Levels map[string]utils.Level, solves map[string]string) *levelListModel {
-	return &levelListModel{Levels: Levels, solves: solves}
+func NewLevelList(Levels map[string]utils.Level, solves map[string]string, submissions map[string]string) *levelListModel {
+	return &levelListModel{Levels: Levels, solves: solves, submissions: submissions}
 }

@@ -6,17 +6,11 @@ import (
 	"fmt"
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 )
-
-type SubmissionData struct {
-	Gas  string `json:"gas"`
-	Size string `json:"size"`
-}
 
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
@@ -93,7 +87,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		fmt.Printf("Solution is correct! Gas: %d, Size: %d\n\nSubmitting to the server...\n", gasValue, sizeValue)
 
 		// Fetch existing submission data
-		submissions, err := fetchSubmissionData(config, levels[level].ID)
+		submissions, err := utils.FetchSubmissionData(config, levels[level].ID)
 		if err != nil {
 			return err
 		}
@@ -158,41 +152,6 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 
 		return nil
 	},
-}
-
-// fetchSubmissionData function to fetch existing submission data
-func fetchSubmissionData(config utils.Config, levelID string) ([]SubmissionData, error) {
-	url := config.EVMR_SERVER + "submissions/user/" + levelID
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("Error sending the request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// Read the response
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Error reading the response: %v", err)
-	}
-
-	// Check for errors in the response
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error fetching submission data: %s", resp.Status)
-	}
-
-	// Parse the response
-	var submissions []SubmissionData
-
-	err = json.Unmarshal(body, &submissions)
-	if err != nil {
-		return nil, fmt.Errorf("Error parsing the response: %v", err)
-	}
-
-	return submissions, nil
 }
 
 func init() {
