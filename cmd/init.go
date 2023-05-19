@@ -20,8 +20,6 @@ var initCmd = &cobra.Command{
 2. Creating a .env file in ~/.config/evm-runners/`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Initializing EVM Runners ...")
-
 		// Get user's home directory
 		usr, err := user.Current()
 		if err != nil {
@@ -32,6 +30,23 @@ var initCmd = &cobra.Command{
 		subdir, err := filepath.Abs("evm-runners-levels")
 		if err != nil {
 			return fmt.Errorf("error getting absolute path for evm-runners-levels: %v", err)
+		}
+
+		// Ask user if they want to init evm-runners in the current directory
+		fmt.Printf("Initializing EVM Runners in '%s'\n", subdir)
+		fmt.Printf("Continue? (y/n): ")
+		var overwrite string
+		_, err = fmt.Scanln(&overwrite)
+		if err != nil {
+			return fmt.Errorf("error reading input: %w", err)
+		}
+
+		// print new line
+		fmt.Printf("\n")
+
+		if overwrite != "y" && overwrite != "Y" {
+			fmt.Printf("Aborting initialization\n")
+			return nil
 		}
 
 		// Clone ethernautdao/evm-runners-levels.git
