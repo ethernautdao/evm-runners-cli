@@ -16,6 +16,8 @@ build-macos:
 build-macos-arm64:
 	GOOS=darwin GOARCH=arm64 go build -o ${BINARY_NAME}-darwin-arm64 main.go
 
+prod: build-linux build-macos build-macos-arm64
+
 install:
 	mkdir -p ${INSTALL_DIR}
 	cp ${BINARY_NAME} ${INSTALL_DIR}
