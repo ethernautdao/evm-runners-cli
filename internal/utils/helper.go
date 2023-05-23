@@ -73,9 +73,9 @@ func GetSolves(levels map[string]Level) map[string]string {
 
 	}
 
-	// Create a custom HTTP client with a 5-second timeout
+	// Create a custom HTTP client with a 2-second timeout
 	client := &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 2 * time.Second,
 	}
 
 	for key := range levels {
@@ -337,7 +337,10 @@ func FetchSubmissionData(config Config, levelID string) ([]SubmissionData, error
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
 
-	client := &http.Client{}
+	// Create a custom HTTP client with a 2-second timeout
+	client := &http.Client{
+		Timeout: 2 * time.Second,
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("Error sending the request: %v", err)

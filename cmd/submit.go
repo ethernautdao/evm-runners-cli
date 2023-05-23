@@ -84,7 +84,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 			return err
 		}
 
-		fmt.Printf("Solution is correct! Gas: %d, Size: %d\n\nSubmitting to the server...\n", gasValue, sizeValue)
+		fmt.Printf("Solution is correct! Gas: %d, Size: %d\nNote: The final score can be slightly different.\n", gasValue, sizeValue)
 
 		// Fetch existing submission data
 		submissions, err := utils.FetchSubmissionData(config, levels[level].ID)

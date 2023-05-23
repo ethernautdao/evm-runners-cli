@@ -92,9 +92,9 @@ func getLevel(args []string, config utils.Config, levels map[string]utils.Level)
 		fmt.Println("Press ENTER to select a level: ")
 
 		// Fetch existing submission data
-		var submissions map[string]string
+		submissions := make(map[string]string) // Initialize the submissions map
 		for key := range levels {
-			sub, err := utils.FetchSubmissionData(config, "2")
+			sub, err := utils.FetchSubmissionData(config, levels[key].ID)
 
 			// if it errors, just return an empty string
 			if err != nil {
