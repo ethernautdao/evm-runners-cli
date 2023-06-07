@@ -10,13 +10,16 @@ build:
 build-linux:
 	GOOS=linux GOARCH=amd64 go build -o ${BINARY_NAME}-linux-amd64 main.go
 
+build-linux-arm64:
+	GOOS=linux GOARCH=arm64 go build -o ${BINARY_NAME}-linux-arm64 main.go
+	
 build-macos:
 	GOOS=darwin GOARCH=amd64 go build -o ${BINARY_NAME}-darwin-amd64 main.go
 
 build-macos-arm64:
 	GOOS=darwin GOARCH=arm64 go build -o ${BINARY_NAME}-darwin-arm64 main.go
 
-prod: build-linux build-macos build-macos-arm64
+prod: build-linux build-linux-arm64 build-macos build-macos-arm64
 
 install:
 	mkdir -p ${INSTALL_DIR}
