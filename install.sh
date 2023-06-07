@@ -37,7 +37,7 @@ else
 fi
 
 # Download release binary
-DOWNLOAD_URL="https://github.com/$GITHUB_USER/$GITHUB_REPO/releases/download/$VERSION/$APP_NAME-$OS-$ARCH"
+DOWNLOAD_URL="https://github.com/$GITHUB_USER/$GITHUB_REPO/releases/download/$VERSION/$APP_NAME-$PLATFORM-$ARCH"
 
 echo "Downloading $DOWNLOAD_URL"
 
