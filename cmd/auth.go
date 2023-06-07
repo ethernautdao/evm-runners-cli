@@ -14,7 +14,7 @@ import (
 type AuthResponse struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
-	Discriminator int    `json:"discriminator"`
+	Discriminator string `json:"discriminator"`
 	AccessToken   string `json:"access_token"`
 }
 
@@ -126,7 +126,7 @@ func authDiscord(config utils.Config) error {
 
 	// set or overwrite config elements
 	config.EVMR_ID = authResp.ID
-	config.EVMR_NAME = fmt.Sprintf("%s#%04d", authResp.Name, authResp.Discriminator)
+	config.EVMR_NAME = fmt.Sprintf("%s#%s", authResp.Name, authResp.Discriminator)
 	config.EVMR_TOKEN = authResp.AccessToken
 
 	// save config

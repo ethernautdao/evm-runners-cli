@@ -16,7 +16,7 @@ type Submission struct {
 	SubmittedAt   string  `json:"submitted_at"`
 	Type          string  `json:"type"`
 	Username      string  `json:"user_name"`
-	Discriminator int     `json:"discriminator"`
+	Discriminator string  `json:"discriminator"`
 	LevelName     string  `json:"level_name"`
 }
 
@@ -42,7 +42,7 @@ func leaderboardTable(submissions []Submission, field string) string {
 	// Find the maximum username width
 	maxUsernameWidth := 0
 	for _, submission := range submissions {
-		userStr := fmt.Sprintf("%s#%04d", submission.Username, submission.Discriminator)
+		userStr := fmt.Sprintf("%s#%s", submission.Username, submission.Discriminator)
 		if len(userStr) > maxUsernameWidth {
 			maxUsernameWidth = len(userStr)
 		}
@@ -67,7 +67,7 @@ func leaderboardTable(submissions []Submission, field string) string {
 	displayLayout := "Jan 02 2006"
 
 	for i, submission := range submissions {
-		userStr := fmt.Sprintf("%s#%04d", submission.Username, submission.Discriminator)
+		userStr := fmt.Sprintf("%s#%s", submission.Username, submission.Discriminator)
 
 		// Convert the date string to a time.Time object and format it
 		date, err := time.Parse(dateLayout, submission.SubmittedAt)
