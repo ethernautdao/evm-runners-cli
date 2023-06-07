@@ -7,23 +7,33 @@ GITHUB_USER="ethernautdao"
 GITHUB_REPO="evm-runners-cli"
 VERSION="v0.2.1"
 
-# Determine OS
-OS="$(uname | tr '[:upper:]' '[:lower:]')"
-if [ "$OS" = "windows" ]; then
-  echo "Error: Windows is not supported"
-  exit 1
-fi
+PLATFORM="$(uname -s)"
+case $PLATFORM in
+  Linux)
+    PLATFORM="linux"
+    ;;
+  Darwin)
+    PLATFORM="darwin"
+    ;;
+  *)
+    err "unsupported platform: $PLATFORM"
+    ;;
+esac
 
 # Determine architecture
 ARCH="$(uname -m)"
 
 if [ "$ARCH" = "x86_64" ]; then
-  ARCH="amd64"
+  # Redirect stderr to /dev/null to avoid printing errors if non Rosetta.
+  if [ "$(sysctl -n sysctl.proc_translated 2>/dev/null)" = "1" ]; then
+    ARCH="arm64" # Rosetta
+  else
+    ARCH="amd64" # Intel
+  fi
 elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-  ARCH="arm64"
+  ARCH="arm64" # Arm
 else
-  echo "Error: Unsupported architecture $ARCH"
-  exit 1
+  ARCH="amd64" # Amd
 fi
 
 # Download release binary
@@ -52,8 +62,10 @@ if [ "$SHELL_NAME" = "bash" ]; then
   CONFIG_FILE=~/.bashrc
 elif [ "$SHELL_NAME" = "zsh" ]; then
   CONFIG_FILE=~/.zshrc
+elif [ "$SHELL_NAME" = "fish" ]; then
+  CONFIG_FILE=~/.config/fish/config.fish
 else
-  echo "Error: Unsupported shell: $SHELL_NAME"
+  echo "unsupported shell: $SHELL_NAME, manually add ${INSTALL_DIR} to your PATH."
   exit 1
 fi
 
@@ -72,5 +84,4 @@ echo ""
 echo "$APP_NAME version $VERSION installed successfully!"
 echo ""
 echo "Run 'source $CONFIG_FILE' or start a new terminal session to use evm-runners."
-echo "Then run 'evm-runners help' to get started."
-echo "Alternatively, you can also use 'evmr' instead of 'evm-runners'"
+echo "Then run 'evm-runners help' or alternatively 'evmr help' to get started."
