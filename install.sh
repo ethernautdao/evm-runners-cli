@@ -5,7 +5,7 @@ APP_NAME="evm-runners"
 APP_NAME_ALT="evmr"
 GITHUB_USER="ethernautdao"
 GITHUB_REPO="evm-runners-cli"
-VERSION="v0.2.2"
+VERSION="v0.2.3"
 
 PLATFORM="$(uname -s)"
 case $PLATFORM in
