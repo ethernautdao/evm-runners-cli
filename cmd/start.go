@@ -78,7 +78,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			return fmt.Errorf("invalid language: %s", lang)
 		}
 
-		fmt.Printf("\nYour level is ready!\nOpen 'evm-runners-levels/src' to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate %s'\n", level)
+		fmt.Printf("\nYour level is ready!\nOpen '%s/src/' to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate %s'\n", config.EVMR_LEVELS_DIR, level)
 
 		return nil
 	},
@@ -168,7 +168,7 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 	// copy test file from template to test
 	fmt.Printf("Copying test '%s' ...\n", testToCopy)
 
-	src := filepath.Join(levelsDir, "template", testToCopy)
+	src := filepath.Join(levelsDir, "template", "test", testToCopy)
 	dstTest := filepath.Join(levelsDir, "test", testToCopy)
 
 	if err := copyFile(src, dstTest); err != nil {

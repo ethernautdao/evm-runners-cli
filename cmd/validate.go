@@ -82,7 +82,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 					userTestContract = testContract
 				}
 
-				fmt.Printf("\nTo test the solution yourself, run 'forge test --mc %s -vvvvv' in %s\n\n", userTestContract, config.EVMR_LEVELS_DIR)
+				fmt.Printf("\nTo test the solution yourself, run 'forge test --mc %s -vvvv' in %s\n\n", userTestContract, config.EVMR_LEVELS_DIR)
 			}
 
 			return nil
@@ -109,5 +109,5 @@ func init() {
 
 	validateCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
 	validateCmd.Flags().StringP("lang", "l", "", "The language of the solution file. Either 'sol' or 'huff'")
-	validateCmd.Flags().BoolP("verbose", "v", false, "Verbose output, shows stack and setup traces")
+	validateCmd.Flags().BoolP("verbose", "v", false, "Verbose output, shows stack traces of all tests")
 }

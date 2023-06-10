@@ -33,7 +33,7 @@ var aboutCmd = &cobra.Command{
 		fmt.Println(" - Linear progression: Challenges get more complex as you progress")
 		fmt.Println(" - Multiplayer: Compare your scores with other players")
 		fmt.Println(" - Singleplayer: Play at your own pace, learn usefull skills")
-		fmt.Println(" - Work on solutions in any EVM-language (Solidity, Vyper, Huff, etc.)")
+		fmt.Println(" - Work on solutions in a language of your chocie (Solidity, Vyper, Yul, Huff)")
 		fmt.Println("")
 	},
 }

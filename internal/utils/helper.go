@@ -43,7 +43,7 @@ func ParseOutput(output string) (int, int, error) {
 					return 0, 0, fmt.Errorf("Error: %v", err)
 				}
 			} else {
-				fmt.Println("No matching value found")
+				//fmt.Println("No matching value found")
 			}
 		}
 		if strings.Contains(line, "Contract size:") {
@@ -56,7 +56,7 @@ func ParseOutput(output string) (int, int, error) {
 					return 0, 0, fmt.Errorf("Error: %v", err)
 				}
 			} else {
-				fmt.Println("No matching value found")
+				//fmt.Println("No matching value found")
 			}
 		}
 	}
@@ -315,7 +315,7 @@ func RunTest(levelsDir string, testContract string, verbose bool) ([]byte, error
 
 	// append verbose flag based on verbose variable
 	if verbose {
-		execCmd.Args = append(execCmd.Args, "-vvvvv")
+		execCmd.Args = append(execCmd.Args, "-vvvv")
 	} else {
 		execCmd.Args = append(execCmd.Args, "-vv")
 	}
