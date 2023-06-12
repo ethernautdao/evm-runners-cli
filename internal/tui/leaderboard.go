@@ -8,16 +8,15 @@ import (
 )
 
 type Submission struct {
-	ID            string  `json:"id"`
-	UserID        int     `json:"user_id"`
-	LevelID       int     `json:"level_id"`
-	Gas           float64 `json:"gas,string"`
-	Size          int     `json:"size,string"`
-	SubmittedAt   string  `json:"submitted_at"`
-	Type          string  `json:"type"`
-	Username      string  `json:"user_name"`
-	Discriminator string  `json:"discriminator"`
-	LevelName     string  `json:"level_name"`
+	ID          string  `json:"id"`
+	UserID      int     `json:"user_id"`
+	LevelID     int     `json:"level_id"`
+	Gas         float64 `json:"gas,string"`
+	Size        int     `json:"size,string"`
+	SubmittedAt string  `json:"submitted_at"`
+	Type        string  `json:"type"`
+	Username    string  `json:"user_name"`
+	LevelName   string  `json:"level_name"`
 }
 
 type LeaderboardUI struct {
@@ -42,7 +41,7 @@ func leaderboardTable(submissions []Submission, field string) string {
 	// Find the maximum username width
 	maxUsernameWidth := 0
 	for _, submission := range submissions {
-		userStr := fmt.Sprintf("%s#%s", submission.Username, submission.Discriminator)
+		userStr := fmt.Sprintf("%s", submission.Username)
 		if len(userStr) > maxUsernameWidth {
 			maxUsernameWidth = len(userStr)
 		}
@@ -67,7 +66,7 @@ func leaderboardTable(submissions []Submission, field string) string {
 	displayLayout := "Jan 02 2006"
 
 	for i, submission := range submissions {
-		userStr := fmt.Sprintf("%s#%s", submission.Username, submission.Discriminator)
+		userStr := fmt.Sprintf("%s", submission.Username)
 
 		// Convert the date string to a time.Time object and format it
 		date, err := time.Parse(dateLayout, submission.SubmittedAt)
