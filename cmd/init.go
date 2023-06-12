@@ -93,7 +93,7 @@ func createOrUpdateEnv(subdir string, envDirPath string, envFilePath string) err
 
 	// Set the fields in the config struct
 	config := utils.Config{
-		EVMR_SERVER:     "https://evm-runners.fly.dev/",
+		EVMR_SERVER:     "https://api.evmr.sh/",
 		EVMR_LEVELS_DIR: subdir,
 	}
 
