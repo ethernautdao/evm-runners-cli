@@ -15,16 +15,16 @@ import (
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
 	Use:   "submit <level>",
-	Short: "Submits a solution for a level to the server",
-	Long: `Submits a solution for a level to the server by 
+	Short: "Submit a solution for a level to the server",
+	Long: `Submit a solution for a level to the server.
+
+This command performs the following steps:
 
 1. Compiling the solution
 2. Validating the solution's bytecode 
-3. Sending the bytecode to the server
+3. If successful, sending the bytecode to the server
 
-The resulting codesize score is determined by the result
-of 'test_<level_id>_size', and the gas score is determined 
-by the µ value of the 'test_<level_id>_gas' fuzz test.`,
+The displayed scores can differ slightly from the final scores on the leaderboard.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
@@ -38,7 +38,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 
 		// check if user authenticated
 		if config.EVMR_TOKEN == "" {
-			return fmt.Errorf("Please authorize first with 'evm-runners auth discord'")
+			return fmt.Errorf("Please authorize first with 'evm-runners auth discord'\n")
 		}
 
 		if len(args) == 0 {
@@ -49,12 +49,12 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		// get level information
 		levels, err := utils.LoadLevels()
 		if err != nil {
-			return fmt.Errorf("Error loading levels: %v", err)
+			return fmt.Errorf("error loading levels: %v", err)
 		}
 
 		// check if level exists
 		if _, ok := levels[level]; !ok {
-			return fmt.Errorf("Invalid level: %v", level)
+			return fmt.Errorf("Invalid level: %v\n", level)
 		}
 
 		// get filename of level
@@ -127,20 +127,20 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			return fmt.Errorf("Error sending the request: %v", err)
+			return fmt.Errorf("error sending the request: %v", err)
 		}
 		defer resp.Body.Close()
 
 		// Check for errors in the response
 		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("Error submitting solution: %s", resp.Status)
+			return fmt.Errorf("error submitting solution: %s", resp.Status)
 		}
 
 		// Decode the JSON response as an array of objects
 		var response []map[string]interface{}
 		dec := json.NewDecoder(resp.Body)
 		if err := dec.Decode(&response); err != nil {
-			return fmt.Errorf("Error decoding response: %v", err)
+			return fmt.Errorf("error decoding response: %v", err)
 		}
 
 		// Extract the gas and size rank from the first object in the array
@@ -148,7 +148,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		sizeRank, _ := response[0]["size_rank"].(string)
 
 		fmt.Printf("\nSolution for level '%s' submitted successfully!\n\n", level)
-		fmt.Printf("Size leaderboard: #%s\nGas leaderboard: #%s\n\n", sizeRank, gasRank)
+		fmt.Printf("Size leaderboard: #%s\nGas leaderboard: #%s\n", sizeRank, gasRank)
 
 		return nil
 	},
@@ -159,5 +159,5 @@ func init() {
 
 	// Flags
 	submitCmd.Flags().StringP("bytecode", "b", "", "The bytecode of the solution")
-	submitCmd.Flags().StringP("lang", "l", "", "The programming language of the solution (e.g. 'huff' or 'sol')")
+	submitCmd.Flags().StringP("lang", "l", "", "The language of the solution file (sol, huff, vyper)")
 }

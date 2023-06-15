@@ -15,10 +15,12 @@ import (
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-	Use:   "start <level>",
-	Short: "Starts a level",
-	Long: `Starts a level by copying the respective template files from 
-evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/test`,
+	Use:   "start [level]",
+	Short: "Start solving a level",
+	Long: `Start solving a level. This command copies the respective template files from 
+evm-runners-levels/template to src/ and test/. 
+
+You can then validate your solution with evm-runners validate or by using the forge test command.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		lang, _ := cmd.Flags().GetString("lang")
@@ -78,7 +80,7 @@ evm-runners-levels/template to evm-runners-levels/src and evm-runners-levels/tes
 			return fmt.Errorf("invalid language: %s", lang)
 		}
 
-		fmt.Printf("\nYour level is ready!\nOpen '%s/src/' to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate %s'\n", config.EVMR_LEVELS_DIR, level)
+		fmt.Printf("Your level is ready!\nOpen '%s/src/' to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate %s'\n", config.EVMR_LEVELS_DIR, level)
 
 		return nil
 	},
@@ -89,7 +91,7 @@ func getLevel(args []string, config utils.Config, levels map[string]utils.Level)
 	if len(args) == 0 {
 		solves := utils.GetSolves(levels)
 
-		fmt.Println("Press ENTER to select a level: ")
+		fmt.Printf("Press ENTER to select a level:\n\n")
 
 		// Fetch existing submission data
 		submissions := make(map[string]string) // Initialize the submissions map
@@ -186,18 +188,15 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 	// Check if file already exists. If yes, ask if overwrite is wanted
 	_, err := os.Stat(dstSource)
 	if !os.IsNotExist(err) {
-		fmt.Printf("Source file already exists in '%s'. Overwrite? (y/n): ", dstSource)
+		fmt.Printf("Source file already exists in '%s/src/'.\nOverwrite? (y/n): ", levelsDir)
 		var overwrite string
 		_, err := fmt.Scanln(&overwrite)
 		if err != nil {
 			return fmt.Errorf("error reading input: %w", err)
 		}
 
-		// print new line
-		fmt.Printf("\n")
-
 		if overwrite != "y" && overwrite != "Y" {
-			fmt.Printf("Not overwriting '%s'\n", fileToCopy)
+			fmt.Printf("Not overwriting '%s'\n\n", fileToCopy)
 			return nil
 		}
 	}
@@ -205,6 +204,8 @@ func copyTemplateFiles(levelsDir, fileToCopy, testToCopy string) error {
 	if err := copyFile(src, dstSource); err != nil {
 		return fmt.Errorf("error copying file: %v", err)
 	}
+
+	fmt.Printf("Source file copied successfully.\n\n")
 
 	return nil
 }
@@ -223,5 +224,5 @@ func copyFile(src, dst string) error {
 func init() {
 	rootCmd.AddCommand(startCmd)
 
-	startCmd.Flags().StringP("lang", "l", "", "The language you want to choose. Either 'sol' or 'huff'")
+	startCmd.Flags().StringP("lang", "l", "", "The language to use for the level (sol, huff, vyper)")
 }

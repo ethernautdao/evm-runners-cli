@@ -105,5 +105,5 @@ func (ui *CombinedLeaderboardUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (ui *CombinedLeaderboardUI) View() string {
-	return "\n" + ui.GasUI.View() + "\n\n" + ui.SizeUI.View() + "\x1b[90m" + "\n\nPress any key to exit." + "\x1b[0m"
+	return ui.GasUI.View() + "\n\n" + ui.SizeUI.View() + "\x1b[90m" + "\n\nPress any key to exit." + "\x1b[0m"
 }

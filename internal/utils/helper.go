@@ -40,7 +40,7 @@ func ParseOutput(output string) (int, int, error) {
 			if len(match) > 1 {
 				gasValue, err = strconv.Atoi(match[2])
 				if err != nil {
-					return 0, 0, fmt.Errorf("Error: %v", err)
+					return 0, 0, fmt.Errorf("error converting to int: %v", err)
 				}
 			} else {
 				//fmt.Println("No matching value found")
@@ -53,7 +53,7 @@ func ParseOutput(output string) (int, int, error) {
 			if len(match) > 1 {
 				sizeValue, err = strconv.Atoi(match[1])
 				if err != nil {
-					return 0, 0, fmt.Errorf("Error: %v", err)
+					return 0, 0, fmt.Errorf("error converting to int: %v", err)
 				}
 			} else {
 				//fmt.Println("No matching value found")
@@ -221,7 +221,7 @@ func getSolutionType(file string, langFlag string) (string, error) {
 	// Check if the given langFlag is valid
 	if langFlag != "" {
 		if _, exists := languages[langFlag]; !exists {
-			return "", fmt.Errorf("Invalid language flag. Please use either 'sol', 'huff', or 'vy'.")
+			return "", fmt.Errorf("Invalid language flag. Please use either 'sol', 'huff', or 'vy'.\n")
 		}
 	}
 
@@ -236,9 +236,9 @@ func getSolutionType(file string, langFlag string) (string, error) {
 
 	// Handle cases with no solution files or multiple solution files
 	if len(existingFiles) == 0 {
-		return "", fmt.Errorf("No solution file found! Run 'evm-runners start <level>' or submit bytecode with --bytecode")
+		return "", fmt.Errorf("No solution file found! Run 'evm-runners start <level>' or submit bytecode with -b <bytecode>\n")
 	} else if langFlag == "" && len(existingFiles) > 1 {
-		return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use --lang to choose which one to validate.")
+		return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use --lang to choose which one to validate.\n")
 	}
 
 	// Set langFlag if not provided
@@ -262,12 +262,12 @@ func validateBytecode(bytecode string) (string, error) {
 
 	// check if bytecode has even length
 	if len(bytecode)%2 != 0 {
-		return "", fmt.Errorf("Invalid bytecode length")
+		return "", fmt.Errorf("Invalid bytecode length\n")
 	}
 
 	// check if bytecode is valid hex
 	if _, err := hex.DecodeString(bytecode); err != nil {
-		return "", fmt.Errorf("Invalid bytecode: %v", err)
+		return "", fmt.Errorf("Invalid bytecode: %v\n", err)
 
 	}
 
@@ -343,19 +343,19 @@ func FetchSubmissionData(config Config, levelID string) ([]SubmissionData, error
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("Error sending the request: %v", err)
+		return nil, fmt.Errorf("error sending the request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	// Read the response
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading the response: %v", err)
+		return nil, fmt.Errorf("error reading the response: %v", err)
 	}
 
 	// Check for errors in the response
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error fetching submission data: %s", resp.Status)
+		return nil, fmt.Errorf("error fetching submission data: %s", resp.Status)
 	}
 
 	// Parse the response
@@ -363,7 +363,7 @@ func FetchSubmissionData(config Config, levelID string) ([]SubmissionData, error
 
 	err = json.Unmarshal(body, &submissions)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing the response: %v", err)
+		return nil, fmt.Errorf("error parsing the response: %v", err)
 	}
 
 	return submissions, nil

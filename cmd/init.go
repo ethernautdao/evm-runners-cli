@@ -13,8 +13,8 @@ import (
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Initializes EVM Runners",
-	Long: `Initializes EVM Runners by
+	Short: "Initialize evm-runners",
+	Long: `Initialize evm-runners by
 
 1. Cloning the ethernautdao/evm-runners-levels.git repository into ./evm-runners-levels
 2. Creating a .env file in ~/.config/evm-runners/`,

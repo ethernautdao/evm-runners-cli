@@ -19,7 +19,7 @@ How to play:
 4. 'evm-runners validate <level>' to validate your solution
 5. 'evm-runners submit <level>' to submit your solution and get placed on the leaderboard
 
-For a list of all available levels, use 'evm-runners list'`,
+For a list of all available levels, use 'evm-runners levels'`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

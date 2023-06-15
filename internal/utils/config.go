@@ -44,7 +44,7 @@ func LoadConfig() (Config, error) {
 	// Check if the config file exists before trying to read it
 	if _, err := os.Stat(envFilePath); os.IsNotExist(err) {
 		// print error to run evm-runners init first
-		return config, fmt.Errorf("No config file found. Please run 'evm-runners init' first!")
+		return config, fmt.Errorf("No config file found. Please run 'evm-runners init' first!\n")
 	}
 
 	// Read the config file
