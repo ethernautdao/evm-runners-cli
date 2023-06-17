@@ -66,7 +66,7 @@ The displayed scores can differ slightly from the final scores on the leaderboar
 		}
 
 		// Check if solution is correct
-		fmt.Printf("\nValidating solution for level '%s' ...\n", level)
+		fmt.Printf("Validating solution for level '%s' ...\n", level)
 
 		os.Setenv("BYTECODE", bytecode)
 
