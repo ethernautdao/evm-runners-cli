@@ -5,7 +5,7 @@ APP_NAME="evm-runners"
 APP_NAME_ALT="evmr"
 GITHUB_USER="ethernautdao"
 GITHUB_REPO="evm-runners-cli"
-VERSION="v0.2.4"
+VERSION="v0.3.0"
 
 main() {
   PLATFORM="$(uname -s)"
