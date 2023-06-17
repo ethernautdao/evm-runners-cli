@@ -31,22 +31,20 @@ var levelsCmd = &cobra.Command{
 		// get amount of solves for each level
 		solves := utils.GetSolves(levels)
 
-		// Fetch existing submission data
-		submissions := make(map[string]string) // Initialize the submissions map
+		// Initialize the submissions map
+		submissions := make(map[string]string)
 		for key := range levels {
-			sub, err := utils.FetchSubmissionData(config, levels[key].ID)
+			submissions[levels[key].Contract] = ""
+		}
 
-			// if it errors, just return an empty string
-			if err != nil {
-				submissions[levels[key].Contract] = ""
+		// Fetch existing submission data if user authenticated
+		if config.EVMR_TOKEN != "" {
+			// we explicitly ignore checking the error here
+			sub, _ := utils.FetchSubmissionData(config)
+
+			for _, item := range sub {
+				submissions[item.LevelName] = "x"
 			}
-
-			if len(sub) == 0 {
-				submissions[levels[key].Contract] = ""
-			} else {
-				submissions[levels[key].Contract] = "x"
-			}
-
 		}
 
 		// display level list

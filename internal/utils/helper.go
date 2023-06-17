@@ -21,11 +21,161 @@ const (
 )
 
 type SubmissionData struct {
-	Gas  string `json:"gas"`
-	Size string `json:"size"`
+	Id           string `json:"id"`
+	LevelId      int    `json:"level_id"`
+	UserId       int    `json:"user_id"`
+	Gas          string `json:"gas"`
+	Size         string `json:"size"`
+	SubmittedAt  string `json:"submitted_at"`
+	Type         string `json:"type"`
+	OptimizedFor string `json:"optimized_for"`
+	Username     string `json:"user_name"`
+	LevelName    string `json:"level_name"`
 }
 
-// parseOutput function to parse gas and size values
+// Runs the forge test command with random values for block parameters
+func RunTest(levelsDir string, testContract string, verbose bool) ([]byte, error) {
+	// seed random number generator
+	rand.Seed(time.Now().UnixNano())
+
+	// Generate a random Ethereum address
+	bytes := make([]byte, 20)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		// Handle error
+	}
+	randAddress := "0x" + hex.EncodeToString(bytes)
+
+	// Generate a random timestamp between 1 Jan 2000 and now
+	end := time.Now().Unix()
+	randTimestamp := rand.Intn(int(end))
+
+	// Generate a random PrevRandao value
+	bytes = make([]byte, 32)
+	_, err = rand.Read(bytes)
+	if err != nil {
+		// Handle error
+	}
+	randPrevRandao := "0x" + hex.EncodeToString(bytes)
+
+	// initialize the command with common arguments
+	execCmd := exec.Command("forge", "test",
+		"--block-coinbase", randAddress,
+		"--block-timestamp", strconv.Itoa(randTimestamp),
+		"--block-number", strconv.Itoa(rand.Intn(17243073)),
+		"--block-difficulty", strconv.Itoa(rand.Intn(5875000371)),
+		"--block-prevrandao", randPrevRandao,
+		"--gas-price", strconv.Itoa(rand.Intn(45014319675)),
+		"--base-fee", strconv.Itoa(rand.Intn(45014319675)),
+		"--match-contract", testContract)
+
+	// append verbose flag based on verbose variable
+	if verbose {
+		execCmd.Args = append(execCmd.Args, "-vvvv")
+	} else {
+		execCmd.Args = append(execCmd.Args, "-vv")
+	}
+
+	execCmd.Dir = levelsDir
+	output, err := execCmd.CombinedOutput()
+
+	// Check for errors
+	if err != nil {
+		return output, err
+	}
+
+	return output, nil
+}
+
+// fetchSubmissionData function to fetch existing submission data
+func FetchSubmissionData(config Config) ([]SubmissionData, error) {
+	url := config.EVMR_SERVER + "submissions/user/"
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
+
+	// Create a custom HTTP client with a 1-second timeout
+	client := &http.Client{
+		Timeout: 1 * time.Second,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending the request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Check for errors in the response
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http request failed with status: %s", resp.Status)
+	}
+
+	// Read the response
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading the response: %v", err)
+	}
+
+	// Check for errors in the response
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error fetching submission data: %s", resp.Status)
+	}
+
+	// Parse the response
+	var submissions []SubmissionData
+
+	err = json.Unmarshal(body, &submissions)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing the response: %v", err)
+	}
+
+	return submissions, nil
+}
+
+// Returns the amount of solves per level
+func GetSolves(levels map[string]Level) map[string]string {
+	solves := make(map[string]string)
+
+	config, err := LoadConfig()
+	if err != nil {
+		return solves
+
+	}
+
+	// Create a custom HTTP client with a 1-second timeout
+	client := &http.Client{
+		Timeout: 1 * time.Second,
+	}
+
+	for key := range levels {
+		url := fmt.Sprintf("%slevels/%s/total", config.EVMR_SERVER, levels[key].ID)
+		resp, err := client.Get(url)
+
+		// if the get request errors for some reason, we just set solves to an empty string
+		if err != nil {
+			solves[levels[key].Contract] = ""
+			continue
+		}
+		defer resp.Body.Close()
+
+		// Check for errors in the response
+		if resp.StatusCode != http.StatusOK {
+			solves[levels[key].Contract] = ""
+			continue
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			solves[levels[key].Contract] = ""
+			continue
+		}
+
+		solves[levels[key].Contract] = string(body)
+	}
+
+	return solves
+}
+
+// parseOutput function to parse gas and size values of output from forge test
 func ParseOutput(output string) (int, int, error) {
 	var gasValue int
 	var sizeValue int
@@ -64,43 +214,7 @@ func ParseOutput(output string) (int, int, error) {
 	return gasValue, sizeValue, nil
 }
 
-func GetSolves(levels map[string]Level) map[string]string {
-	solves := make(map[string]string)
-
-	config, err := LoadConfig()
-	if err != nil {
-		return solves
-
-	}
-
-	// Create a custom HTTP client with a 2-second timeout
-	client := &http.Client{
-		Timeout: 2 * time.Second,
-	}
-
-	for key := range levels {
-		url := fmt.Sprintf("%slevels/%s/total", config.EVMR_SERVER, levels[key].ID)
-		resp, err := client.Get(url)
-
-		// if the get request errors for some reason, we just set the solve count to 0
-		if err != nil {
-			solves[levels[key].Contract] = "0"
-			continue
-		}
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			solves[levels[key].Contract] = "0"
-			continue
-		}
-
-		solves[levels[key].Contract] = string(body)
-	}
-
-	return solves
-}
-
+// compiles the solution file and returns the bytecode + solution type (e.g. sol, vyper, huff)
 func GetBytecodeToValidate(bytecode string, level string, filename string, levelsDir string, lang string) (string, string, error) {
 	levels, err := LoadLevels()
 	if err != nil {
@@ -192,6 +306,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 	}
 }
 
+// returns the type of the solution file (e.g. sol, vyper, huff)
 func getSolutionType(file string, langFlag string) (string, error) {
 	config, err := LoadConfig()
 	if err != nil {
@@ -249,11 +364,13 @@ func getSolutionType(file string, langFlag string) (string, error) {
 	return langFlag, nil
 }
 
+// checks if a file exists
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
 }
 
+// validates the bytecode
 func validateBytecode(bytecode string) (string, error) {
 	// remove whitespace
 	bytecode = strings.TrimSpace(bytecode)
@@ -276,95 +393,4 @@ func validateBytecode(bytecode string) (string, error) {
 
 	// return sanitized bytecode
 	return bytecode, nil
-}
-
-func RunTest(levelsDir string, testContract string, verbose bool) ([]byte, error) {
-	// seed random number generator
-	rand.Seed(time.Now().UnixNano())
-
-	// Generate a random Ethereum address
-	bytes := make([]byte, 20)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		// Handle error
-	}
-	randAddress := "0x" + hex.EncodeToString(bytes)
-
-	// Generate a random timestamp between 1 Jan 2000 and now
-	end := time.Now().Unix()
-	randTimestamp := rand.Intn(int(end))
-
-	// Generate a random PrevRandao value
-	bytes = make([]byte, 32)
-	_, err = rand.Read(bytes)
-	if err != nil {
-		// Handle error
-	}
-	randPrevRandao := "0x" + hex.EncodeToString(bytes)
-
-	// initialize the command with common arguments
-	execCmd := exec.Command("forge", "test",
-		"--block-coinbase", randAddress,
-		"--block-timestamp", strconv.Itoa(randTimestamp),
-		"--block-number", strconv.Itoa(rand.Intn(17243073)),
-		"--block-difficulty", strconv.Itoa(rand.Intn(5875000371)),
-		"--block-prevrandao", randPrevRandao,
-		"--gas-price", strconv.Itoa(rand.Intn(45014319675)),
-		"--base-fee", strconv.Itoa(rand.Intn(45014319675)),
-		"--match-contract", testContract)
-
-	// append verbose flag based on verbose variable
-	if verbose {
-		execCmd.Args = append(execCmd.Args, "-vvvv")
-	} else {
-		execCmd.Args = append(execCmd.Args, "-vv")
-	}
-
-	execCmd.Dir = levelsDir
-	output, err := execCmd.CombinedOutput()
-
-	// Check for errors
-	if err != nil {
-		return output, err
-	}
-
-	return output, nil
-}
-
-// fetchSubmissionData function to fetch existing submission data
-func FetchSubmissionData(config Config, levelID string) ([]SubmissionData, error) {
-	url := config.EVMR_SERVER + "submissions/user/" + levelID
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
-
-	// Create a custom HTTP client with a 2-second timeout
-	client := &http.Client{
-		Timeout: 2 * time.Second,
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending the request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// Read the response
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error reading the response: %v", err)
-	}
-
-	// Check for errors in the response
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error fetching submission data: %s", resp.Status)
-	}
-
-	// Parse the response
-	var submissions []SubmissionData
-
-	err = json.Unmarshal(body, &submissions)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing the response: %v", err)
-	}
-
-	return submissions, nil
 }

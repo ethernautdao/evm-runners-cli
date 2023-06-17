@@ -74,13 +74,13 @@ You can then validate your solution with evm-runners validate or by using the fo
 			}
 
 		} else if lang == "no template" {
-			fmt.Printf("No template file selected.\nYou can start working on your solution in '%s'!\nTo validate it, run 'evm-runners validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
+			fmt.Printf("No template file selected.\nYou can start working on your solution in '%s'!\nTo validate your solution, run 'evm-runners validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
 			return nil
 		} else {
 			return fmt.Errorf("invalid language: %s", lang)
 		}
 
-		fmt.Printf("Your level is ready!\nOpen '%s/src/' to start working on it -- Good luck!\nTo validate your solution, run 'evm-runners validate %s'\n", config.EVMR_LEVELS_DIR, level)
+		fmt.Printf("Your level is ready!\nYou can start working on your solution in '%s'!\nTo validate your solution, run 'evm-runners validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
 
 		return nil
 	},
@@ -93,22 +93,23 @@ func getLevel(args []string, config utils.Config, levels map[string]utils.Level)
 
 		fmt.Printf("Press ENTER to select a level:\n\n")
 
-		// Fetch existing submission data
-		submissions := make(map[string]string) // Initialize the submissions map
+		// Initialize the submissions map
+		submissions := make(map[string]string)
 		for key := range levels {
-			sub, err := utils.FetchSubmissionData(config, levels[key].ID)
+			submissions[levels[key].Contract] = ""
+		}
 
-			// if it errors, just return an empty string
+		// Fetch existing submission data if user authenticated
+		if config.EVMR_TOKEN != "" {
+			sub, err := utils.FetchSubmissionData(config)
+
 			if err != nil {
-				submissions[levels[key].Contract] = ""
+				return "", fmt.Errorf("error fetching submission data: %v", err)
 			}
 
-			if len(sub) == 0 {
-				submissions[levels[key].Contract] = ""
-			} else {
-				submissions[levels[key].Contract] = "x"
+			for _, item := range sub {
+				submissions[item.LevelName] = "x"
 			}
-
 		}
 
 		// display level list

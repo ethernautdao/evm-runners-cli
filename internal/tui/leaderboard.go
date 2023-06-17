@@ -3,21 +3,23 @@ package tui
 import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"strings"
 	"time"
 )
 
-type Submission struct {
+/* type Submission struct {
 	ID          string  `json:"id"`
 	UserID      int     `json:"user_id"`
-	LevelID     int     `json:"level_id"`
+	LevelId     int     `json:"level_id"`
 	Gas         float64 `json:"gas,string"`
 	Size        int     `json:"size,string"`
 	SubmittedAt string  `json:"submitted_at"`
 	Type        string  `json:"type"`
+	OptimFor    string  `json:"optimized_for"`
 	Username    string  `json:"user_name"`
 	LevelName   string  `json:"level_name"`
-}
+} */
 
 type LeaderboardUI struct {
 	content string
@@ -28,14 +30,14 @@ type CombinedLeaderboardUI struct {
 	SizeUI *LeaderboardUI
 }
 
-func NewLeaderboardUI(submissions []Submission, field string) *LeaderboardUI {
+func NewLeaderboardUI(submissions []utils.SubmissionData, field string) *LeaderboardUI {
 	ui := &LeaderboardUI{
 		content: leaderboardTable(submissions, field),
 	}
 	return ui
 }
 
-func leaderboardTable(submissions []Submission, field string) string {
+func leaderboardTable(submissions []utils.SubmissionData, field string) string {
 	var sb strings.Builder
 
 	// Find the maximum username width
@@ -76,9 +78,9 @@ func leaderboardTable(submissions []Submission, field string) string {
 		dateStr := date.Format(displayLayout)
 
 		if field == "gas" {
-			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%d\t%s\t%s\n", i+1, maxUsernameWidth, userStr, int(submission.Gas), dateStr, submission.Type))
+			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%s\t%s\t%s\n", i+1, maxUsernameWidth, userStr, submission.Gas, dateStr, submission.Type))
 		} else if field == "size" {
-			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%d\t%s\t%s\n", i+1, maxUsernameWidth, userStr, submission.Size, dateStr, submission.Type))
+			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%s\t%s\t%s\n", i+1, maxUsernameWidth, userStr, submission.Size, dateStr, submission.Type))
 		}
 	}
 

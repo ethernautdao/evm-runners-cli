@@ -87,26 +87,29 @@ The displayed scores can differ slightly from the final scores on the leaderboar
 		fmt.Printf("Solution is correct! Gas: %d, Size: %d\nNote: The final score can be slightly different.\n", gasValue, sizeValue)
 
 		// Fetch existing submission data
-		submissions, err := utils.FetchSubmissionData(config, levels[level].ID)
+		submissions, err := utils.FetchSubmissionData(config)
 		if err != nil {
 			return err
 		}
 
-		// Compare new solution's gas and size with existing submission
-		var existingGas int
-		var existingSize int
 		if len(submissions) > 0 {
-			floatGas, _ := strconv.ParseFloat(submissions[0].Gas, 64)
-			existingGas = int(floatGas)
-			existingSize, _ = strconv.Atoi(submissions[0].Size)
+			// Compare new solution's gas and size with existing submission
+			var existingGas int
+			var existingSize int
 
+			for _, item := range submissions {
+				if level == strings.ToLower(item.LevelName) {
+					existingGas, _ = strconv.Atoi(item.Gas)
+					existingSize, _ = strconv.Atoi(item.Size)
+				}
+			}
+
+			// If gas and size score is worse than existing one, skip submission
 			if gasValue >= existingGas && sizeValue >= existingSize {
-				fmt.Printf("\nWarning: Solution skipped!\nGas and size score is larger than existing one (gas: %d, size: %d).\n", existingGas, existingSize)
+				fmt.Printf("\nWarning: Submission skipped!\nThe gas and size scores are either worse or equal to the existing ones (gas: %d, size: %d).\n", existingGas, existingSize)
 				return nil
 			}
 		}
-
-		// If solution is better than existing one, submit it
 
 		// Create a JSON payload
 		payload := map[string]string{
@@ -133,7 +136,7 @@ The displayed scores can differ slightly from the final scores on the leaderboar
 
 		// Check for errors in the response
 		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("error submitting solution: %s", resp.Status)
+			return fmt.Errorf("http request failed with status: %s", resp.Status)
 		}
 
 		// Decode the JSON response as an array of objects
