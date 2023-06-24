@@ -58,7 +58,7 @@ You can then validate your solution with evm-runners validate or by using the fo
 		}
 
 		if lang == "no template" {
-			fmt.Printf("No template file selected.\nYou can start working on your solution in '%s'!\nTo validate your solution, run 'evm-runners validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
+			fmt.Printf("No template file selected.\nYou can start by creating your src file in '%s'!\nTo validate your solution, run 'evm-runners validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
 			return nil
 		} else {
 			filename := levels[level].File
