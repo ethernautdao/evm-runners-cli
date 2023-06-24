@@ -15,7 +15,7 @@ var rootCmd = &cobra.Command{
 How to play:
 1. 'evm-runners init' to initialize the game
 2. 'evm-runners auth' to authenticate with the server
-3. 'evm-runners start <level>' to start solving a level
+3. 'evm-runners start' to start solving a level
 4. 'evm-runners validate <level>' to validate your solution
 5. 'evm-runners submit <level>' to submit your solution and get placed on the leaderboard
 

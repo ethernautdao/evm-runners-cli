@@ -33,7 +33,7 @@ var initCmd = &cobra.Command{
 		}
 
 		// Ask user if they want to init evm-runners in the current directory
-		fmt.Printf("Initializing EVM Runners in '%s'\n", subdir)
+		fmt.Printf("Initializing evm-runners in '%s'\n", subdir)
 		fmt.Printf("Continue? (y/n): ")
 		var overwrite string
 		_, err = fmt.Scanln(&overwrite)

@@ -38,7 +38,7 @@ To build from source you need to have [Go 1.20](https://go.dev/doc/install) inst
 evm-runners -h
 ```
 
-**Initialize evm runners**
+**Initialize evm-runners**
 
 ```
 evm-runners init
