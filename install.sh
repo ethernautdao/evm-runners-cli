@@ -8,6 +8,8 @@ GITHUB_REPO="evm-runners-cli"
 VERSION="v0.4.0"
 
 main() {
+  say "Installing evm-runners..."
+  
   PLATFORM="$(uname -s)"
   case $PLATFORM in
     Linux)
@@ -40,8 +42,8 @@ main() {
   # Download release binary
   DOWNLOAD_URL="https://github.com/$GITHUB_USER/$GITHUB_REPO/releases/download/$VERSION/$APP_NAME-$PLATFORM-$ARCH"
 
-  say ""
-  say "Downloading $DOWNLOAD_URL"
+  echo
+  say "Downloading the binary from '$DOWNLOAD_URL'"
 
   curl -L "$DOWNLOAD_URL" -o "$APP_NAME"
 
@@ -50,9 +52,10 @@ main() {
 
   INSTALL_DIR="${HOME}/.${APP_NAME}"
 
-  say ""
+  echo
   say "Moving the binary to $INSTALL_DIR"
-
+  echo 
+  
   mkdir -p "$INSTALL_DIR"
   mv "$APP_NAME" "$INSTALL_DIR"
   ln -sf "$INSTALL_DIR/$APP_NAME" "$INSTALL_DIR/$APP_NAME_ALT"
@@ -62,32 +65,31 @@ main() {
 
   # Update PATH environment variable in the appropriate shell configuration file
   if [ "$SHELL_NAME" = "bash" ]; then
-    CONFIG_FILE=~/.bashrc
+    CONFIG=$HOME/.bashrc
   elif [ "$SHELL_NAME" = "zsh" ]; then
-    CONFIG_FILE=~/.zshrc
+    CONFIG=$HOME/.zshrc
   elif [ "$SHELL_NAME" = "fish" ]; then
-    CONFIG_FILE=~/.config/fish/config.fish
+    CONFIG=$HOME/.config/fish/config.fish
   else
     err "unsupported shell: $SHELL_NAME, manually add ${INSTALL_DIR} to your PATH."
   fi
 
-  say ""
-  say "Updating the PATH environment variable ..."
+  say "Updating PATH..."
 
   # Update PATH environment variable in the shell configuration file
-  if [ -z "$(grep "${INSTALL_DIR}" "$CONFIG_FILE")" ]; then
-    say "export PATH=${INSTALL_DIR}:\$PATH" >> "$CONFIG_FILE"
-    say "Updated $CONFIG_FILE with PATH modification"
+  if [ -z "$(grep "${INSTALL_DIR}" "$CONFIG")" ]; then
+    echo >> $CONFIG && echo "export PATH=${INSTALL_DIR}:\$PATH" >> $CONFIG
+    say "Updated $CONFIG with PATH modification"
   else
-    say "$CONFIG_FILE already contains PATH modification"
+    say "$CONFIG already contains PATH modification"
   fi
 
 
-  say ""
+  echo
   say "$APP_NAME version $VERSION installed successfully!"
-  say ""
-  say "Run 'source $CONFIG_FILE' or start a new terminal session to use evm-runners."
-  say "Then run 'evm-runners help' or alternatively 'evmr help' to get started."
+  echo
+  say "Run 'source $CONFIG' or start a new terminal session to use evm-runners."
+  say "Then run 'evm-runners help', or alternatively 'evmr help', to get started."
 }
 
 say() {
