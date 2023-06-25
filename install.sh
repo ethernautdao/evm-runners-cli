@@ -3,6 +3,8 @@
 # Define variables
 APP_NAME="evm-runners"
 APP_NAME_ALT="evmr"
+EVMR_DIR="${HOME}/.${APP_NAME}"
+EVMR_BIN_DIR="${EVMR_DIR}/bin"
 GITHUB_USER="ethernautdao"
 GITHUB_REPO="evm-runners-cli"
 VERSION="v0.4.0"
@@ -50,15 +52,13 @@ main() {
   # Set executable permissions
   chmod +x "$APP_NAME"
 
-  INSTALL_DIR="${HOME}/.${APP_NAME}"
-
   echo
-  say "Moving the binary to $INSTALL_DIR"
+  say "Moving the binary to $EVMR_BIN_DIR"
   echo 
   
-  mkdir -p "$INSTALL_DIR"
-  mv "$APP_NAME" "$INSTALL_DIR"
-  ln -sf "$INSTALL_DIR/$APP_NAME" "$INSTALL_DIR/$APP_NAME_ALT"
+  mkdir -p "$EVMR_BIN_DIR"
+  mv "$APP_NAME" "$EVMR_BIN_DIR"
+  ln -sf "$EVMR_BIN_DIR/$APP_NAME" "$EVMR_BIN_DIR/$APP_NAME_ALT"
 
   # Determine shell
   SHELL_NAME="$(basename "$SHELL")"
@@ -71,14 +71,14 @@ main() {
   elif [ "$SHELL_NAME" = "fish" ]; then
     CONFIG=$HOME/.config/fish/config.fish
   else
-    err "unsupported shell: $SHELL_NAME, manually add ${INSTALL_DIR} to your PATH."
+    err "unsupported shell: $SHELL_NAME, manually add ${EVMR_BIN_DIR} to your PATH."
   fi
 
   say "Updating PATH..."
 
   # Update PATH environment variable in the shell configuration file
-  if [ -z "$(grep "${INSTALL_DIR}" "$CONFIG")" ]; then
-    echo >> $CONFIG && echo "export PATH=${INSTALL_DIR}:\$PATH" >> $CONFIG
+if [[ ":$PATH:" != *":${EVMR_BIN_DIR}:"* ]]; then
+    echo >> $CONFIG && echo "export PATH=\"\$PATH:$EVMR_BIN_DIR\"" >> $CONFIG
     say "Updated $CONFIG with PATH modification"
   else
     say "$CONFIG already contains PATH modification"
