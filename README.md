@@ -7,12 +7,12 @@ Command line interface for evm-runners
 ### Shell script
 
 ```
-curl -L https://raw.githubusercontent.com/ethernautdao/evm-runners-cli/main/install.sh | bash
+curl -L get.evmr.sh | bash
 ```
 
-This will install the binary in `~/.evm-runners` and updates your shell configuration file (e.g., `~/.bashrc` or `~/.zshrc`).
+This will install the binary in `~/.evm-runners/bin` and updates your shell configuration file (e.g. `~/.bashrc`, `~/.zshrc`, ...).
 
-After successfull installation, restart your terminal to use `evm-runners`.
+After successfull installation you can initialize evm-runners with `evm-runners init`, or alternatively, `evmr init`.
 
 ### From source
 
@@ -22,15 +22,17 @@ make && make install
 
 This will install the binary in `~/.evm-runners`
 
-Note that if you want to run the evm-runners binary from any directory, you need to make sure that `${HOME}/.evm-runners` is added to your PATH environment variable. You can do this by adding the following line to your shell configuration file (e.g., `~/.bashrc` or `~/.zshrc`):
+Note that if you want to run the evm-runners binary from any directory, you need to make sure that `${HOME}/.evm-runners` is added to your PATH environment variable. You can do this by adding the following line to your shell configuration file:
 
 ```
-export PATH="${HOME}/.evm-runners:${PATH}"
+export PATH="${PATH}:/{HOME}/.evm-runners/bin"
 ```
 
-To build from source you need to have [Go 1.20](https://go.dev/doc/install) installed.
+[Go 1.20](https://go.dev/doc/install) is required to compile the source code.
 
 ## Commands
+
+Note: You can invoke all commands with `evmr <cmd>` as well.
 
 **Display help**
 
@@ -64,7 +66,7 @@ Opens a list of levels to choose from. Alternatively, you can also start solving
 
 Optional flags:
 
-- `--lang` or `-l`, to directly choose the language of the solution file you want to work on, e.g. `evm-runners start Average -l sol`
+- `--lang` or `-l`, to directly choose the language of the solution file you want to work on, e.g. `evm-runners start average -l sol`
 
 **Validate a solution for a level**
 
@@ -74,8 +76,8 @@ evm-runners validate <level_name>
 
 Optional flags:
 
-- `--bytecode` or `-b`, to validate bytecode directly, e.g. `evm-runners validate Average --bytecode 0xabcd`
-- `--lang` or `-l`, to choose the language of the solution file when more than one solution file is present, e.g. `evm-runners validate Average -l sol`
+- `--bytecode` or `-b`, to validate bytecode directly, e.g. `evm-runners validate average --bytecode 0xabcd`
+- `--lang` or `-l`, to choose the language of the solution file when more than one solution file is present, e.g. `evm-runners validate average -l sol`
 
 **Submit a solution**
 
@@ -85,8 +87,8 @@ evm-runners submit <level_name>
 
 Optional flags:
 
-- `--bytecode` or `-b`, to submit bytecode directly, e.g. `evm-runners submit Average -b 0xabcd`
-- `--lang` or `-l`, to choose the language of the solution file when more than one solution file is present, e.g. `evm-runners submit Average -l sol`
+- `--bytecode` or `-b`, to submit bytecode directly, e.g. `evm-runners submit average -b 0xabcd`
+- `--lang` or `-l`, to choose the language of the solution file when more than one solution file is present, e.g. `evm-runners submit average -l sol`
 
 **Display a list of all levels**
 
