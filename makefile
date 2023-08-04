@@ -1,6 +1,6 @@
 BINARY_NAME=evm-runners
 ALT_NAME=evmr
-INSTALL_DIR=${HOME}/.evm-runners
+INSTALL_DIR=${HOME}/.evm-runners/bin
 
 all: clean build
 
