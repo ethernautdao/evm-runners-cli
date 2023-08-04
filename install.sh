@@ -77,13 +77,23 @@ main() {
   say "Updating PATH..."
 
   # Update PATH environment variable in the shell configuration file
-if [[ ":$PATH:" != *":${EVMR_BIN_DIR}:"* ]]; then
+  if [[ ":$PATH:" != *":${EVMR_BIN_DIR}:"* ]]; then
     echo >> $CONFIG && echo "export PATH=\"\$PATH:$EVMR_BIN_DIR\"" >> $CONFIG
     say "Updated $CONFIG with PATH modification"
   else
     say "$CONFIG already contains PATH modification"
   fi
 
+  # Create .env file and add/update the EVMR_VERSION environment variable
+  ENV_FILE="${EVMR_DIR}/.env"
+  
+  if grep -q "^EVMR_VERSION=" "$ENV_FILE"; then
+    # If EVMR_VERSION exists, update it
+    sed -i "s/^EVMR_VERSION=.*/EVMR_VERSION=$VERSION/" "$ENV_FILE"
+  else
+    # If EVMR_VERSION doesn't exist, append it to the file
+    echo "EVMR_VERSION=$VERSION" >> "$ENV_FILE"
+  fi
 
   echo
   say "$APP_NAME version $VERSION installed successfully!"

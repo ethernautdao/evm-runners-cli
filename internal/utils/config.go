@@ -15,6 +15,7 @@ const (
 )
 
 type Config struct {
+	EVMR_VERSION	string `mapstructure:"EVMR_VERSION"`
 	EVMR_SERVER     string `mapstructure:"EVMR_SERVER"`
 	EVMR_TOKEN      string `mapstructure:"EVMR_TOKEN"`
 	EVMR_ID         string `mapstructure:"EVMR_ID"`

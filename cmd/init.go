@@ -50,7 +50,7 @@ var initCmd = &cobra.Command{
 		}
 
 		// Clone ethernautdao/evm-runners-levels.git
-		fmt.Printf("\nCloning 'github.com/ethernautdao/evm-runners-levels.git' ...\n")
+		fmt.Printf("Cloning 'github.com/ethernautdao/evm-runners-levels.git' ...\n")
 
 		err = cloneRepository(subdir)
 		if err != nil {
@@ -61,7 +61,7 @@ var initCmd = &cobra.Command{
 		envDirPath := filepath.Join(usr.HomeDir, ".evm-runners")
 		envFilePath := filepath.Join(envDirPath, ".env")
 
-		fmt.Printf("\nCreating .env file at '%s' ...\n", envFilePath)
+		fmt.Printf("\nUpdating .env file at '%s' ...\n", envFilePath)
 
 		err = createOrUpdateEnv(subdir, envDirPath, envFilePath)
 		if err != nil {
@@ -121,21 +121,20 @@ func createOrUpdateEnv(subdir string, envDirPath string, envFilePath string) err
 
 		fmt.Println(".env file created successfully.")
 	} else {
-		fmt.Printf("Existing .env file detected at '%s'\n", envFilePath)
-
-		fmt.Printf("Updating the levels directory in the .env file ...\n")
+		// .env file already exists
 
 		// Load existing config
-		config, err := utils.LoadConfig()
+		existingConfig, err := utils.LoadConfig()
 		if err != nil {
 			return err
 		}
 
-		// replace subdir in config
-		config.EVMR_LEVELS_DIR = subdir
+		// set server and levels_dir
+		existingConfig.EVMR_SERVER = config.EVMR_SERVER
+		existingConfig.EVMR_LEVELS_DIR = config.EVMR_LEVELS_DIR
 
 		// Update config
-		err = utils.WriteConfig(config)
+		err = utils.WriteConfig(existingConfig)
 		if err != nil {
 			return fmt.Errorf("error writing to .env file: %v", err)
 		}
