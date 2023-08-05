@@ -7,7 +7,7 @@ EVMR_DIR="${HOME}/.${APP_NAME}"
 EVMR_BIN_DIR="${EVMR_DIR}/bin"
 GITHUB_USER="ethernautdao"
 GITHUB_REPO="evm-runners-cli"
-VERSION="v0.4.0"
+VERSION="v0.4.1"
 
 main() {
   say "Installing evm-runners..."
