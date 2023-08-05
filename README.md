@@ -46,7 +46,7 @@ evm-runners -h
 evm-runners init
 ```
 
-This command clones the [evm-runners-levels](https://github.com/ethernautdao/evm-runners-levels) repository into the current directory and creates a .env file in `~/.evm-runners/`
+This command clones the [evm-runners-levels](https://github.com/ethernautdao/evm-runners-levels) repository into the current directory and updates the .env file in `~/.evm-runners/`
 
 **Authentication**
 
@@ -106,4 +106,10 @@ evm-runners leaderboard <level_name>
 
 ```
 evm-runners about
+```
+
+**Show the current version of evm-runners**
+
+```
+evm-runners version
 ```
