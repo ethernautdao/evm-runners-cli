@@ -99,7 +99,7 @@ main() {
   say "$APP_NAME version $VERSION installed successfully!"
   echo
   say "Run 'source $CONFIG' or start a new terminal session to use evm-runners."
-  say "Then run 'evm-runners help', or alternatively 'evmr help', to get started."
+  say "Then run 'evmr help', or alternatively 'evm-runners help', to get started."
 }
 
 say() {

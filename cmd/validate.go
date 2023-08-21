@@ -84,7 +84,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 
 				fmt.Printf("\nTo test the solution with forge, run 'forge test --mc %s -vvvv' in '%s'\n", userTestContract, config.EVMR_LEVELS_DIR)
 			} else {
-				fmt.Printf("\nTo see the stack traces of the failed tests, run 'evm-runners validate %s -v'\n", level)
+				fmt.Printf("\nTo see the stack traces of the failed tests, run 'evmr validate %s -v'\n", level)
 			}
 
 			return nil
@@ -103,9 +103,9 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 		fmt.Printf("Solution is correct! Gas: %d, Size: %d\n", gasValue, sizeValue)
 
 		if lang != "" {
-			fmt.Printf("To submit it, run 'evm-runners submit %s -l %s'\n", level, lang)
+			fmt.Printf("To submit it, run 'evmr submit %s -l %s'\n", level, lang)
 		} else {
-			fmt.Printf("To submit it, run 'evm-runners submit %s'\n", level)
+			fmt.Printf("To submit it, run 'evmr submit %s'\n", level)
 		}
 
 		return nil

@@ -38,7 +38,7 @@ The displayed scores can differ slightly from the final scores on the leaderboar
 
 		// check if user authenticated
 		if config.EVMR_TOKEN == "" {
-			return fmt.Errorf("Please authorize first with 'evm-runners auth discord'\n")
+			return fmt.Errorf("Please authorize first with 'evmr auth discord'\n")
 		}
 
 		if len(args) == 0 {

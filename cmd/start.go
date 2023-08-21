@@ -20,7 +20,7 @@ var startCmd = &cobra.Command{
 	Long: `Start solving a level. This command copies the template file from 
 evm-runners-levels/template to src/
 
-You can then validate your solution with evm-runners validate or by using the forge test command.`,
+You can then validate your solution with 'evmr validate' or by using the forge test command.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		lang, _ := cmd.Flags().GetString("lang")
@@ -57,10 +57,7 @@ You can then validate your solution with evm-runners validate or by using the fo
 			return nil
 		}
 
-		if lang == "no template" {
-			fmt.Printf("No template file selected.\nYou can start by creating your src file in '%s'!\nTo validate your solution, run 'evm-runners validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
-			return nil
-		} else {
+		if lang != "no template" {
 			filename := levels[level].File
 			fileToCopy := filename + "." + lang
 
@@ -70,7 +67,7 @@ You can then validate your solution with evm-runners validate or by using the fo
 			}
 		}
 
-		fmt.Printf("Your level is ready!\nYou can start working on your solution in '%s'!\nTo validate your solution, run 'evm-runners validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
+		fmt.Printf("Done! You can start working on your solution in '%s'!\nTo validate your solution, run 'evmr validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
 
 		return nil
 	},
@@ -130,7 +127,7 @@ func getLevel(args []string, config utils.Config, levels map[string]utils.Level)
 	return level, nil
 }
 
-// todo: merge with helper.getSolutionType? 
+// todo: merge with helper.getSolutionType?
 func getLang(lang string) (string, error) {
 	// if lang flag is not sol, huff, or vyper => open list
 	switch lang {

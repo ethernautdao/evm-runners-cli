@@ -61,5 +61,4 @@ var levelsCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(levelsCmd)
-
 }

@@ -26,9 +26,9 @@ type Config struct {
 
 var authCmd = &cobra.Command{
 	Use:   "auth <platform>",
-	Short: "Authenticate your account.",
+	Short: "Authenticate your account",
 	Long: `Authenticate your account. Currently Discord is the only available platform. 
-For updating your username, run 'evm-runners auth <platform>' again.`,
+For updating your username, run 'evmr auth <platform>' again.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
@@ -46,7 +46,7 @@ For updating your username, run 'evm-runners auth <platform>' again.`,
 		// Check if the required environment variables are already set
 		if config.EVMR_TOKEN != "" || config.EVMR_ID != "" || config.EVMR_NAME != "" {
 			var overwrite string
-			fmt.Printf("The following environment variables are already set:\n\nEVMR_TOKEN=%s\nEVMR_ID=%s\nEVMR_NAME=%s\n\nDo you want to update them? (y/n): ", config.EVMR_TOKEN, config.EVMR_ID, config.EVMR_NAME)
+			fmt.Printf("It seems like you authenticated before as '%s'\n\nDo you want to update your info? (y/n): ", config.EVMR_NAME)
 			fmt.Scanln(&overwrite)
 			if overwrite != "y" && overwrite != "Y" {
 				fmt.Println("\nAborting authentication")
@@ -63,7 +63,7 @@ For updating your username, run 'evm-runners auth <platform>' again.`,
 
 			fmt.Println("\nSuccessfully authenticated with Discord!")
 		} else {
-			return fmt.Errorf("Invalid authentication method. Only Discord is available yet.\n")
+			return fmt.Errorf("Invalid authentication method. Only Discord is available yet\n")
 		}
 
 		return nil
@@ -91,7 +91,7 @@ func authDiscord(config utils.Config) error {
 		return fmt.Errorf("failed to open URL: %v", err)
 	}
 
-	fmt.Println("When you're done authenticating, enter the provided PIN code.")
+	fmt.Println("When you're done authenticating, enter the provided PIN code")
 
 	// read PIN from stdin
 	var pin string

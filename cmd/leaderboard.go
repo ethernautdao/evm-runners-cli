@@ -15,7 +15,7 @@ import (
 
 var leaderboardCmd = &cobra.Command{
 	Use:   "leaderboard <level>",
-	Short: "Display the gas and codesize leaderboard for a given level.",
+	Short: "Display the gas and codesize leaderboard for the specific level",
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {

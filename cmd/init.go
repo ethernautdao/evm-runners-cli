@@ -68,7 +68,7 @@ var initCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("\nevm-runners initialized successfully!\nRun 'evm-runners start' to begin solving a level!")
+		fmt.Println("\nevm-runners initialized successfully!\nRun 'evmr start' to begin solving a level!")
 		return nil
 	},
 }
@@ -120,9 +120,7 @@ func createOrUpdateEnv(subdir string, envDirPath string, envFilePath string) err
 		}
 
 		fmt.Println(".env file created successfully.")
-	} else {
-		// .env file already exists
-
+	} else { // .env file already exists
 		// Load existing config
 		existingConfig, err := utils.LoadConfig()
 		if err != nil {

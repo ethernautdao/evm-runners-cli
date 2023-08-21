@@ -15,7 +15,7 @@ const (
 )
 
 type Config struct {
-	EVMR_VERSION	string `mapstructure:"EVMR_VERSION"`
+	EVMR_VERSION    string `mapstructure:"EVMR_VERSION"`
 	EVMR_SERVER     string `mapstructure:"EVMR_SERVER"`
 	EVMR_TOKEN      string `mapstructure:"EVMR_TOKEN"`
 	EVMR_ID         string `mapstructure:"EVMR_ID"`
@@ -117,7 +117,7 @@ func LoadLevels() (map[string]Level, error) {
 		if str, ok := val.(string); ok {
 			return str
 		}
-		fmt.Printf("ERROR: Failed to convert field '%s' to string\nTry running 'evm-runners init' again!\n\n", fieldName)
+		fmt.Printf("ERROR: Failed to convert field '%s' to string\nTry running 'evmr init' again!\n\n", fieldName)
 		return "ERROR"
 	}
 

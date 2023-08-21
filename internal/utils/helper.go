@@ -351,7 +351,7 @@ func getSolutionType(file string, langFlag string) (string, error) {
 
 	// Handle cases with no solution files or multiple solution files
 	if len(existingFiles) == 0 {
-		return "", fmt.Errorf("No solution file found! Run 'evm-runners start <level>' or submit bytecode with -b <bytecode>\n")
+		return "", fmt.Errorf("No solution file found! Searched in '%s'\nRun 'evmr start <level>' or submit pure bytecode with -b <bytecode>\n", filepath.Join(config.EVMR_LEVELS_DIR, solutionDir))
 	} else if langFlag == "" && len(existingFiles) > 1 {
 		return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use --lang to choose which one to validate.\n")
 	}
