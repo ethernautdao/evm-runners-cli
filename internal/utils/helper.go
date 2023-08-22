@@ -338,9 +338,15 @@ func getSolutionType(file string, langFlag string) (string, error) {
 		if _, exists := languages[langFlag]; !exists {
 			return "", fmt.Errorf("Invalid language flag. Please use either 'sol', 'huff', or 'vy'.\n")
 		}
+
+		// Check existence of specific solution file
+		filePath := filepath.Join(config.EVMR_LEVELS_DIR, solutionDir, file+languages[langFlag])
+		if !fileExists(filePath) {
+			return "", fmt.Errorf("'%s' solution file not found! Searched in '%s'\n", langFlag, filepath.Join(config.EVMR_LEVELS_DIR, solutionDir))
+		}
 	}
 
-	// Check existence of solution files
+	// Check general existence of solution files
 	var existingFiles []string
 	for lang, ext := range languages {
 		filePath := filepath.Join(config.EVMR_LEVELS_DIR, solutionDir, file+ext)
@@ -351,7 +357,7 @@ func getSolutionType(file string, langFlag string) (string, error) {
 
 	// Handle cases with no solution files or multiple solution files
 	if len(existingFiles) == 0 {
-		return "", fmt.Errorf("No solution file found! Searched in '%s'\nRun 'evmr start <level>' or submit pure bytecode with -b <bytecode>\n", filepath.Join(config.EVMR_LEVELS_DIR, solutionDir))
+		return "", fmt.Errorf("No solution file found! Searched in '%s'\nRun 'evmr start <level>' first or submit pure bytecode with -b <bytecode>\n", filepath.Join(config.EVMR_LEVELS_DIR, solutionDir))
 	} else if langFlag == "" && len(existingFiles) > 1 {
 		return "", fmt.Errorf("More than one solution file found!\nDelete a solution file or use --lang to choose which one to validate.\n")
 	}
