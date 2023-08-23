@@ -64,28 +64,32 @@ func (m *levelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *levelListModel) View() string {
 	var sb strings.Builder
 
-	header := fmt.Sprintf("  #\t%-14s%-10s%-10s%s\n", "NAME", "SOLVES", "SOLVED", "TYPE")
-	headerSeparator := "\x1b[90m" + strings.Repeat("-", len(header)+18) + "\n" + "\x1b[0m"
+	if m.Done {
+		return ""
+	} else {
+		header := fmt.Sprintf("  #\t%-14s%-10s%-10s%s\n", "NAME", "SOLVES", "SOLVED", "TYPE")
+		headerSeparator := "\x1b[90m" + strings.Repeat("-", len(header)+18) + "\n" + "\x1b[0m"
 
-	sb.WriteString(header)
-	sb.WriteString(headerSeparator)
+		sb.WriteString(header)
+		sb.WriteString(headerSeparator)
 
-	for i, k := range m.Keys {
-		l := m.Levels[k]
-		if m.Cursor == i {
-			sb.WriteString("> ")
-		} else {
-			sb.WriteString("  ")
+		for i, k := range m.Keys {
+			l := m.Levels[k]
+			if m.Cursor == i {
+				sb.WriteString("> ")
+			} else {
+				sb.WriteString("  ")
+			}
+			sb.WriteString(fmt.Sprintf("%s\t%-14s%-10s%-10s%s\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], m.submissions[l.Contract], l.Type))
+			if m.Cursor == i && m.descriptionShown {
+				sb.WriteString("\n" + "\x1b[32m" + l.Description + "\x1b[0m" + "\n")
+			}
 		}
-		sb.WriteString(fmt.Sprintf("%s\t%-14s%-10s%-10s%s\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], m.submissions[l.Contract], l.Type))
-		if m.Cursor == i && m.descriptionShown {
-			sb.WriteString("\n" + "\x1b[32m" + l.Description + "\x1b[0m" + "\n")
-		}
+
+		sb.WriteString("\n\x1b[90m↑/↓ - Navigate | ←/→ - Toggle Description | q to exit | ↩ to select \x1b[0m")
+
+		return sb.String()
 	}
-
-	sb.WriteString("\n\x1b[90m↑ / ↓ - Navigate | ← / → - Toggle Description | q to exit\x1b[0m")
-
-	return sb.String()
 }
 
 func NewLevelList(Levels map[string]utils.Level, solves map[string]string, submissions map[string]string) *levelListModel {

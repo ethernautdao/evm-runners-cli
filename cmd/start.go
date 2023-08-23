@@ -18,7 +18,7 @@ var startCmd = &cobra.Command{
 	Use:   "start [level]",
 	Short: "Start solving a level",
 	Long: `Start solving a level. This command copies the template file from 
-evm-runners-levels/template to evm-runners-levels/src/
+evm-runners/template to evm-runners/src/
 
 You can then validate your solution with 'evmr validate' or by using the forge test command.`,
 
@@ -38,7 +38,7 @@ You can then validate your solution with 'evmr validate' or by using the forge t
 		}
 
 		// get level
-		level, err := getLevel(args, config, levels)
+		level, err := GetLevel(args, config, levels)
 		if err != nil {
 			return err
 		}
@@ -65,20 +65,20 @@ You can then validate your solution with 'evmr validate' or by using the forge t
 			if err != nil {
 				return err
 			}
+		} else {
+			fmt.Printf("No template file selected.\n\n")
 		}
 
-		fmt.Printf("Done! You can start working on your solution in '%s'!\nTo validate your solution, run 'evmr validate %s'\n", filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
+		fmt.Printf("You can start working on level '%s/' in:\n%s\n\nTo validate your solution, run 'evmr validate %s'\n", level, filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
 
 		return nil
 	},
 }
 
-func getLevel(args []string, config utils.Config, levels map[string]utils.Level) (string, error) {
+func GetLevel(args []string, config utils.Config, levels map[string]utils.Level) (string, error) {
 	// if argument is empty, open level list
 	if len(args) == 0 {
 		solves := utils.GetSolves(levels)
-
-		fmt.Printf("Press ENTER to select a level:\n\n")
 
 		// Initialize the submissions map
 		submissions := make(map[string]string)

@@ -4,34 +4,37 @@ import (
 	"encoding/json"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/ethernautdao/evm-runners-cli/internal/tui"
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"net/http"
-	"strings"
-
-	"github.com/ethernautdao/evm-runners-cli/internal/tui"
-	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 )
 
 var leaderboardCmd = &cobra.Command{
-	Use:   "leaderboard <level>",
+	Use:   "leaderboard [level]",
 	Short: "Display the gas and codesize leaderboard for a specific level",
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return fmt.Errorf("Please provide a level\n")
+		// load config
+		config, err := utils.LoadConfig()
+		if err != nil {
+			return err
 		}
-		level := strings.ToLower(args[0])
 
-		// get level information
+		// load levels
 		levels, err := utils.LoadLevels()
 		if err != nil {
 			return fmt.Errorf("error loading levels: %v", err)
 		}
 
-		// check if level exists
-		if _, ok := levels[level]; !ok {
-			fmt.Println("Invalid level")
+		// get level
+		level, err := GetLevel(args, config, levels)
+		if err != nil {
+			return err
+		}
+		// user aborted selection
+		if level == "" {
 			return nil
 		}
 

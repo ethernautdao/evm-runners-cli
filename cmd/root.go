@@ -14,15 +14,17 @@ var rootCmd = &cobra.Command{
 
 How to start playing:
 1. 'evmr init' to initialize evm-runners
-2. 'evmr start' to start solving a level
+2. 'evmr start [level]' to start solving a level
 3. 'evmr validate <level>' to test your solution
 
 How to submit a solution:
-1. 'evmr auth' to register your account
+1. 'evmr auth discord' to register your account
 2. 'evmr submit <level>' to submit your solution
-3. 'evmr leaderboard <level>' to see your position on the leaderboard
+3. 'evmr leaderboard [level]' to see your position on the leaderboard
 
-For a list of all available levels, use 'evmr levels'`,
+For a list of all available levels, use 'evmr levels'
+
+Arguments in <> are required, arguments in [] are optional.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

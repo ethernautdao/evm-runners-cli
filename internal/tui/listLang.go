@@ -41,21 +41,22 @@ func (m *langListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *langListModel) View() string {
-	s := "Do you want to use a template?\n\n"
-
-	for i, option := range m.Options {
-		// Add a ">" symbol before the selected option
-		if i == m.Cursor {
-			s += "> "
-		} else {
-			s += "  "
+	if m.Done {
+		return ""
+	} else {
+		s := "Do you want to use a template?\n\n"
+		for i, option := range m.Options {
+			// Add a ">" symbol before the selected option
+			if i == m.Cursor {
+				s += "> "
+			} else {
+				s += "  "
+			}
+			s += option + "\n"
 		}
-		s += option + "\n"
+		s += "\n\x1b[90m↑/↓ - Navigate | ←/→ - Toggle Description | q to exit | ↩ to select \x1b[0m"
+		return s
 	}
-
-	s += "\n\x1b[90m↑ / ↓ - Navigate | ENTER - select language | q to exit\x1b[0m"
-
-	return s
 }
 
 func NewLangListModel() *langListModel {
