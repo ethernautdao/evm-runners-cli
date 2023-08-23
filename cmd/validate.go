@@ -14,7 +14,7 @@ var validateCmd = &cobra.Command{
 	Short: "Validate a level",
 	Long: `Validate a level by running the predefined Foundry tests 
 against the solution file or against the provided bytecode,
-if the bytecode -b flag is set.
+if the bytecode '-b' flag is set.
 
 The resulting codesize score is determined by the result
 of 'test_<level_id>_size', and the gas score is determined 

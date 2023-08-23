@@ -9,7 +9,7 @@ import (
 // aboutCmd represents the about command
 var aboutCmd = &cobra.Command{
 	Use:   "about",
-	Short: "Information about evm-runners",
+	Short: "General information about evm-runners",
 
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(`                                                                 
@@ -20,7 +20,7 @@ var aboutCmd = &cobra.Command{
                                                                  `)
 
 		fmt.Println("A terminal-based game for developers with EVM-based challenges")
-		fmt.Println("\nSponsored by \x1b[94m@EthernautDAO\x1b[0m")
+		fmt.Println("\nSponsored by \x1b[94m@EthernautDAO\x1b[0m and \x1b[94m@Optimism\x1b[0m")
 		fmt.Println("Authors: \x1b[94m@0xkarmacoma\x1b[0m, \x1b[94m@beskay0x\x1b[0m, \x1b[94m@kyre_rs\x1b[0m")
 		fmt.Println("")
 		fmt.Println("Website: \x1b[94mhttps://evmr.sh\x1b[0m")

@@ -18,7 +18,7 @@ var startCmd = &cobra.Command{
 	Use:   "start [level]",
 	Short: "Start solving a level",
 	Long: `Start solving a level. This command copies the template file from 
-evm-runners-levels/template to src/
+evm-runners-levels/template to evm-runners-levels/src/
 
 You can then validate your solution with 'evmr validate' or by using the forge test command.`,
 
@@ -127,7 +127,6 @@ func getLevel(args []string, config utils.Config, levels map[string]utils.Level)
 	return level, nil
 }
 
-// todo: merge with helper.getSolutionType?
 func getLang(lang string) (string, error) {
 	// if lang flag is not sol, huff, or vyper => open list
 	switch lang {

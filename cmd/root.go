@@ -12,14 +12,17 @@ var rootCmd = &cobra.Command{
 	Short: "A terminal-based game for developers with EVM-based levels",
 	Long: `A terminal-based game for developers with EVM-based levels.
 
-How to play:
-1. 'evm-runners init' to initialize the game
-2. 'evm-runners auth' to authenticate with the server
-3. 'evm-runners start' to start solving a level
-4. 'evm-runners validate <level>' to validate your solution
-5. 'evm-runners submit <level>' to submit your solution and get placed on the leaderboard
+How to start playing:
+1. 'evmr init' to initialize evm-runners
+2. 'evmr start' to start solving a level
+3. 'evmr validate <level>' to test your solution
 
-For a list of all available levels, use 'evm-runners levels'`,
+How to submit a solution:
+1. 'evmr auth' to register your account
+2. 'evmr submit <level>' to submit your solution
+3. 'evmr leaderboard <level>' to see your position on the leaderboard
+
+For a list of all available levels, use 'evmr levels'`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
