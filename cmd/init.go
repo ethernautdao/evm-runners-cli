@@ -16,7 +16,7 @@ var initCmd = &cobra.Command{
 	Short: "Initialize evm-runners",
 	Long: `Initialize evm-runners by
 
-1. Cloning the ethernautdao/evm-runners-levels.git repository into ./evm-runners-levels
+1. Cloning the ethernautdao/evm-runners-levels.git repository into ./evmr-levels
 2. Creating a .env file in ~/.config/evm-runners/`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -26,10 +26,10 @@ var initCmd = &cobra.Command{
 			return fmt.Errorf("error getting user's home directory: %v", err)
 		}
 
-		// Get absolute path for evm-runners-levels
-		subdir, err := filepath.Abs("evm-runners-levels")
+		// Get absolute path for evm-runners
+		subdir, err := filepath.Abs("evm-runners")
 		if err != nil {
-			return fmt.Errorf("error getting absolute path for evm-runners-levels: %v", err)
+			return fmt.Errorf("error getting absolute path for evm-runners: %v", err)
 		}
 
 		// Ask user if they want to init evm-runners in the current directory
@@ -83,7 +83,7 @@ func cloneRepository(subdir string) error {
 		}
 		fmt.Println("evm-runners-levels cloned successfully")
 	} else {
-		fmt.Println("evm-runners-levels already exists")
+		fmt.Println("evm-runners already exists")
 	}
 
 	return nil
