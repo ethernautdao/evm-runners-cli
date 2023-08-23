@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"net/http"
 	"os"
@@ -110,7 +110,7 @@ func FetchSubmissionData(config Config) ([]SubmissionData, error) {
 	}
 
 	// Read the response
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("error reading the response: %v", err)
 	}
@@ -163,7 +163,7 @@ func GetSolves(levels map[string]Level) map[string]string {
 			continue
 		}
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			solves[levels[key].Contract] = ""
 			continue
@@ -247,7 +247,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 			}
 
 			// Read the JSON file
-			file, err := ioutil.ReadFile(filepath.Join(levelsDir, "out", fmt.Sprintf("%s.sol", filename), fmt.Sprintf("%s.json", levels[level].Contract)))
+			file, err := os.ReadFile(filepath.Join(levelsDir, "out", fmt.Sprintf("%s.sol", filename), fmt.Sprintf("%s.json", levels[level].Contract)))
 			if err != nil {
 				return "", "", fmt.Errorf("error reading JSON file: %v", err)
 			}

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -187,11 +186,11 @@ func copyTemplateFile(levelsDir, fileToCopy string) error {
 }
 
 func copyFile(src, dst string) error {
-	input, err := ioutil.ReadFile(src)
+	input, err := os.ReadFile(src)
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(dst, input, 0644); err != nil {
+	if err := os.WriteFile(dst, input, 0644); err != nil {
 		return err
 	}
 	return nil

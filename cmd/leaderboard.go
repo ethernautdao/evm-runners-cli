@@ -7,7 +7,7 @@ import (
 	"github.com/ethernautdao/evm-runners-cli/internal/tui"
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"github.com/spf13/cobra"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -53,7 +53,7 @@ func fetchLeaderboardData(url string) ([]utils.SubmissionData, error) {
 		return nil, fmt.Errorf("http request failed with status: %s", resp.Status)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("error reading response body: %v", err)
 	}

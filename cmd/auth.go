@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"github.com/spf13/cobra"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os/exec"
 	"time"
@@ -112,7 +112,7 @@ func authDiscord(config utils.Config) error {
 		return fmt.Errorf("failed to authenticate with server: %s", resp.Status)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("error reading response body: %v", err)
 	}
