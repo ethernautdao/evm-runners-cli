@@ -15,16 +15,16 @@ import (
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
 	Use:   "submit <level>",
-	Short: "Submit a solution for a level to the server",
+	Short: "Submit a solution for a level",
 	Long: `Submit a solution for a level to the server.
 
 This command performs the following steps:
 
-1. Compiling the solution
-2. Validating the solution's bytecode 
-3. If successful, sending the bytecode to the server
+1. Compiles the specific solution file
+2. Validates the resulting byecode by running predefined tests 
+3. If all tests pass, the bytecode is submitted to the server
 
-The displayed scores can differ slightly from the final scores on the leaderboard.`,
+Note: The final score on the leaderboard can differ sligthly from the local score.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
@@ -106,10 +106,10 @@ The displayed scores can differ slightly from the final scores on the leaderboar
 
 			// If gas and size score is worse than existing one, skip submission
 			if gasValue >= existingGas && sizeValue >= existingSize {
-				fmt.Printf("\nWarning: Submission skipped!\nThe gas and size scores are either worse or equal to the existing ones (gas: %d, size: %d).\n", existingGas, existingSize)
+				fmt.Printf("\nWarning: Submission skipped!\nExisting solution is better than the current one (gas: %d, size: %d).\n", existingGas, existingSize)
 				return nil
 			}
-		}
+		} 
 
 		// Create a JSON payload
 		payload := map[string]string{
@@ -150,8 +150,25 @@ The displayed scores can differ slightly from the final scores on the leaderboar
 		gasRank, _ := response[0]["gas_rank"].(string)
 		sizeRank, _ := response[0]["size_rank"].(string)
 
+		// Fetch updated submission data
+		submissions, err = utils.FetchSubmissionData(config)
+		if err != nil {
+			return err
+		}
+
+		var gasScore int
+		var sizeScore int
+		if len(submissions) > 0 {
+			for _, item := range submissions {
+				if level == strings.ToLower(item.LevelName) {
+					gasScore, _ = strconv.Atoi(item.Gas)
+					sizeScore, _ = strconv.Atoi(item.Size)
+				}
+			}
+		}
+
 		fmt.Printf("\nSolution for level '%s' submitted successfully!\n\n", level)
-		fmt.Printf("Size leaderboard: #%s\nGas leaderboard: #%s\n", sizeRank, gasRank)
+		fmt.Printf("Size leaderboard: #%s (%d)\nGas leaderboard: #%s (%d)\n", sizeRank, sizeScore, gasRank, gasScore)
 
 		return nil
 	},
