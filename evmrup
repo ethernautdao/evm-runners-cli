@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+set -e
+
+# -----------------------------------------------------------
+# Forked from Foundry.
+# https://github.com/foundry-rs/foundry/tree/master/foundryup
+# -----------------------------------------------------------
+
+# Define variables
+EVMR_DIR="${HOME}/.evm-runners"
+EVMR_BIN_DIR="${EVMR_DIR}/bin"
+ENV_FILE="${EVMR_DIR}/.env"
+
+APP_NAME="evm-runners"
+APP_NAME_ALT="evmr"
+
+VERSION="v0.4.1"
+
+main() {
+  need_cmd curl
+ 
+  PLATFORM="$(uname -s)"
+  case $PLATFORM in
+    Linux)
+      PLATFORM="linux"
+      ;;
+    Darwin)
+      PLATFORM="darwin"
+      ;;
+    *)
+      err "unsupported platform: $PLATFORM"
+      ;;
+  esac
+
+  # Determine architecture
+  ARCH="$(uname -m)"
+
+  if [ "$ARCH" = "x86_64" ]; then
+    # Redirect stderr to /dev/null to avoid printing errors if non Rosetta.
+    if [ "$(sysctl -n sysctl.proc_translated 2>/dev/null)" = "1" ]; then
+      ARCH="arm64" # Rosetta
+    else
+      ARCH="amd64" # Intel
+    fi
+  elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+    ARCH="arm64" # Arm
+  else
+    ARCH="amd64" # Amd
+  fi
+
+  # Download release binary
+  DOWNLOAD_URL="https://github.com/ethernautdao/evm-runners-cli/releases/download/$VERSION/$APP_NAME-$PLATFORM-$ARCH"
+
+  say "Installing evm-runners version $VERSION for $PLATFORM-$ARCH"
+
+  # Download binary, make it executable, and move it to the bin directory
+  ensure curl -# -L $DOWNLOAD_URL -o $APP_NAME
+  ensure chmod +x $APP_NAME
+  ensure mv $APP_NAME $EVMR_BIN_DIR
+  # create evmr symlink
+  ensure ln -sf $EVMR_BIN_DIR/$APP_NAME $EVMR_BIN_DIR/$APP_NAME_ALT
+
+  # Create .env file and add/update the EVMR_VERSION environment variable
+  if [ ! -f "$ENV_FILE" ]; then
+    # If the .env file doesn't exist, create it and add EVMR_VERSION
+    echo "EVMR_VERSION=$VERSION" > "$ENV_FILE"
+  elif grep -q "^EVMR_VERSION=" "$ENV_FILE"; then
+    # If EVMR_VERSION exists, update it
+    sed -i "s/^EVMR_VERSION=.*/EVMR_VERSION=$VERSION/" "$ENV_FILE"
+  else
+    # If EVMR_VERSION doesn't exist, append it to the file
+    echo "EVMR_VERSION=$VERSION" >> "$ENV_FILE"
+  fi
+
+  echo && say "$APP_NAME version $VERSION installed successfully!"
+  echo && say "If this is your first install, start a new terminal session to use evm-runners."
+  say "Then run 'evmr help', or alternatively 'evm-runners help', to get started."
+  echo && say "To update evm-runners in the future, just run 'evmrup'."
+}
+
+say() {
+  printf 'evmrup: %s\n' "$1"
+}
+
+warn() {
+  say "warning: ${1}" >&2
+}
+
+err() {
+  say "$1" >&2
+  exit 1
+}
+
+need_cmd() {
+  if ! check_cmd "$1"; then
+    err "need '$1' (command not found)"
+  fi
+}
+
+check_cmd() {
+  command -v "$1" > /dev/null 2>&1
+}
+
+# Run a command that should never fail. If the command fails execution
+# will immediately terminate with an error showing the failing
+# command.
+ensure() {
+  if ! "$@"; then err "command failed: $*"; fi
+}
+
+main "$@" || exit 1
