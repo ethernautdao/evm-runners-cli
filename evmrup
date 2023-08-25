@@ -14,7 +14,7 @@ ENV_FILE="${EVMR_DIR}/.env"
 APP_NAME="evm-runners"
 APP_NAME_ALT="evmr"
 
-VERSION="v0.4.1"
+VERSION="v0.4.2"
 
 main() {
   need_cmd curl
