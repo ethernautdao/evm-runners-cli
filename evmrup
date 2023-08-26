@@ -14,8 +14,6 @@ ENV_FILE="${EVMR_DIR}/.env"
 APP_NAME="evm-runners"
 APP_NAME_ALT="evmr"
 
-VERSION="v0.4.2"
-
 main() {
   need_cmd curl
  
@@ -46,6 +44,12 @@ main() {
     ARCH="arm64" # Arm
   else
     ARCH="amd64" # Amd
+  fi
+
+  # Determine latest version
+  VERSION="$(curl -s https://api.github.com/repos/ethernautdao/evm-runners-cli/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')"
+  if [ -z "$VERSION" ]; then
+    err "failed to determine latest version"
   fi
 
   # Download release binary
