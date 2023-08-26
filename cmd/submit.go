@@ -104,12 +104,15 @@ Note: The final score on the leaderboard can differ sligthly from the local scor
 				}
 			}
 
-			// If gas and size score is worse than existing one, skip submission
-			if gasValue >= existingGas && sizeValue >= existingSize {
-				fmt.Printf("\nWarning: Submission skipped!\nExisting solution is better than the current one (gas: %d, size: %d).\n", existingGas, existingSize)
-				return nil
+			// if existing solution is found (gas and size > 0)
+			if existingGas > 0 && existingSize > 0 {
+				// If gas and size score is worse than existing one, skip submission
+				if gasValue >= existingGas && sizeValue >= existingSize {
+					fmt.Printf("\nWarning: Submission skipped!\nExisting solution is better than the current one (gas: %d, size: %d).\n", existingGas, existingSize)
+					return nil
+				}
 			}
-		} 
+		}
 
 		// Create a JSON payload
 		payload := map[string]string{
