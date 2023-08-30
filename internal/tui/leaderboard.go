@@ -8,19 +8,6 @@ import (
 	"time"
 )
 
-/* type Submission struct {
-	ID          string  `json:"id"`
-	UserID      int     `json:"user_id"`
-	LevelId     int     `json:"level_id"`
-	Gas         float64 `json:"gas,string"`
-	Size        int     `json:"size,string"`
-	SubmittedAt string  `json:"submitted_at"`
-	Type        string  `json:"type"`
-	OptimFor    string  `json:"optimized_for"`
-	Username    string  `json:"user_name"`
-	LevelName   string  `json:"level_name"`
-} */
-
 type LeaderboardUI struct {
 	content string
 }
@@ -51,11 +38,28 @@ func leaderboardTable(submissions []utils.SubmissionData, field string) string {
 
 	// Add a few spaces to the width
 	maxUsernameWidth += 4
+	tableWidth := maxUsernameWidth + 50
 
 	if len(submissions) > 0 {
-		header := fmt.Sprintf(" #\t%-*s\t%-5s\t%s\t\t%s\n", maxUsernameWidth, "USER", strings.ToUpper(field), "DATE", "TYPE")
-		separator := "\x1b[90m" + strings.Repeat("-", maxUsernameWidth+48) + "\n" + "\x1b[0m"
 
+		var headlineText string
+		if field == "gas" {
+			headlineText = "GAS STATISTICS"
+		} else if field == "size" {
+			headlineText = "SIZE STATISTICS"
+		}
+
+		headline := "\x1b[1m" + headlineText + "\x1b[0m" + "\n\n"
+		header := fmt.Sprintf("\x1b[90m│\x1b[0m #\t%-*s\t%-12s%-18s%-10s\x1b[90m│\x1b[0m\n", maxUsernameWidth, "USER", strings.ToUpper(field), "DATE", "TYPE")
+		separator := "\x1b[90m" + "│" + strings.Repeat("─", tableWidth) + "│" + "\n" + "\x1b[0m"
+
+		// Calculate padding for the headline
+		headlinePadding := (tableWidth - len(headlineText)) / 2
+		padding := strings.Repeat(" ", headlinePadding)
+		centeredHeadline := padding + headline
+
+		sb.WriteString(centeredHeadline)
+		sb.WriteString("\x1b[90m┌" + strings.Repeat("─", tableWidth) + "┐\n\x1b[0m") // Top border of the box
 		sb.WriteString(header)
 		sb.WriteString(separator)
 	} else {
@@ -78,11 +82,13 @@ func leaderboardTable(submissions []utils.SubmissionData, field string) string {
 		dateStr := date.Format(displayLayout)
 
 		if field == "gas" {
-			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%s\t%s\t%s\n", i+1, maxUsernameWidth, userStr, submission.Gas, dateStr, submission.Type))
+			sb.WriteString(fmt.Sprintf("\x1b[90m│\x1b[0m %d\t%-*s\t%-12s%-18s%-10s\x1b[90m│\x1b[0m\n", i+1, maxUsernameWidth, userStr, submission.Gas, dateStr, submission.Type))
 		} else if field == "size" {
-			sb.WriteString(fmt.Sprintf(" %d\t%-*s\t%s\t%s\t%s\n", i+1, maxUsernameWidth, userStr, submission.Size, dateStr, submission.Type))
+			sb.WriteString(fmt.Sprintf("\x1b[90m│\x1b[0m %d\t%-*s\t%-12s%-18s%-10s\x1b[90m│\x1b[0m\n", i+1, maxUsernameWidth, userStr, submission.Size, dateStr, submission.Type))
 		}
 	}
+
+	sb.WriteString("\x1b[90m└" + strings.Repeat("─", tableWidth) + "┘\n\x1b[0m") // Bottom border of the box
 
 	return sb.String()
 }
@@ -107,5 +113,5 @@ func (ui *CombinedLeaderboardUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (ui *CombinedLeaderboardUI) View() string {
-	return ui.GasUI.View() + "\n\n" + ui.SizeUI.View() + "\x1b[90m" + "\n\nPress any key to exit." + "\x1b[0m"
+	return "\n" + ui.GasUI.View() + "\n\n" + ui.SizeUI.View() + "\x1b[90m" + "\n\nPress any key to exit." + "\x1b[0m"
 }
