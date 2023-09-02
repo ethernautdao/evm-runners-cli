@@ -68,7 +68,7 @@ You can then validate your solution with 'evmr validate' or by using the forge t
 			fmt.Printf("No template file selected.\n\n")
 		}
 
-		fmt.Printf("You can start working on level '%s/' in:\n%s\n\nTo validate your solution, run 'evmr validate %s'\n", level, filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
+		fmt.Printf("You can start working on level '%s' in:\n%s\n\nTo validate your solution, run 'evmr validate %s'\n", level, filepath.Join(config.EVMR_LEVELS_DIR, "src"), level)
 
 		return nil
 	},

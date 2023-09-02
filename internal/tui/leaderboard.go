@@ -44,9 +44,9 @@ func leaderboardTable(submissions []utils.SubmissionData, field string) string {
 
 		var headlineText string
 		if field == "gas" {
-			headlineText = "GAS STATISTICS"
+			headlineText = "GAS LEADERBOARD"
 		} else if field == "size" {
-			headlineText = "SIZE STATISTICS"
+			headlineText = "SIZE LEADERBOARD"
 		}
 
 		headline := "\x1b[1m" + headlineText + "\x1b[0m" + "\n\n"
