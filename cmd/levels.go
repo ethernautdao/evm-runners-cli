@@ -48,7 +48,11 @@ var levelsCmd = &cobra.Command{
 		}
 
 		// display level list
-		model := tui.NewLevelList(levels, solves, submissions)
+		model, err := tui.NewLevelList(levels, solves, submissions)
+		if err != nil {
+			// can only fail if terminal width is < required width, so we bubble up error
+			return err
+		}
 		p := tea.NewProgram(model)
 
 		if err := p.Start(); err != nil {

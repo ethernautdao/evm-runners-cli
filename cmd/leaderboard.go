@@ -93,8 +93,16 @@ func displayLeaderboard(levelId string) error {
 	}
 
 	// Initialize the BubbleTea UI
-	gasUI := tui.NewLeaderboardUI(gasLeaderboardData, "gas")
-	sizeUI := tui.NewLeaderboardUI(sizeLeaderboardData, "size")
+	gasUI, err := tui.NewLeaderboardUI(gasLeaderboardData, "gas")
+	if err != nil {
+		// can only fail if terminal width is < required width, so we bubble up error
+		return err
+	}
+	sizeUI, err := tui.NewLeaderboardUI(sizeLeaderboardData, "size")
+	if err != nil {
+		// can only fail if terminal width is < required width, so we bubble up error
+		return err
+	}
 
 	// Combine the views of gasUI and sizeUI
 	m := &tui.CombinedLeaderboardUI{GasUI: gasUI, SizeUI: sizeUI}

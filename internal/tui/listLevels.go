@@ -64,27 +64,51 @@ func (m *levelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *levelListModel) View() string {
 	var sb strings.Builder
 
+	tableWidth := 66
+
 	if m.Done {
 		return ""
 	} else {
-		header := fmt.Sprintf("  #\t%-14s%-10s%-10s%s\n", "NAME", "SOLVES", "SOLVED", "TYPE")
-		headerSeparator := "\x1b[90m" + strings.Repeat("-", len(header)+18) + "\n" + "\x1b[0m"
+		sb.WriteString("\x1b[90m┌" + strings.Repeat("─", tableWidth) + "┐\n\x1b[0m") // Top border of the box
+
+		header := fmt.Sprintf("\x1b[90m│\x1b[0m  #\t%-16s%-12s%-12s%-19s\x1b[90m│\x1b[0m\n", "NAME", "SOLVES", "SOLVED", "TYPE")
+		separator := "\x1b[90m" + "│" + strings.Repeat("─", tableWidth) + "│" + "\n" + "\x1b[0m"
 
 		sb.WriteString(header)
-		sb.WriteString(headerSeparator)
+		sb.WriteString(separator)
 
 		for i, k := range m.Keys {
 			l := m.Levels[k]
 			if m.Cursor == i {
-				sb.WriteString("> ")
+				sb.WriteString("\x1b[90m│\x1b[0m> ")
 			} else {
-				sb.WriteString("  ")
+				sb.WriteString("\x1b[90m│\x1b[0m  ")
 			}
-			sb.WriteString(fmt.Sprintf("%s\t%-14s%-10s%-10s%s\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], m.submissions[l.Contract], l.Type))
+			sb.WriteString(fmt.Sprintf("%s\t%-16s%-12s%-12s%-19s\x1b[90m│\x1b[0m\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], m.submissions[l.Contract], l.Type))
 			if m.Cursor == i && m.descriptionShown {
-				sb.WriteString("\n" + "\x1b[32m" + l.Description + "\x1b[0m" + "\n")
+				descriptionLines := strings.Split(l.Description, "\n")
+				separator := "\x1b[90m" + "│" + strings.Repeat("-", tableWidth) + "│" + "\n" + "\x1b[0m"
+				sb.WriteString(separator)
+				for _, line := range descriptionLines {
+					// Calculate the remaining space available for padding
+					padding := tableWidth - len(line) - 2 // 4 accounts for the added border characters
+
+					// Ensure padding is not negative
+					if padding < 0 {
+						padding = 0
+					}
+
+					// Indent description lines and enclose them in the box
+					sb.WriteString("\x1b[90m│" + line + strings.Repeat(" ", padding) + "  │\x1b[0m\n")
+				}
+				// dont show seperator at the last level
+				if i != len(m.Keys)-1 {
+					sb.WriteString(separator)
+				}
 			}
 		}
+
+		sb.WriteString("\x1b[90m└" + strings.Repeat("─", tableWidth) + "┘\n\x1b[0m") // Bottom border of the box
 
 		sb.WriteString("\n\x1b[90m↑/↓ - Navigate | ←/→ - Toggle Description | q to exit | ↩ to select \x1b[0m")
 
@@ -92,6 +116,11 @@ func (m *levelListModel) View() string {
 	}
 }
 
-func NewLevelList(Levels map[string]utils.Level, solves map[string]string, submissions map[string]string) *levelListModel {
-	return &levelListModel{Levels: Levels, solves: solves, submissions: submissions}
+func NewLevelList(Levels map[string]utils.Level, solves map[string]string, submissions map[string]string) (*levelListModel, error) {
+	// Check terminal size
+	if err := utils.CheckMinTerminalWidth(); err != nil {
+		return nil, err
+	}
+
+	return &levelListModel{Levels: Levels, solves: solves, submissions: submissions}, nil
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"math/rand"
 	"net/http"
@@ -399,4 +400,18 @@ func validateBytecode(bytecode string) (string, error) {
 
 	// return sanitized bytecode
 	return bytecode, nil
+}
+
+func CheckMinTerminalWidth() error {
+	width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		return fmt.Errorf("error getting terminal size: %v", err)
+	}
+
+	minTerminalWidth := 70
+	if width < minTerminalWidth {
+		return fmt.Errorf("Terminal width is too small (%d < %d).\nPlease resize your terminal window.\n", width, minTerminalWidth)
+	}
+
+	return nil
 }

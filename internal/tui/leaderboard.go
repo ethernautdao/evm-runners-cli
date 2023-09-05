@@ -17,11 +17,16 @@ type CombinedLeaderboardUI struct {
 	SizeUI *LeaderboardUI
 }
 
-func NewLeaderboardUI(submissions []utils.SubmissionData, field string) *LeaderboardUI {
+func NewLeaderboardUI(submissions []utils.SubmissionData, field string) (*LeaderboardUI, error) {
+	// Check terminal size
+	if err := utils.CheckMinTerminalWidth(); err != nil {
+		return nil, err
+	}
+
 	ui := &LeaderboardUI{
 		content: leaderboardTable(submissions, field),
 	}
-	return ui
+	return ui, nil
 }
 
 func leaderboardTable(submissions []utils.SubmissionData, field string) string {
