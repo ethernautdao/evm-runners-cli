@@ -1,6 +1,9 @@
 package tui
 
 import (
+	"fmt"
+	"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -41,21 +44,25 @@ func (m *langListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *langListModel) View() string {
+	var sb strings.Builder
+
 	if m.Done {
 		return ""
 	} else {
-		s := "Do you want to use a template?\n\n"
+		sb.WriteString("Do you want to use a template?\n\n")
+		sb.WriteString("\x1b[90m┌" + strings.Repeat("─", 16) + "┐\n\x1b[0m") // Top border of the box
 		for i, option := range m.Options {
 			// Add a ">" symbol before the selected option
 			if i == m.Cursor {
-				s += "> "
+				sb.WriteString("\x1b[90m│\x1b[0m> ")
 			} else {
-				s += "  "
+				sb.WriteString("\x1b[90m│\x1b[0m  ")
 			}
-			s += option + "\n"
+			sb.WriteString(fmt.Sprintf("%-14s\x1b[90m│\x1b[0m\n", option))
 		}
-		s += "\n\x1b[90m↑/↓ - Navigate | ←/→ - Toggle Description | q to exit | ↩ to select \x1b[0m"
-		return s
+		sb.WriteString("\x1b[90m└" + strings.Repeat("─", 16) + "┘\n\x1b[0m") // Bottom border of the box
+		sb.WriteString("\n\x1b[90m↑/↓ - Navigate | q to exit | ↩ to select \x1b[0m")
+		return sb.String()
 	}
 }
 

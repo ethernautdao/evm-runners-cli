@@ -32,18 +32,7 @@ func NewLeaderboardUI(submissions []utils.SubmissionData, field string) (*Leader
 func leaderboardTable(submissions []utils.SubmissionData, field string) string {
 	var sb strings.Builder
 
-	// Find the maximum username width
-	maxUsernameWidth := 0
-	for _, submission := range submissions {
-		userStr := fmt.Sprintf("%s", submission.Username)
-		if len(userStr) > maxUsernameWidth {
-			maxUsernameWidth = len(userStr)
-		}
-	}
-
-	// Add a few spaces to the width
-	maxUsernameWidth += 4
-	tableWidth := maxUsernameWidth + 50
+	tableWidth := 65
 
 	if len(submissions) > 0 {
 
@@ -55,7 +44,7 @@ func leaderboardTable(submissions []utils.SubmissionData, field string) string {
 		}
 
 		headline := "\x1b[1m" + headlineText + "\x1b[0m" + "\n\n"
-		header := fmt.Sprintf("\x1b[90m│\x1b[0m #\t%-*s\t%-12s%-18s%-10s\x1b[90m│\x1b[0m\n", maxUsernameWidth, "USER", strings.ToUpper(field), "DATE", "TYPE")
+		header := fmt.Sprintf("\x1b[90m│\x1b[0m #\t%-18s%-12s%-18s%-10s\x1b[90m│\x1b[0m\n", "USER", strings.ToUpper(field), "DATE", "TYPE")
 		separator := "\x1b[90m" + "│" + strings.Repeat("─", tableWidth) + "│" + "\n" + "\x1b[0m"
 
 		// Calculate padding for the headline
@@ -79,6 +68,15 @@ func leaderboardTable(submissions []utils.SubmissionData, field string) string {
 	for i, submission := range submissions {
 		userStr := fmt.Sprintf("%s", submission.Username)
 
+		// Check if the userStr is longer than 16 characters
+		if len(userStr) > 16 {
+			// Truncate the userStr to 16 characters
+			userStr = userStr[:16]
+
+			// Replace the last three characters with "..."
+			userStr = userStr[:13] + "..."
+		}
+
 		// Convert the date string to a time.Time object and format it
 		date, err := time.Parse(dateLayout, submission.SubmittedAt)
 		if err != nil {
@@ -87,9 +85,9 @@ func leaderboardTable(submissions []utils.SubmissionData, field string) string {
 		dateStr := date.Format(displayLayout)
 
 		if field == "gas" {
-			sb.WriteString(fmt.Sprintf("\x1b[90m│\x1b[0m %d\t%-*s\t%-12s%-18s%-10s\x1b[90m│\x1b[0m\n", i+1, maxUsernameWidth, userStr, submission.Gas, dateStr, submission.Type))
+			sb.WriteString(fmt.Sprintf("\x1b[90m│\x1b[0m %d\t%-18s%-12s%-18s%-10s\x1b[90m│\x1b[0m\n", i+1, userStr, submission.Gas, dateStr, submission.Type))
 		} else if field == "size" {
-			sb.WriteString(fmt.Sprintf("\x1b[90m│\x1b[0m %d\t%-*s\t%-12s%-18s%-10s\x1b[90m│\x1b[0m\n", i+1, maxUsernameWidth, userStr, submission.Size, dateStr, submission.Type))
+			sb.WriteString(fmt.Sprintf("\x1b[90m│\x1b[0m %d\t%-18s%-12s%-18s%-10s\x1b[90m│\x1b[0m\n", i+1, userStr, submission.Size, dateStr, submission.Type))
 		}
 	}
 

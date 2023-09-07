@@ -89,7 +89,8 @@ func GetLevel(args []string, config utils.Config, levels map[string]utils.Level)
 		if config.EVMR_TOKEN != "" {
 			sub, err := utils.FetchSubmissionData(config)
 
-			if err != nil {
+			// if error is "429 Too Many Requests", just continue so we can display the level list
+			if err != nil && !strings.Contains(err.Error(), "429") {
 				return "", fmt.Errorf("error fetching submission data: %v", err)
 			}
 

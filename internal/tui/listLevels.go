@@ -64,14 +64,14 @@ func (m *levelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *levelListModel) View() string {
 	var sb strings.Builder
 
-	tableWidth := 66
+	tableWidth := 65
 
 	if m.Done {
 		return ""
 	} else {
 		sb.WriteString("\x1b[90m┌" + strings.Repeat("─", tableWidth) + "┐\n\x1b[0m") // Top border of the box
 
-		header := fmt.Sprintf("\x1b[90m│\x1b[0m  #\t%-16s%-12s%-12s%-19s\x1b[90m│\x1b[0m\n", "NAME", "SOLVES", "SOLVED", "TYPE")
+		header := fmt.Sprintf("\x1b[90m│\x1b[0m  #\t%-16s%-12s%-12s%-18s\x1b[90m│\x1b[0m\n", "NAME", "SOLVES", "SOLVED", "TYPE")
 		separator := "\x1b[90m" + "│" + strings.Repeat("─", tableWidth) + "│" + "\n" + "\x1b[0m"
 
 		sb.WriteString(header)
@@ -84,14 +84,14 @@ func (m *levelListModel) View() string {
 			} else {
 				sb.WriteString("\x1b[90m│\x1b[0m  ")
 			}
-			sb.WriteString(fmt.Sprintf("%s\t%-16s%-12s%-12s%-19s\x1b[90m│\x1b[0m\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], m.submissions[l.Contract], l.Type))
+			sb.WriteString(fmt.Sprintf("%s\t%-16s%-12s%-12s%-18s\x1b[90m│\x1b[0m\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], m.submissions[l.Contract], l.Type))
 			if m.Cursor == i && m.descriptionShown {
 				descriptionLines := strings.Split(l.Description, "\n")
 				separator := "\x1b[90m" + "│" + strings.Repeat("-", tableWidth) + "│" + "\n" + "\x1b[0m"
 				sb.WriteString(separator)
 				for _, line := range descriptionLines {
 					// Calculate the remaining space available for padding
-					padding := tableWidth - len(line) - 2 // 4 accounts for the added border characters
+					padding := tableWidth - len(line)
 
 					// Ensure padding is not negative
 					if padding < 0 {
@@ -99,7 +99,7 @@ func (m *levelListModel) View() string {
 					}
 
 					// Indent description lines and enclose them in the box
-					sb.WriteString("\x1b[90m│" + line + strings.Repeat(" ", padding) + "  │\x1b[0m\n")
+					sb.WriteString("\x1b[90m│" + line + strings.Repeat(" ", padding) + "│\x1b[0m\n")
 				}
 				// dont show seperator at the last level
 				if i != len(m.Keys)-1 {
