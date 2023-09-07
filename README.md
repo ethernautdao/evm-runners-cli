@@ -54,7 +54,8 @@ This command clones the [evm-runners-levels](https://github.com/ethernautdao/evm
 evmr auth <platform>
 ```
 
-Authenticates the user. As of now only Discord authentication is available, e.g. `evmr auth discord`
+Authenticates the user. As of now only Discord authentication is available, e.g. `evmr auth discord`.
+Additionally, `evmr auth wallet` (or `evmr auth address`) links an Ethereum address to the user, enabling the user to submit solutions from the website.
 
 **Start solving a level**
 
