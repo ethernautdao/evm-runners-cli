@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
@@ -25,17 +26,23 @@ type Config struct {
 }
 
 var authCmd = &cobra.Command{
-	Use:   "auth <platform>",
-	Short: "Authenticate your account",
-	Long: `Authenticate your account. Currently Discord is the only available platform. 
-For updating your username, run 'evmr auth <platform>' again.`,
+	Use:   "auth <discord | wallet>",
+	Short: "Authenticate your account or link your wallet address",
+	Long: `Authenticate your account or link your wallet address.
+Currently Discord is the only available platform to auth.
+
+Linking your wallet address enables submissions from the website.
+To link it, run 'evmr auth wallet' and enter your wallet address.
+
+If your Discord username changed and you want to update it,
+run 'evmr auth discord' again.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		// check if argument is empty
-		if len(args) == 0 {
-			return fmt.Errorf("Please provide a platform, e.g. Discord\n")
-		}
+		// commenting this out until more platforms to auth are available
+		//if len(args) == 0 {
+		//	return fmt.Errorf("Please provide a platform, e.g. Discord\n")
+		//}
 
 		// load config
 		config, err := utils.LoadConfig()
@@ -43,27 +50,43 @@ For updating your username, run 'evmr auth <platform>' again.`,
 			return err
 		}
 
-		// Check if the required environment variables are already set
-		if config.EVMR_TOKEN != "" || config.EVMR_ID != "" || config.EVMR_NAME != "" {
-			var overwrite string
-			fmt.Printf("It seems like you authenticated before as '%s'\n\nDo you want to update your info? (y/n): ", config.EVMR_NAME)
-			fmt.Scanln(&overwrite)
-			if overwrite != "y" && overwrite != "Y" {
-				fmt.Println("\nAborting authentication")
-				return nil
-			}
-		}
-
 		// discord authentication
-		if args[0] == ("discord") || args[0] == ("d") || args[0] == ("Discord") {
+		if args[0] == ("discord") || args[0] == ("d") || args[0] == ("Discord") || args[0] == ("") {
+			// Check if user authenticated before
+			if config.EVMR_TOKEN != "" || config.EVMR_ID != "" || config.EVMR_NAME != "" {
+				var overwrite string
+				fmt.Printf("It seems like you authenticated before as '%s'\n\nDo you want to update your info? (y/n): ", config.EVMR_NAME)
+				fmt.Scanln(&overwrite)
+				if overwrite != "y" && overwrite != "Y" {
+					fmt.Println("\nAborting authentication")
+					return nil
+				}
+			}
+
 			err := authDiscord(config)
 			if err != nil {
 				return fmt.Errorf("failed to authenticate with Discord: %v", err)
 			}
 
 			fmt.Println("\nSuccessfully authenticated with Discord!")
+		} else if args[0] == ("wallet") || args[0] == ("address") {
+			fmt.Println("Please enter your wallet address: ")
+			var address string
+			fmt.Scanln(&address)
+
+			// check if valid ethereum address
+			if !utils.IsValidEthereumAddress(address) {
+				return fmt.Errorf("Invalid Ethereum address!\n")
+			}
+
+			fmt.Printf("\nLinking wallet address %s to your account...\n", address)
+
+			err := linkWallet(config, address)
+			if err != nil {
+				return fmt.Errorf("failed to link wallet address: %v", err)
+			}
 		} else {
-			return fmt.Errorf("Invalid authentication method. Only Discord is available yet\n")
+			return fmt.Errorf("Invalid authentication method!\n")
 		}
 
 		return nil
@@ -131,6 +154,32 @@ func authDiscord(config utils.Config) error {
 	// save config
 	if err := utils.WriteConfig(config); err != nil {
 		return fmt.Errorf("failed to save auth data: %v", err)
+	}
+
+	return nil
+}
+
+func linkWallet(config utils.Config, address string) error {
+	// Define the JSON payload
+	jsonPayload := []byte(fmt.Sprintf(`{"address":"%s"}`, address))
+
+	// Make the HTTP request
+	url := config.EVMR_SERVER + "users/wallet"
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
+
+	// Send the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("error sending the request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Check for errors in the response
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http request failed with status: %s", resp.Status)
 	}
 
 	return nil
