@@ -116,11 +116,6 @@ func FetchSubmissionData(config Config) ([]SubmissionData, error) {
 		return nil, fmt.Errorf("error reading the response: %v", err)
 	}
 
-	// Check for errors in the response
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error fetching submission data: %s", resp.Status)
-	}
-
 	// Parse the response
 	var submissions []SubmissionData
 
@@ -414,4 +409,11 @@ func CheckMinTerminalWidth() error {
 	}
 
 	return nil
+}
+
+func IsValidEthereumAddress(address string) bool {
+    // Regular expression for a valid Ethereum address
+    ethereumAddressRegex := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
+
+    return ethereumAddressRegex.MatchString(address)	
 }
