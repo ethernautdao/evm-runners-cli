@@ -12,15 +12,15 @@ var rootCmd = &cobra.Command{
 	Short: "A terminal-based game for developers with EVM-based levels",
 	Long: `A terminal-based game for developers with EVM-based levels.
 
-How to start playing:
-1. 'evmr init' to initialize evm-runners
-2. 'evmr start [level]' to start solving a level
-3. 'evmr validate <level>' to test your solution
+How to play:
+  1. 'evmr init' to initialize evm-runners
+  2. 'evmr start [level]' to start solving a level
+  3. 'evmr validate <level>' to test your solution
 
 How to submit a solution:
-1. 'evmr auth discord' to register your account
-2. 'evmr submit <level>' to submit your solution
-3. 'evmr leaderboard [level]' to see your position on the leaderboard
+  1. 'evmr auth discord' to register your account
+  2. 'evmr submit <level>' to submit your solution
+  3. 'evmr leaderboard [level]' to see your position on the leaderboard
 
 For a list of all available levels, use 'evmr levels'
 

@@ -412,8 +412,8 @@ func CheckMinTerminalWidth() error {
 }
 
 func IsValidEthereumAddress(address string) bool {
-    // Regular expression for a valid Ethereum address
-    ethereumAddressRegex := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
+	// Regular expression for a valid Ethereum address
+	ethereumAddressRegex := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 
-    return ethereumAddressRegex.MatchString(address)	
+	return ethereumAddressRegex.MatchString(address)
 }

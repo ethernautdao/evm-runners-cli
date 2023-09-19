@@ -173,6 +173,8 @@ Note: The final score on the leaderboard can differ sligthly from the local scor
 		fmt.Printf("\nSolution for level '%s' submitted successfully!\n\n", level)
 		fmt.Printf("Size leaderboard: #%s (%d)\nGas leaderboard: #%s (%d)\n", sizeRank, sizeScore, gasRank, gasScore)
 
+		fmt.Printf("\nRun 'evmr leaderboard %s' to see the full leaderboard.\n", level)
+
 		return nil
 	},
 }

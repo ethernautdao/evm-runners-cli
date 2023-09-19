@@ -20,7 +20,7 @@ var updateCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("Updating evm-runners levels...")
+		fmt.Printf("Updating evm-runners levels...\n\n")
 		if _, err := os.Stat(config.EVMR_LEVELS_DIR); os.IsNotExist(err) {
 			return fmt.Errorf("evm-runners directory not found, run 'evmr init' first!\n")
 		} else {
@@ -32,7 +32,7 @@ var updateCmd = &cobra.Command{
 				return fmt.Errorf("error updating the level directory: %v", err)
 			}
 		}
-		//fmt.Println("evm-runners updated successfully")
+		fmt.Println("\nDone!")
 
 		return nil
 	},
