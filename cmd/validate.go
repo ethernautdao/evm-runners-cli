@@ -76,7 +76,7 @@ by the µ value of the 'test_<level_id>_gas' fuzz test.`,
 					userTestContract = levels[level].Contract + "TestSol"
 				case "huff":
 					userTestContract = levels[level].Contract + "TestHuff"
-				case "vyper":
+				case "vy":
 					userTestContract = levels[level].Contract + "TestVyper"
 				case "bytecode":
 					userTestContract = testContract
