@@ -101,7 +101,7 @@ func (ui *LeaderboardUI) View() string {
 }
 
 func (ui *CombinedLeaderboardUI) Init() tea.Cmd {
-	return nil
+	return tea.EnterAltScreen
 }
 
 func (ui *CombinedLeaderboardUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
