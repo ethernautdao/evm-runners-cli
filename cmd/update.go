@@ -12,7 +12,12 @@ import (
 // updateCmd represents the update command
 var updateCmd = &cobra.Command{
 	Use:   "update",
-	Short: "Update evm-runners levels",
+	Short: "Update the local evm-runners directory by pulling from Git",
+	Long: `Update the local evm-runners directory by pulling from Git.
+
+Note that this command does not update the evm-runners-cli binary, for that you need to 
+run 'evmrup'.`,
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// load config
 		config, err := utils.LoadConfig()

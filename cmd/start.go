@@ -15,11 +15,8 @@ import (
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start [level]",
-	Short: "Start solving a level",
-	Long: `Start solving a level. This command copies the template file from 
-evm-runners/template to evm-runners/src/
-
-You can then validate your solution with 'evmr validate' or by using the forge test command.`,
+	Short: "Begin solving a level",
+	Long: `Begin solving a level. If no level is specified, a list of available levels will be displayed.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		lang, _ := cmd.Flags().GetString("lang")

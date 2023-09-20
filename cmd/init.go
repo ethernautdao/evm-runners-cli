@@ -16,8 +16,8 @@ var initCmd = &cobra.Command{
 	Short: "Initialize evm-runners",
 	Long: `Initialize evm-runners by
 
-1. Cloning the ethernautdao/evm-runners-levels.git repository into ./evmr-levels
-2. Creating a .env file in ~/.config/evm-runners/`,
+1. Cloning the 'ethernautdao/evm-runners-levels.git' repository into './evmr-levels'.
+2. Creating a .env file in '~/.config/evm-runners/'.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Get user's home directory

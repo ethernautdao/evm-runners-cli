@@ -29,13 +29,13 @@ var authCmd = &cobra.Command{
 	Use:   "auth <discord | wallet>",
 	Short: "Authenticate your account or link your wallet address",
 	Long: `Authenticate your account or link your wallet address.
-Currently Discord is the only available platform to auth.
+Currently, Discord is the only available platform for authentication.
 
-Linking your wallet address enables submissions from the website.
-To link it, run 'evmr auth wallet' and enter your wallet address.
+Linking your wallet address enables submissions from the website. To link it, run 
+'evmr auth wallet' and enter your wallet address.
 
-If your Discord username changed and you want to update it,
-run 'evmr auth discord' again.`,
+If your Discord username has changed and you want to update it, run 
+'evmr auth discord' again.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
