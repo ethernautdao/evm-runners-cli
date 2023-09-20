@@ -15,16 +15,12 @@ import (
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
 	Use:   "submit <level>",
-	Short: "Submit a solution for a level",
+	Short: "Submit a level solution",
 	Long: `Submit a solution for a level to the server.
 
-This command performs the following steps:
-
-1. Compiles the specific solution file
-2. Validates the resulting byecode by running predefined tests 
-3. If all tests pass, the bytecode is submitted to the server
-
-Note: The final score on the leaderboard can differ sligthly from the local score.`,
+The submission command compiles and validates the solution by running predefined tests.
+If successful, it submits the bytecode to the server. Note that the leaderboard's final 
+score may slightly vary from your local score, particularly for solutions involving loops.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bytecode, _ := cmd.Flags().GetString("bytecode")
@@ -74,7 +70,7 @@ Note: The final score on the leaderboard can differ sligthly from the local scor
 		testContract := levels[level].Contract + "TestBase"
 		output, err := utils.RunTest(config.EVMR_LEVELS_DIR, testContract, false)
 		if err != nil {
-			fmt.Println("Solution is not correct!")
+			fmt.Printf("Solution is not correct!\nRun 'evmr validate %s' to inspect it.\n", level)
 			return nil
 		}
 
@@ -139,6 +135,12 @@ Note: The final score on the leaderboard can differ sligthly from the local scor
 
 		// Check for errors in the response
 		if resp.StatusCode != http.StatusOK {
+			// if status code is 400, the solution is not correct
+			if resp.StatusCode == http.StatusBadRequest {
+				fmt.Printf("\nBackend tests failed!\nTry submitting again or run 'evmr validate %s' to inspect your solution.\n", level)
+				return nil
+			}
+
 			return fmt.Errorf("http request failed with status: %s", resp.Status)
 		}
 
