@@ -4,13 +4,13 @@ Command line interface for evm-runners
 
 ## Installation
 
-### Shell script
+### Installation script
 
 ```
 curl -L get.evmr.sh | bash
 ```
 
-This will install the binary in `~/.evm-runners/bin` and updates your shell configuration file (e.g. `~/.bashrc`, `~/.zshrc`, ...).
+This will install the binary in `~/.evm-runners/bin` and updates PATH in your shell configuration file (e.g. `~/.bashrc`, `~/.zshrc`, ...).
 
 After successfull installation you can initialize evm-runners with `evmr init`, or alternatively, `evm-runners init`.
 
@@ -20,7 +20,7 @@ After successfull installation you can initialize evm-runners with `evmr init`, 
 make && make install
 ```
 
-This will install the binary in `~/.evm-runners`
+This will install the binary in `~/.evm-runners/bin`
 
 Note that if you want to run the evm-runners binary from any directory, you need to make sure that `${HOME}/.evm-runners` is added to your PATH environment variable. You can do this by adding the following line to your shell configuration file:
 
@@ -32,7 +32,7 @@ export PATH="${PATH}:/{HOME}/.evm-runners/bin"
 
 ## Commands
 
-Note: You can invoke all commands with `evmr <cmd>` as well.
+Note: You can invoke all commands with `evm-runners <cmd>` as well.
 
 **Display help**
 
@@ -47,15 +47,6 @@ evmr init
 ```
 
 This command clones the [evm-runners-levels](https://github.com/ethernautdao/evm-runners-levels) repository into the current directory and updates the .env file in `~/.evm-runners/`
-
-**Authentication**
-
-```
-evmr auth <platform>
-```
-
-Authenticates the user. As of now only Discord authentication is available, e.g. `evmr auth discord`.
-Additionally, `evmr auth wallet` (or `evmr auth address`) links an Ethereum address to the user, enabling the user to submit solutions from the website.
 
 **Start solving a level**
 
@@ -90,6 +81,15 @@ Optional flags:
 
 - `--bytecode` or `-b`, to submit bytecode directly, e.g. `evmr submit average -b 0xabcd`
 - `--lang` or `-l`, to choose the language of the solution file when more than one solution file is present, e.g. `evmr submit average -l sol`
+
+**Authentication**
+
+```
+evmr auth <platform>
+```
+
+Authenticates the user. As of now only Discord authentication is available, e.g. `evmr auth discord`.
+Additionally, `evmr auth wallet` (or `evmr auth address`) links an Ethereum address to the user, enabling the user to submit solutions from the website.
 
 **Display a list of all levels**
 
