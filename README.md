@@ -1,6 +1,6 @@
 # evm-runners-cli
 
-Command line interface for evm-runners
+A command line interface for evm-runners, a terminal-based game with EVM based levels.
 
 ## Installation
 
@@ -10,11 +10,15 @@ Command line interface for evm-runners
 curl -L get.evmr.sh | bash
 ```
 
-This will install the binary in `~/.evm-runners/bin` and updates PATH in your shell configuration file (e.g. `~/.bashrc`, `~/.zshrc`, ...).
+This command will install the binary in `~/.evm-runners/bin` and updates PATH in your shell configuration file (e.g. `~/.bashrc`, `~/.zshrc`, ...).
 
 After successfull installation you can initialize evm-runners with `evmr init`, or alternatively, `evm-runners init`.
 
-### From source
+To update the CLI to the latest version, run `evmrup`.
+
+**Alternatively**
+
+Install from source by running:
 
 ```
 make && make install
@@ -22,13 +26,13 @@ make && make install
 
 This will install the binary in `~/.evm-runners/bin`
 
-Note that if you want to run the evm-runners binary from any directory, you need to make sure that `${HOME}/.evm-runners` is added to your PATH environment variable. You can do this by adding the following line to your shell configuration file:
+Note: If you wish to run the evm-runners binary from any directory, ensure that `${HOME}/.evm-runners` is added to your PATH environment variable. You can do this by adding the following line to your shell configuration file:
 
 ```
 export PATH="${PATH}:/{HOME}/.evm-runners/bin"
 ```
 
-[Go 1.20](https://go.dev/doc/install) is required to compile the source code.
+Make sure you have [Go 1.20](https://go.dev/doc/install) or a later version installed to compile the source code.
 
 ## Commands
 
