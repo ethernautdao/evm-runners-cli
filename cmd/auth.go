@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/ethernautdao/evm-runners-cli/internal/utils"
@@ -26,13 +25,10 @@ type Config struct {
 }
 
 var authCmd = &cobra.Command{
-	Use:   "auth <discord | wallet>",
-	Short: "Authenticate your account or link your wallet address",
-	Long: `Authenticate your account or link your wallet address.
+	Use:   "auth discord",
+	Short: "Authenticate your account with Discord",
+	Long: `Authenticate your account with Discord.
 Currently, Discord is the only available platform for authentication.
-
-Linking your wallet address enables submissions from the website. To link it, run 
-'evmr auth wallet' and enter your wallet address.
 
 If your Discord username has changed and you want to update it, run 
 'evmr auth discord' again.`,
@@ -69,22 +65,6 @@ If your Discord username has changed and you want to update it, run
 			}
 
 			fmt.Println("\nSuccessfully authenticated with Discord!")
-		} else if args[0] == ("wallet") || args[0] == ("address") {
-			fmt.Println("Please enter your wallet address: ")
-			var address string
-			fmt.Scanln(&address)
-
-			// check if valid ethereum address
-			if !utils.IsValidEthereumAddress(address) {
-				return fmt.Errorf("Invalid Ethereum address!\n")
-			}
-
-			fmt.Printf("\nLinking wallet address %s to your account...\n", address)
-
-			err := linkWallet(config, address)
-			if err != nil {
-				return fmt.Errorf("failed to link wallet address: %v", err)
-			}
 		} else {
 			return fmt.Errorf("Invalid authentication method!\n")
 		}
@@ -154,32 +134,6 @@ func authDiscord(config utils.Config) error {
 	// save config
 	if err := utils.WriteConfig(config); err != nil {
 		return fmt.Errorf("failed to save auth data: %v", err)
-	}
-
-	return nil
-}
-
-func linkWallet(config utils.Config, address string) error {
-	// Define the JSON payload
-	jsonPayload := []byte(fmt.Sprintf(`{"address":"%s"}`, address))
-
-	// Make the HTTP request
-	url := config.EVMR_SERVER + "users/wallet"
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
-
-	// Send the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("error sending the request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// Check for errors in the response
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("http request failed with status: %s", resp.Status)
 	}
 
 	return nil
