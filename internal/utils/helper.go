@@ -231,7 +231,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 	// check if bytecode was provided, if compile the source code
 	if bytecode != "" {
 		// check if bytecode is valid
-		bytecode, err := validateBytecode(bytecode)
+		bytecode, err := sanitizeBytecode(bytecode)
 		if err != nil {
 			return "", "", err
 		}
@@ -269,7 +269,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 			// Extract the "bytecode" field
 			bytecodeField := data["bytecode"].(map[string]interface{})
 
-			bytecode, err = validateBytecode(bytecodeField["object"].(string))
+			bytecode, err = sanitizeBytecode(bytecodeField["object"].(string))
 			if err != nil {
 				return "", "", err
 			}
@@ -293,7 +293,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 				return "", "", fmt.Errorf("error extracting bytecode: %s", err)
 			}
 
-			bytecode, err = validateBytecode(bytecode)
+			bytecode, err = sanitizeBytecode(bytecode)
 			if err != nil {
 				return "", "", err
 			}
@@ -310,7 +310,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 				return "", "", fmt.Errorf("%s: %s", err, output)
 			}
 
-			bytecode, err = validateBytecode(string(output))
+			bytecode, err = sanitizeBytecode(string(output))
 			if err != nil {
 				return "", "", err
 			}
@@ -327,7 +327,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 				return "", "", fmt.Errorf("%s: %s", err, output)
 			}
 
-			bytecode, err = validateBytecode(string(output))
+			bytecode, err = sanitizeBytecode(string(output))
 			if err != nil {
 				return "", "", err
 			}
@@ -408,8 +408,8 @@ func fileExists(path string) bool {
 	return !os.IsNotExist(err)
 }
 
-// validates the bytecode
-func validateBytecode(bytecode string) (string, error) {
+// sanitizes the bytecode
+func sanitizeBytecode(bytecode string) (string, error) {
 	// remove whitespace
 	bytecode = strings.TrimSpace(bytecode)
 	// remove 0x prefix if present
