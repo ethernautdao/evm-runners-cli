@@ -72,10 +72,12 @@ score is derived from the µ value in the 'test<level_id>_gas' fuzz test.`,
 				switch solutionType {
 				case "sol":
 					userTestContract = levels[level].Contract + "TestSol"
-				case "huff":
-					userTestContract = levels[level].Contract + "TestHuff"
+				case "yul":
+					userTestContract = levels[level].Contract + "TestYul"
 				case "vy":
 					userTestContract = levels[level].Contract + "TestVyper"
+				case "huff":
+					userTestContract = levels[level].Contract + "TestHuff"
 				case "bytecode":
 					userTestContract = testContract
 				}
@@ -114,6 +116,6 @@ func init() {
 	rootCmd.AddCommand(validateCmd)
 
 	validateCmd.Flags().StringP("bytecode", "b", "", "The creation bytecode to submit")
-	validateCmd.Flags().StringP("lang", "l", "", "The language of the solution file (sol, huff, vyper)")
+	validateCmd.Flags().StringP("lang", "l", "", "The language of the solution file (sol, yul, vyper, huff)")
 	validateCmd.Flags().BoolP("verbose", "v", false, "Verbose output, shows stack traces of all tests")
 }

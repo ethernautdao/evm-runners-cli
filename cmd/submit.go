@@ -186,5 +186,5 @@ func init() {
 
 	// Flags
 	submitCmd.Flags().StringP("bytecode", "b", "", "The bytecode of the solution")
-	submitCmd.Flags().StringP("lang", "l", "", "The language of the solution file (sol, huff, vyper)")
+	submitCmd.Flags().StringP("lang", "l", "", "The language of the solution file (sol, yul, vyper, huff)")
 }

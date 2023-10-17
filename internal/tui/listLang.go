@@ -68,8 +68,8 @@ func (m *langListModel) View() string {
 
 func NewLangListModel() *langListModel {
 	return &langListModel{
-		Options: []string{"solidity", "vyper", "huff", "no template"},
-		Lang:    []string{"sol", "vy", "huff", "no template"},
+		Options: []string{"solidity", "yul", "vyper", "huff", "no template"},
+		Lang:    []string{"sol", "yul", "vy", "huff", "no template"},
 		Cursor:  0,
 	}
 }

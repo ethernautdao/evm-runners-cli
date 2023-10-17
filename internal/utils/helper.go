@@ -94,6 +94,9 @@ func FetchSubmissionData(config Config) ([]SubmissionData, error) {
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+config.EVMR_TOKEN)
 
+	// Create submission data struct
+	var submissions []SubmissionData
+
 	// Create a custom HTTP client with a 1-second timeout
 	client := &http.Client{
 		Timeout: 1 * time.Second,
@@ -107,6 +110,16 @@ func FetchSubmissionData(config Config) ([]SubmissionData, error) {
 
 	// Check for errors in the response
 	if resp.StatusCode != http.StatusOK {
+		// if error is "429 Too Many Requests", just return empty submission struct
+		if resp.StatusCode == http.StatusTooManyRequests {
+			return submissions, nil
+		}
+
+		// if its 400, recommend running "auth" again
+		if resp.StatusCode == http.StatusBadRequest {
+			return nil, fmt.Errorf("bad request, try running running 'evmr auth' again")
+		}
+
 		return nil, fmt.Errorf("http request failed with status: %s", resp.Status)
 	}
 
@@ -117,8 +130,6 @@ func FetchSubmissionData(config Config) ([]SubmissionData, error) {
 	}
 
 	// Parse the response
-	var submissions []SubmissionData
-
 	err = json.Unmarshal(body, &submissions)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing the response: %v", err)
@@ -210,14 +221,14 @@ func ParseOutput(output string) (int, int, error) {
 	return gasValue, sizeValue, nil
 }
 
-// compiles the solution file and returns the bytecode + solution type (e.g. sol, vyper, huff)
+// compiles the solution file and returns the bytecode + solution type (e.g. sol, yul, vyper, huff)
 func GetBytecodeToValidate(bytecode string, level string, filename string, levelsDir string, lang string) (string, string, error) {
 	levels, err := LoadLevels()
 	if err != nil {
 		return "", "", nil
 	}
 
-	// check if bytecode was provided, if not get the bytecode from the huff/sol solution
+	// check if bytecode was provided, if compile the source code
 	if bytecode != "" {
 		// check if bytecode is valid
 		bytecode, err := validateBytecode(bytecode)
@@ -264,18 +275,25 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 			}
 		}
 
-		// .huff solution
-		if solutionType == "huff" {
+		// .yul solution
+		if solutionType == "yul" {
 			// Compile the solution
-			huffPath := filepath.Join("src", fmt.Sprintf("%s.huff", filename))
-			execCmd := exec.Command("huffc", huffPath, "--bytecode")
+			yulPath := filepath.Join("src", fmt.Sprintf("%s.yul", filename))
+			// execute this command: solc --yul src/', string.concat(fileName, ".yul --bin | tail -1)
+			execCmd := exec.Command("solc", "--strict-assembly", yulPath, "--bin")
 			execCmd.Dir = levelsDir
 			output, err := execCmd.CombinedOutput()
 			if err != nil {
 				return "", "", fmt.Errorf("%s: %s", err, output)
 			}
 
-			bytecode, err = validateBytecode(string(output))
+			// Parse the output to extract the bytecode
+			bytecode, err = extractBytecode(string(output))
+			if err != nil {
+				return "", "", fmt.Errorf("error extracting bytecode: %s", err)
+			}
+
+			bytecode, err = validateBytecode(bytecode)
 			if err != nil {
 				return "", "", err
 			}
@@ -298,11 +316,28 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 			}
 		}
 
+		// .huff solution
+		if solutionType == "huff" {
+			// Compile the solution
+			huffPath := filepath.Join("src", fmt.Sprintf("%s.huff", filename))
+			execCmd := exec.Command("huffc", huffPath, "--bytecode")
+			execCmd.Dir = levelsDir
+			output, err := execCmd.CombinedOutput()
+			if err != nil {
+				return "", "", fmt.Errorf("%s: %s", err, output)
+			}
+
+			bytecode, err = validateBytecode(string(output))
+			if err != nil {
+				return "", "", err
+			}
+		}
+
 		return bytecode, solutionType, nil
 	}
 }
 
-// returns the type of the solution file (e.g. sol, vyper, huff)
+// returns the type of the solution file (e.g. sol, yul, vyper, huff)
 func getSolutionType(file string, langFlag string) (string, error) {
 	config, err := LoadConfig()
 	if err != nil {
@@ -312,8 +347,9 @@ func getSolutionType(file string, langFlag string) (string, error) {
 	// Define the supported languages and their file extensions
 	languages := map[string]string{
 		"sol":  ".sol",
-		"huff": ".huff",
+		"yul":  ".yul",
 		"vy":   ".vy",
+		"huff": ".huff",
 	}
 
 	// Convert the given langFlag to lowercase
@@ -332,7 +368,7 @@ func getSolutionType(file string, langFlag string) (string, error) {
 	// Check if the given langFlag is valid
 	if langFlag != "" {
 		if _, exists := languages[langFlag]; !exists {
-			return "", fmt.Errorf("Invalid language flag. Please use either 'sol', 'huff', or 'vy'.\n")
+			return "", fmt.Errorf("Invalid language flag. Please use either 'sol', 'yul', 'vy' or 'huff'.\n")
 		}
 
 		// Check existence of specific solution file
@@ -416,4 +452,15 @@ func IsValidEthereumAddress(address string) bool {
 	ethereumAddressRegex := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 
 	return ethereumAddressRegex.MatchString(address)
+}
+
+func extractBytecode(output string) (string, error) {
+	// Use regular expression to extract bytecode after "Binary representation:"
+	re := regexp.MustCompile(`Binary representation:\s*([\w\s]+)`)
+	matches := re.FindStringSubmatch(output)
+	if len(matches) < 2 {
+		return "", fmt.Errorf("unable to extract bytecode")
+	}
+
+	return matches[1], nil
 }

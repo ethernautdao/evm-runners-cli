@@ -16,7 +16,7 @@ import (
 var startCmd = &cobra.Command{
 	Use:   "start [level]",
 	Short: "Begin solving a level",
-	Long: `Begin solving a level. If no level is specified, a list of available levels will be displayed.`,
+	Long:  `Begin solving a level. If no level is specified, a list of available levels will be displayed.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		lang, _ := cmd.Flags().GetString("lang")
@@ -85,9 +85,7 @@ func GetLevel(args []string, config utils.Config, levels map[string]utils.Level)
 		// Fetch existing submission data if user authenticated
 		if config.EVMR_TOKEN != "" {
 			sub, err := utils.FetchSubmissionData(config)
-
-			// if error is "429 Too Many Requests", just continue so we can display the level list
-			if err != nil && !strings.Contains(err.Error(), "429") {
+			if err != nil {
 				return "", fmt.Errorf("error fetching submission data: %v", err)
 			}
 
@@ -129,7 +127,7 @@ func GetLevel(args []string, config utils.Config, levels map[string]utils.Level)
 }
 
 func getLang(lang string) (string, error) {
-	// if lang flag is not sol, huff, or vyper => open list
+	// if lang flag is not sol, huff, yul or vyper => open list
 	switch lang {
 	case "Solidity", "solidity", "sol":
 		lang = "sol"
@@ -137,6 +135,8 @@ func getLang(lang string) (string, error) {
 		lang = "huff"
 	case "Vyper", "vyper", "vy":
 		lang = "vy"
+	case "Yul", "yul":
+		lang = "yul"
 	default:
 		model := tui.NewLangListModel()
 		p := tea.NewProgram(model)
@@ -201,5 +201,5 @@ func copyFile(src, dst string) error {
 func init() {
 	rootCmd.AddCommand(startCmd)
 
-	startCmd.Flags().StringP("lang", "l", "", "The language to use for the level (sol, huff, vyper)")
+	startCmd.Flags().StringP("lang", "l", "", "The language to use for the level (sol, yul, vyper, huff)")
 }
