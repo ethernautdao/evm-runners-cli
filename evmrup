@@ -79,7 +79,7 @@ main() {
   echo && say "$APP_NAME version $VERSION installed successfully!"
   echo && say "If this is your first install, start a new terminal session to use evm-runners."
   say "Then run 'evmr help', or alternatively 'evm-runners help', to get started."
-  echo && say "To update evm-runners in the future, just run 'evmrup'."
+  echo && say "To update evm-runners in the future, just run 'evmrup' again."
 }
 
 say() {

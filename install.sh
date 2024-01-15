@@ -38,8 +38,8 @@ else
   echo "$CONFIG already contains PATH modification"
 fi
 
-echo && echo "Detected shell is $SHELL_NAME and added $EVMR_BIN_DIR to PATH."
-echo "Continue with installing evm-runners ..." && echo
+echo && echo "Detected your preferred shell is $SHELL_NAME and added evmrup to PATH."
+echo "Installing evm-runners by running 'evmrup'..."
 
 # Run evmrup
 $EVMRUP_PATH
