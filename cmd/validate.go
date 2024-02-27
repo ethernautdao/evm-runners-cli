@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/ethernautdao/evm-runners-cli/internal/utils"
-	"github.com/spf13/cobra"
 	"os"
 	"strings"
+
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
+	"github.com/spf13/cobra"
 )
 
 // validateCmd represents the validate command
@@ -84,7 +85,7 @@ score is derived from the µ value in the 'test<level_id>_gas' fuzz test.`,
 
 				fmt.Printf("\nTo test the solution with forge, run 'forge test --mc %s -vvvv' in '%s'\n", userTestContract, config.EVMR_LEVELS_DIR)
 			} else {
-				fmt.Printf("\nTo see the stack traces of the failed tests, run 'evmr validate %s -v'\n", level)
+				fmt.Printf("\nTo see the stack traces of the failed tests, run 'evmr validate %s -l %s -v'\n", level, lang)
 			}
 
 			return nil
