@@ -33,13 +33,10 @@ fi
 # Update PATH environment variable in the shell configuration file if it doesn't exist
 if [[ ":$PATH:" != *":${EVMR_BIN_DIR}:"* ]]; then
   echo >> $CONFIG && echo "export PATH=\"\$PATH:$EVMR_BIN_DIR\"" >> $CONFIG
-  echo "Updated $CONFIG with PATH modification"
-else
-  echo "$CONFIG already contains PATH modification"
 fi
 
 echo && echo "Detected your preferred shell is $SHELL_NAME and added evmrup to PATH."
-echo "Installing evm-runners by running 'evmrup'..."
+echo "Installing evm-runners by running 'evmrup'..." && echo
 
 # Run evmrup
 $EVMRUP_PATH
