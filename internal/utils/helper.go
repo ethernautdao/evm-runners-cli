@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"math/rand"
 	"net/http"
@@ -15,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/term"
 )
 
 const (
@@ -43,7 +44,7 @@ func RunTest(levelsDir string, testContract string, verbose bool) ([]byte, error
 	bytes := make([]byte, 20)
 	_, err := rand.Read(bytes)
 	if err != nil {
-		// Handle error
+		bytes = []byte("12345678901234567890")
 	}
 	randAddress := "0x" + hex.EncodeToString(bytes)
 
@@ -55,7 +56,7 @@ func RunTest(levelsDir string, testContract string, verbose bool) ([]byte, error
 	bytes = make([]byte, 32)
 	_, err = rand.Read(bytes)
 	if err != nil {
-		// Handle error
+		bytes = []byte("12345678901234567890123456789012")
 	}
 	randPrevRandao := "0x" + hex.EncodeToString(bytes)
 
@@ -199,8 +200,6 @@ func ParseOutput(output string) (int, int, error) {
 				if err != nil {
 					return 0, 0, fmt.Errorf("error converting to int: %v", err)
 				}
-			} else {
-				//fmt.Println("No matching value found")
 			}
 		}
 		if strings.Contains(line, "Contract size:") {
@@ -212,8 +211,6 @@ func ParseOutput(output string) (int, int, error) {
 				if err != nil {
 					return 0, 0, fmt.Errorf("error converting to int: %v", err)
 				}
-			} else {
-				//fmt.Println("No matching value found")
 			}
 		}
 	}
@@ -228,7 +225,7 @@ func GetBytecodeToValidate(bytecode string, level string, filename string, level
 		return "", "", nil
 	}
 
-	// check if bytecode was provided, if compile the source code
+	// check if bytecode was provided, if yes compile the source code
 	if bytecode != "" {
 		// check if bytecode is valid
 		bytecode, err := sanitizeBytecode(bytecode)
@@ -434,12 +431,12 @@ func sanitizeBytecode(bytecode string) (string, error) {
 }
 
 func CheckMinTerminalWidth() error {
-	width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+	width, _, err := term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		return fmt.Errorf("error getting terminal size: %v", err)
 	}
 
-	minTerminalWidth := 70
+	minTerminalWidth := 80
 	if width < minTerminalWidth {
 		return fmt.Errorf("Terminal width is too small (%d < %d).\nPlease resize your terminal window.\n", width, minTerminalWidth)
 	}

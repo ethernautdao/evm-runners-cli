@@ -2,10 +2,11 @@ package tui
 
 import (
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 	"sort"
 	"strings"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/ethernautdao/evm-runners-cli/internal/utils"
 )
 
 type levelListModel struct {
@@ -64,14 +65,14 @@ func (m *levelListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *levelListModel) View() string {
 	var sb strings.Builder
 
-	tableWidth := 65
+	tableWidth := 75
 
 	if m.Done {
 		return ""
 	} else {
 		sb.WriteString("\x1b[90m┌" + strings.Repeat("─", tableWidth) + "┐\n\x1b[0m") // Top border of the box
 
-		header := fmt.Sprintf("\x1b[90m│\x1b[0m  #\t%-16s%-12s%-12s%-18s\x1b[90m│\x1b[0m\n", "NAME", "SOLVES", "SOLVED", "TYPE")
+		header := fmt.Sprintf("\x1b[90m│\x1b[0m  #\t%-20s%-14s%-14s%-20s\x1b[90m│\x1b[0m\n", "NAME", "SOLVES", "SOLVED", "TYPE")
 		separator := "\x1b[90m" + "│" + strings.Repeat("─", tableWidth) + "│" + "\n" + "\x1b[0m"
 
 		sb.WriteString(header)
@@ -84,7 +85,7 @@ func (m *levelListModel) View() string {
 			} else {
 				sb.WriteString("\x1b[90m│\x1b[0m  ")
 			}
-			sb.WriteString(fmt.Sprintf("%s\t%-16s%-12s%-12s%-18s\x1b[90m│\x1b[0m\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], m.submissions[l.Contract], l.Type))
+			sb.WriteString(fmt.Sprintf("%s\t%-20s%-14s%-14s%-20s\x1b[90m│\x1b[0m\n", l.ID, strings.ToLower(l.Contract), m.solves[l.Contract], m.submissions[l.Contract], l.Type))
 			if m.Cursor == i && m.descriptionShown {
 				descriptionLines := strings.Split(l.Description, "\n")
 				separator := "\x1b[90m" + "│" + strings.Repeat("-", tableWidth) + "│" + "\n" + "\x1b[0m"
