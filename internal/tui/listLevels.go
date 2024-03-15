@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -25,9 +26,21 @@ func (m *levelListModel) Init() tea.Cmd {
 		m.Keys = append(m.Keys, k)
 	}
 
-	// Sort the keys based on the ID field in the utils.Level struct
+	// Sort the keys based on the numerical value of the ID field in the utils.Level struct
 	sort.Slice(m.Keys, func(i, j int) bool {
-		return m.Levels[m.Keys[i]].ID < m.Levels[m.Keys[j]].ID
+		idI, errI := strconv.Atoi(m.Levels[m.Keys[i]].ID)
+		if errI != nil {
+			fmt.Printf("Error converting level ID '%s' to integer: %v\n", m.Levels[m.Keys[i]].ID, errI)
+			// Consider how you want to handle this error. For simplicity, this example just prints an error message.
+		}
+
+		idJ, errJ := strconv.Atoi(m.Levels[m.Keys[j]].ID)
+		if errJ != nil {
+			fmt.Printf("Error converting level ID '%s' to integer: %v\n", m.Levels[m.Keys[j]].ID, errJ)
+			// Consider how you want to handle this error. For simplicity, this example just prints an error message.
+		}
+
+		return idI < idJ
 	})
 
 	return nil
