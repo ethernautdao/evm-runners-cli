@@ -69,7 +69,8 @@ func RunTest(levelsDir string, testContract string, verbose bool) ([]byte, error
 		"--block-prevrandao", randPrevRandao,
 		"--gas-price", strconv.Itoa(rand.Intn(45014319675)),
 		"--base-fee", strconv.Itoa(rand.Intn(45014319675)),
-		"--match-contract", testContract)
+		"--match-contract", testContract,
+		"--ast")
 
 	// append verbose flag based on verbose variable
 	if verbose {
