@@ -33,7 +33,7 @@ var aboutCmd = &cobra.Command{
 		fmt.Println("  - Dual scores (gas and codesize), not a compound score")
 		fmt.Println("  - Linear progression: Levels get more complex as you progress")
 		fmt.Println("  - Work in a language of your choice (Solidity, Vyper, Yul, Huff)")
-		fmt.Println("  - Singleplayer: Play at your own pace and acquire usefull skills")
+		fmt.Println("  - Singleplayer: Play at your own pace and acquire useful skills")
 		fmt.Println("  - Multiplayer: Benchmark your scores against other players")
 		fmt.Println("")
 	},
