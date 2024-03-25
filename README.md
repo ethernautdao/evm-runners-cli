@@ -1,10 +1,8 @@
 # evm-runners-cli
 
-A command line interface for evm-runners, a terminal-based game with EVM based levels.
+The command line interface for evm-runners, a terminal-based game with EVM based levels.
 
 ## Installation
-
-### Installation script
 
 ```
 curl -L get.evmr.sh | bash
@@ -40,6 +38,8 @@ After successful installation, run `evmr init` to initialize evm-runners. This w
 
 To validate a solution, run `evmr validate <level>`. If it is valid, you can submit it by running `evmr submit <level>`. Before submitting a solution you have to authenticate your account by running `evmr auth discord`.
 
+![gameplay](https://i.imgur.com/Z2ARtlq.gif)
+
 ## Available commands
 
 Note: You can invoke all commands with `evm-runners <cmd>` as well.
@@ -50,6 +50,14 @@ Note: You can invoke all commands with `evm-runners <cmd>` as well.
 evmr about
 ```
 
+**Link your address**
+
+```
+evmr address
+```
+
+Links your Optimism address to your account. After linking your address, you will receive an NFT on Optimism showcasing your scores after submitting a solution for a level. 
+
 **Authentication**
 
 ```
@@ -57,7 +65,6 @@ evmr auth <platform>
 ```
 
 Authenticates your account. As of now only Discord authentication is available: `evmr auth discord`.
-Additionally, `evmr auth wallet` (or `evmr auth address`) links an Ethereum address to your account, allowing you to submit solutions from the website.
 
 **Display help**
 
